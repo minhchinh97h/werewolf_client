@@ -6,13 +6,11 @@ import MainPage from '../MainPage/MainPage'
 const uniqid = require('uniqid')
 const axios = require('axios')
 const cookies = new Cookies()
-const serverUrl = 'http://192.168.1.4:3001/'
+const serverUrl = 'http://192.168.1.3:3001/'
 
 let insertedRoomid,
     generatedUsername = "",
-    roomid,
-    oldUsername = ""
-
+    roomid
 
 class Login extends Component{
     state={
@@ -29,18 +27,23 @@ class Login extends Component{
             //to insert a player row info in Player database
             axios({
                 method: 'post',
-                url: serverUrl + 'players/create-or-update/' + this.state.username.toString().replace(' ', '-'),
+                url: serverUrl + 'players/create/' + this.state.username.toString().replace(' ', '-'),
                 data: {
                     username: this.state.username,
                     roomid: roomid,
                     timeCreated: Date.now(),
-                    oldUsername: oldUsername
+                    status: {
+                        alive: 1,
+                        dead: 0,
+                        silence: 0,
+                        connected: "",
+                        hypnotized: 0,
+                        changed: 0
+                    }
                 }
             })
             .then(response => {
                 if(response.data === "ok"){
-                    oldUsername = this.state.username
-
 
                     this.setState({
                         newUserBttnClicked: true,
@@ -48,7 +51,7 @@ class Login extends Component{
                     })
                 }
                 
-                else if (response.data === "username exists"){
+                else{
                     this.setState({
                         usernameExists: true,
                         newUserBttnClicked: false
@@ -93,8 +96,10 @@ class Login extends Component{
                         roomid: roomid,
                         admin: generatedUsername,
                         timeCreated: Date.now(),
+                        numberOfPlayers: 1,
                         players: generatedUsername,
-                        numberOfPlayers: 1
+                        status: 'open',
+                        currentRoles: ''
                     }
                 })
                 
@@ -142,7 +147,7 @@ class Login extends Component{
         })
     }
 
-    joinButton = () =>{
+    joinButton = () => {
         //to verify that the inserted room id and player's username exist    
         let requests = [{
             method: 'get',

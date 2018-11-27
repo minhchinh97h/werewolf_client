@@ -7,7 +7,7 @@ import DisplayCards from './DisplayCards/DisplayCards'
 import StartBttn from './NavBar/StartBttn/StartBttn'
 
 
-const serverUrl = 'http://192.168.1.4:3001/'
+const serverUrl = 'http://192.168.1.3:3001/'
 
 class MainPage extends Component{
 

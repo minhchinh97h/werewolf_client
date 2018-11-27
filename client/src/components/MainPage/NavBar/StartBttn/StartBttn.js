@@ -4,8 +4,7 @@ import Cookies from 'universal-cookie'
 
 
 const cookies = new Cookies()
-const serverUrl = 'http://192.168.1.4:3001/'
-
+const serverUrl = 'http://192.168.1.3:3001/'
 
 
 class StartBttn extends Component{
@@ -16,17 +15,14 @@ class StartBttn extends Component{
         numberOfPlayers: 0,
     }
 
-    
-
     componentDidMount(){
         const socket = socketIOClient(serverUrl + 'get-admin', {
             query: {
-                roomid: this.props.roomid,
-                username: this.props.username
+                roomid: this.props.roomid
             }
         })
 
-        socket.on('GetAdmin', data => {
+        socket.on('GetAdminAt' + this.props.roomid, data => {
             this.setState({
                 admin: data.admin,
                 numberOfPlayers: data.numberOfPlayers
