@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import socketIOClient from 'socket.io-client'
 
-const serverUrl = 'http://192.168.1.4:3001/'
+const serverUrl = 'http://192.168.1.3:3001/'
 
 class DisplayPlayerNames extends Component{
     state = {
@@ -14,7 +14,7 @@ class DisplayPlayerNames extends Component{
                 roomid : this.props.roomid
             }
         } )
-        socket.on('GetPlayers', data => {this.setState({renderPlayerNames: data.map(player => {return(<div key = {player}><p>{player}</p></div>)})})})
+        socket.on('GetPlayersAt' + this.props.roomid, data => {this.setState({renderPlayerNames: data.map(player => {return(<div key = {player}><p>{player}</p></div>)})})})
         
     }
 
