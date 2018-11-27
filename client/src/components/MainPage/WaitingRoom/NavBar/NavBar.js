@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
+
+import GetAdmin from './GetAdmin/GetAdmin'
+import NumberOfPlayers from './NumberOfPlayers/NumberOfPlayers'
+import StartBttn from './StartBttn/StartBttn'
+
 import socketIOClient from 'socket.io-client'
-import Cookies from 'universal-cookie'
 
-
-const cookies = new Cookies()
 const serverUrl = 'http://192.168.1.3:3001/'
 
-
-class StartBttn extends Component{
+class NavBar extends Component{
 
     state = {
         ifAdmin: false,
@@ -28,7 +29,7 @@ class StartBttn extends Component{
                 numberOfPlayers: data.numberOfPlayers
             })
 
-            if(this.props.username == data.admin){
+            if(this.props.username === data.admin){
                 this.setState({
                     ifAdmin: true
                 })
@@ -40,27 +41,29 @@ class StartBttn extends Component{
             }
         })
     }
-
     render(){
         return(
             <>
-                {this.state.ifAdmin ? 
-                    <>
-                    <b>You are the admin</b>
-                    <br></br>
-                    <br></br>
-                    <button type='button' >Start the game</button>
-                    </>
+                <div className="admin-section">
+                    <GetAdmin admin={this.state.admin} />
+                </div>
+                <div className="number-of-player-section">
+                    <NumberOfPlayers numberOfPlayers = {this.state.numberOfPlayers} />
+                </div>
+
+                { this.state.ifAdmin ? 
+                    <div className="start-button-section">
+                        <StartBttn />
+                    </div>
+
                     :
 
                     null
-                    
                 }
-                <p>Number of Players: {this.state.numberOfPlayers}</p>
-                <p>Admin is: {this.state.admin}</p>
+                
             </>
         )
     }
 }
 
-export default StartBttn
+export default NavBar
