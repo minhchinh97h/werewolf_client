@@ -24,8 +24,8 @@ class DisplayCards extends Component {
                 renderCards: data.map( (card, index) => {
                     let cardId = "card " + index
                     return(
-                        <div key = {card.cardName}>
-                            <button type='button' onClick={this.hideCardBttn.bind(this, index)} id={cardId}>{card.cardName}</button>
+                        <div key = {card.name}>
+                            <button type='button' onClick={this.hideCardBttn.bind(this, index)} id={cardId}>{card.name}</button>
                         </div>
                     )
                 })
