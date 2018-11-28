@@ -23,7 +23,11 @@ class NavBar extends Component{
             }
         })
 
-        socket.on('GetAdminAt' + this.props.roomid, data => {
+        socket.on('connect', () => {
+            socket.emit('JoinRoom', this.props.roomid)
+        })
+
+        socket.on('GetAdmin', data => {
             this.setState({
                 admin: data.admin,
                 numberOfPlayers: data.numberOfPlayers
@@ -48,7 +52,7 @@ class NavBar extends Component{
                     <GetAdmin admin={this.state.admin} />
                 </div>
                 <div className="number-of-player-section">
-                    <NumberOfPlayers numberOfPlayers = {this.state.numberOfPlayers} />
+                    <NumberOfPlayers numberOfPlayers = {this.state.numberOfPlayers} roomid = {this.props.roomid}/>
                 </div>
 
                 { this.state.ifAdmin ? 

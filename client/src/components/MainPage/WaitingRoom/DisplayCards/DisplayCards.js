@@ -1,22 +1,18 @@
 import React, { Component } from 'react'
 
 import socketIOClient from 'socket.io-client'
-
-import chooseCardEvent from '../../../../events/chooseCardEvent'
+import chosenCards from '../../../../local-data-holder/cardArray'
 
 const serverUrl = 'http://192.168.1.3:3001/'
-
-const chooseCardE = new chooseCardEvent()
 
 class DisplayCards extends Component {
     state = {
         renderCards: null,
-        choseCards: [],
         admin: ''
     }
 
     chooseCardBttn = (name, e) => {
-        chooseCardE.addCard(name)
+        chosenCards.push(name)
     }
 
     componentDidMount(){

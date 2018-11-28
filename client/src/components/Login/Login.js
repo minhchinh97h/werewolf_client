@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import Cookies from 'universal-cookie'
 
+import rolesLimit from '../../validation/number-of-cards-depending-on-number-of-players/numberOfCards'
+
 const uniqid = require('uniqid')
 const axios = require('axios')
 const cookies = new Cookies()
@@ -9,6 +11,8 @@ const serverUrl = 'http://192.168.1.3:3001/'
 let insertedRoomid,
     generatedUsername = "",
     roomid
+
+
 
 class Login extends Component{
     state={
@@ -72,6 +76,7 @@ class Login extends Component{
     newRoomButton = () => {
         roomid = uniqid()
 
+        console.log(rolesLimit)
         this.setState({
             roomid: roomid
         })
@@ -97,10 +102,9 @@ class Login extends Component{
                         numberOfPlayers: 1,
                         players: generatedUsername,
                         status: 'open',
-                        currentRoles: ''
+                        currentRoles: rolesLimit
                     }
                 })
-                
             }
 
             else{
@@ -128,7 +132,7 @@ class Login extends Component{
                 .then(res => {
                     cookies.set(res.data.username, res.data.roomid, { path: '/' })
                     if(cookies.get(res.data.username))
-                        this.props.history.push(`/main-page/` + roomid + `/` + generatedUsername)
+                        this.props.history.push(`/waiting-room/` + roomid + `/` + generatedUsername)
                 })
                 .catch(err => console.log(err))
             }
@@ -200,7 +204,7 @@ class Login extends Component{
                     if(response.data === "ok"){
                         cookies.set(res3.data.username, res3.data.roomid, { path: '/' })
                         if(cookies.get(res3.data.username))
-                            this.props.history.push(`/main-page/` + insertedRoomid + `/`  + generatedUsername)
+                            this.props.history.push(`/waiting-room/` + insertedRoomid + `/`  + generatedUsername)
                     }
                 })
                 .catch(err => console.log(err))

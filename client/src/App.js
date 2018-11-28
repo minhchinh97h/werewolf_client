@@ -5,15 +5,20 @@ import Welcome from './components/Welcome/Welcome'
 import Login from './components/Login/Login'
 import Header from './components/Header/Header'
 import Footer from './components/Footer/Footer'
-import MainPage from './components/MainPage/MainPage'
+import WaitingRoom from './components/MainPage/WaitingRoom/WaitingRoom'
+import InGameRoom from './components/MainPage/InGameRoom/InGameRoom'
 
 
 class App extends Component {
   componentDidMount() {
   }
 
-  RenderMainPage( { match } ){
-    return <MainPage roomid = {match.params.roomid} username = {match.params.username} />
+  RenderWaitingRoom( { match } ){
+    return <WaitingRoom roomid = {match.params.roomid} username = {match.params.username} />
+  }
+
+  RenderInGameRoom( { match } ){
+    return <InGameRoom roomid = {match.params.roomid} username = {match.params.username} />
   }
 
   render() {
@@ -21,7 +26,8 @@ class App extends Component {
       <div className="App">
         <Route exact path="/" component={Welcome}/>
         <Route path="/login" component={Login} />
-        <Route path="/main-page/:roomid/:username" component={this.RenderMainPage} />
+        <Route exact path="/waiting-room/:roomid/:username" component = {this.RenderWaitingRoom} />
+        <Route exact path="/in-game-room/:roomid/:username" component = {this.RenderInGameRoom} />
         <div className="Header-Footer">
           <Header />
           <Footer />
