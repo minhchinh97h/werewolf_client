@@ -1,11 +1,9 @@
 import React, { Component } from 'react'
 
-import rolesLimit from '../../../../validation/number-of-cards-depending-on-number-of-players/numberOfCards'
 import socketIOClient from 'socket.io-client'
 
 const serverUrl = 'http://192.168.1.3:3001/'
 
-let cards = []
 
 class DisplayChosenCards extends Component{
 

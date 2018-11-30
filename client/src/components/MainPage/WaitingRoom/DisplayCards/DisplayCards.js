@@ -7,8 +7,7 @@ const serverUrl = 'http://192.168.1.3:3001/'
 
 class DisplayCards extends Component {
     state = {
-        renderCards: null,
-        admin: ''
+        renderCards: null
     }
 
     chooseCardBttn = (name, e) => {
@@ -16,14 +15,13 @@ class DisplayCards extends Component {
     }
 
     componentDidMount(){
-        const socket = socketIOClient(serverUrl + 'get-admin', {
-            query: {
-                roomid: this.props.roomid
-            }
-        })
-
-        socket.on('GetAdminAt' + this.props.roomid, data => {
-            if(this.props.username === data.admin){
+        
+        
+    }
+    
+    componentDidUpdate(prevProps, prevState){
+        if(this.props.admin !== prevProps.admin){
+            if(this.props.username === this.props.admin){
                 const cardSocket = socketIOClient(serverUrl + 'get-cards')
                 cardSocket.on('GetCards', data => {
                     this.setState({
@@ -38,11 +36,9 @@ class DisplayCards extends Component {
                     })
                 })
             }
-        })
-
-        
+        }
     }
-    
+
     render(){
         return(
             <>

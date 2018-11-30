@@ -76,7 +76,6 @@ class Login extends Component{
     newRoomButton = () => {
         roomid = uniqid()
 
-        console.log(rolesLimit)
         this.setState({
             roomid: roomid
         })
@@ -102,7 +101,8 @@ class Login extends Component{
                         numberOfPlayers: 1,
                         players: generatedUsername,
                         status: 'open',
-                        currentRoles: rolesLimit
+                        currentRoles: rolesLimit,
+                        recommendedRoles: rolesLimit
                     }
                 })
             }
