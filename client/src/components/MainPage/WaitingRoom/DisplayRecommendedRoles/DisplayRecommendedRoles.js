@@ -10,174 +10,75 @@ class DisplayRecommendedRoles extends Component{
     }
 
     componentDidMount(){
-
-        //the limit of roles depend on the number of players, so whenever a player connects to the room, run socketIOClient to update the relevant info 
-        //in the rooms database
-
         
-
-        
-
         
     }
 
     componentDidUpdate(prevProps, prevState){
+        //to confirm that the room gets more player in order to re-render the roles limit
         if(this.props.numberOfPlayers != prevProps.numberOfPlayers){
+            
+            rolesLimit['totalCards'] = this.props.numberOfPlayers + 3
+            //the limit of roles depend on the number of players, so whenever a player connects to the room, run socketIOClient to update the relevant info 
+            //in the rooms database
             switch (this.props.numberOfPlayers) {
                 case 8:
-                    for(var key in rolesLimit){
-                        if(rolesLimit.hasOwnProperty(key)){
-                            if(key !== 'Werewolves' && key !== 'Ordinary Townsfolk')
-                                rolesLimit[key] = 1
-                            else if(key === 'Werewolves')
-                                rolesLimit[key] = 2
-                            else
-                                rolesLimit[key] = 5
-                        }
-                    }
+                    rolesLimit['Werewolves'] = 2
+                    
                     break
                 
                 case 9:
-                    for(var key in rolesLimit){
-                        if(rolesLimit.hasOwnProperty(key)){
-                            if(key !== 'Werewolves' && key !== 'Ordinary Townsfolk')
-                                rolesLimit[key] = 1
-                            else if(key === 'Werewolves')
-                                rolesLimit[key] = 2
-                            else
-                                rolesLimit[key] = 6
-                        }
-                    }
+                    rolesLimit['Werewolves'] = 2
+
                     break
     
                 case 10:
-                    for(var key in rolesLimit){
-                        if(rolesLimit.hasOwnProperty(key)){
-                            if(key !== 'Werewolves' && key !== 'Ordinary Townsfolk')
-                                rolesLimit[key] = 1
-                            else if(key === 'Werewolves')
-                                rolesLimit[key] = 2
-                            else
-                                rolesLimit[key] = 7
-                        }
-                    }
+                    rolesLimit['Werewolves'] = 2
+
                     break
                 
                 case 11:
-                    for(var key in rolesLimit){
-                        if(rolesLimit.hasOwnProperty(key)){
-                            if(key !== 'Werewolves' && key !== 'Ordinary Townsfolk')
-                                rolesLimit[key] = 1
-                            else if(key === 'Werewolves')
-                                rolesLimit[key] = 2
-                            else
-                                rolesLimit[key] = 8
-                        }
-                    }
+                    rolesLimit['Werewolves'] = 2
+
                     break
     
                 case 12:
-                    for(var key in rolesLimit){
-                        if(rolesLimit.hasOwnProperty(key)){
-                            if(key !== 'Werewolves' && key !== 'Ordinary Townsfolk')
-                                rolesLimit[key] = 1
-                            else if(key === 'Werewolves')
-                                rolesLimit[key] = 3
-                            else
-                                rolesLimit[key] = 8
-                        }
-                    }
+                    rolesLimit['Werewolves'] = 3
+
                     break
     
                 case 13:
-                    for(var key in rolesLimit){
-                        if(rolesLimit.hasOwnProperty(key)){
-                            if(key !== 'Werewolves' && key !== 'Ordinary Townsfolk')
-                                rolesLimit[key] = 1
-                            else if(key === 'Werewolves')
-                                rolesLimit[key] = 3
-                            else
-                                rolesLimit[key] = 9
-                        }
-                    }
-                    break
+                    rolesLimit['Werewolves'] = 3
+
+                    break   
     
                 case 14:
-                    for(var key in rolesLimit){
-                        if(rolesLimit.hasOwnProperty(key)){
-                            if(key !== 'Werewolves' && key !== 'Ordinary Townsfolk')
-                                rolesLimit[key] = 1
-                            else if(key === 'Werewolves')
-                                rolesLimit[key] = 3
-                            else
-                                rolesLimit[key] = 10
-                        }
-                    }
-                    break
+                    rolesLimit['Werewolves'] = 3
+
+                    break 
     
                 case 15:
-                    for(var key in rolesLimit){
-                        if(rolesLimit.hasOwnProperty(key)){
-                            if(key !== 'Werewolves' && key !== 'Ordinary Townsfolk')
-                                rolesLimit[key] = 1
-                            else if(key === 'Werewolves')
-                                rolesLimit[key] = 3
-                            else
-                                rolesLimit[key] = 11
-                        }
-                    }
-                    break
+                    rolesLimit['Werewolves'] = 3
+
+                    break 
     
                 case 16:
-                    for(var key in rolesLimit){
-                        if(rolesLimit.hasOwnProperty(key)){
-                            if(key !== 'Werewolves' && key !== 'Ordinary Townsfolk')
-                                rolesLimit[key] = 1
-                            else if(key === 'Werewolves')
-                                rolesLimit[key] = 3
-                            else
-                                rolesLimit[key] = 12
-                        }
-                    }
-                    break
+                    rolesLimit['Werewolves'] = 3
+
+                    break 
     
                 case 17:
-                    for(var key in rolesLimit){
-                        if(rolesLimit.hasOwnProperty(key)){
-                            if(key !== 'Werewolves' && key !== 'Ordinary Townsfolk')
-                                rolesLimit[key] = 1
-                            else if(key === 'Werewolves')
-                                rolesLimit[key] = 3
-                            else
-                                rolesLimit[key] = 13
-                        }
-                    }
-                    break
+                    rolesLimit['Werewolves'] = 3
+
+                    break 
     
                 case 18:
-                    for(var key in rolesLimit){
-                        if(rolesLimit.hasOwnProperty(key)){
-                            if(key !== 'Werewolves' && key !== 'Ordinary Townsfolk')
-                                rolesLimit[key] = 1
-                            else if(key === 'Werewolves')
-                                rolesLimit[key] = 3
-                            else
-                                rolesLimit[key] = 14
-                        }
-                    }
-                    break
+                    rolesLimit['Werewolves'] = 3
+
+                    break 
     
                 default:
-                    for(var key in rolesLimit){
-                        if(rolesLimit.hasOwnProperty(key)){
-                            if(key !== 'Werewolves' && key !== 'Ordinary Townsfolk')
-                                rolesLimit[key] = 1
-                            else if(key === 'Werewolves')
-                                rolesLimit[key] = 1
-                            else
-                                rolesLimit[key] = 4
-                        }
-                    }
+                    rolesLimit['Werewolves'] = 1
             }
 
             let sentData = {
