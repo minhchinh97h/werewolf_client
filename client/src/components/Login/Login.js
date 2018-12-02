@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import Cookies from 'universal-cookie'
 
-import rolesLimit from '../../validation/number-of-cards-depending-on-number-of-players/numberOfCards'
+import recommendedRoles from '../../validation/recommendedRoles/recommendedRoles'
+import currentRoles from '../../validation/currentRoles/currentRoles'
+
 
 const uniqid = require('uniqid')
 const axios = require('axios')
@@ -41,7 +43,8 @@ class Login extends Component{
                         connected: "",
                         hypnotized: 0,
                         changed: 0
-                    }
+                    },
+                    role: ''
                 }
             })
             .then(response => {
@@ -101,8 +104,8 @@ class Login extends Component{
                         numberOfPlayers: 1,
                         players: generatedUsername,
                         status: 'open',
-                        currentRoles: rolesLimit,
-                        recommendedRoles: rolesLimit
+                        currentRoles: currentRoles,
+                        recommendedRoles: recommendedRoles
                     }
                 })
             }

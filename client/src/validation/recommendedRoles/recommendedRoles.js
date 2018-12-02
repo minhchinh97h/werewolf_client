@@ -1,5 +1,5 @@
-let rolesLimit = {
-    'Werewolves': 0,
+let recommendedRoles = {
+    'Werewolves': 1,
     'Ordinary Townsfolk': 1,
     'Seer/ Fortune Teller': 1,
     'Hunter': 1,
@@ -25,4 +25,4 @@ let rolesLimit = {
     'totalCards': 3
 }
 
-export default rolesLimit
+export default recommendedRoles

@@ -8,35 +8,45 @@ const serverUrl = 'http://192.168.1.3:3001/'
 class DisplayChosenCards extends Component{
 
     state = {
-        renderLimits: null
+        renderChosenCards: null
     }
 
     componentDidMount(){
-
-        const socket = socketIOClient(serverUrl + 'get-cards', {
-            query: {
-                roomid: this.props.roomid
-            }
-        })
-
+        const socket = socketIOClient(serverUrl + 'get-current-roles')
+        
         socket.on('connect', () => {
             socket.emit('JoinRoom', this.props.roomid)
         })
 
-        socket.on('GetCards', data => {
-            
-            for(let key in data){
-                if(data.hasOwnProperty(key)){
-                    
+        socket.on('GetSelectedCards', data => {
+            if(data !== null){
+                let cards = []
+
+                for(var key in data){
+                    if(data.hasOwnProperty(key)){
+                        if(data[key] > 0)
+                            cards.push(key + ' x' + data[key])
+                    }
                 }
+                this.setState({
+                    renderChosenCards: cards.map((data, index) => {
+                        let key = 'chosen-roles-' + index
+                        return(
+                            <div key={key}>
+                                <p>{data}</p>
+                            </div>
+                        )
+                    })
+                })
             }
+            
         })
     }
 
     render(){
         return(
             <>
-                {this.state.renderLimits}
+                {this.state.renderChosenCards}
             </>
         )
     }
