@@ -12,7 +12,7 @@ class StartBttn extends Component{
         const socket = socketIOClient(serverUrl + 'start-game') 
 
         socket.on('connect', () => {
-            socket.emit('GetRoleAssigned', this.props.roomid)
+            socket.emit('start', this.props.roomid)
         })
 
     }
@@ -21,11 +21,7 @@ class StartBttn extends Component{
         const socket = socketIOClient(serverUrl + 'start-game') 
 
         socket.on('connect', () => {
-            socket.emit('StartGame', this.props.roomid)
-        })
-
-        socket.on('DisplayRoleAssigned', data => {
-            console.log(data)
+            socket.emit('JoinRoom', this.props.roomid)
         })
     }
 

@@ -17,18 +17,19 @@ class WaitingRoom extends Component{
     state = {
         ifAdmin: false,
         admin: "",
-        numberOfPlayers: 0
+        numberOfPlayers: 0,
+        ifStartGame: false
     }
 
     componentDidMount(){
         const socket = socketIOClient(serverUrl + 'get-admin', {
             query: {
-                roomid: this.props.roomid
+                roomid: this.props.match.params.roomid
             }
         })
 
         socket.on('connect', () => {
-            socket.emit('JoinRoom', this.props.roomid)
+            socket.emit('JoinRoom', this.props.match.params.roomid)
         })
 
         socket.on('GetAdmin', data => {
@@ -37,7 +38,7 @@ class WaitingRoom extends Component{
                 numberOfPlayers: data.numberOfPlayers
             })
 
-            if(this.props.username === data.admin){
+            if(this.props.match.params.username === data.admin){
                 this.setState({
                     ifAdmin: true
                 })
@@ -48,9 +49,23 @@ class WaitingRoom extends Component{
                 })
             }
         })
+
+        const startGameSocket = socketIOClient(serverUrl + 'start-game')
+
+        startGameSocket.on('connect', () => {
+            startGameSocket.emit('JoinRoom', this.props.match.params.roomid)
+        })
+        
+        startGameSocket.on('RedirectToGameRoom', data => {
+            if(data === "ok")
+                this.props.history.push('/in-game-room/' + this.props.match.params.roomid + '/' + this.props.match.params.username)
+        })
     }
 
     componentDidUpdate(prevProps, prevState){
+        if(this.state.ifStartGame !== prevState.ifStartGame && this.state.ifStartGame){
+            
+        }
     }
 
     render(){
@@ -58,13 +73,13 @@ class WaitingRoom extends Component{
             <div>
                 <br></br>
                 <div className = "display-player-names">
-                    <DisplayPlayerNames roomid = {this.props.roomid} />
+                    <DisplayPlayerNames roomid = {this.props.match.params.roomid} />
                 </div>
                 {this.state.ifAdmin?
                     <div className = "display-cards">
-                        <DisplayCards roomid = {this.props.roomid}
+                        <DisplayCards roomid = {this.props.match.params.roomid}
                                     admin = {this.state.admin}
-                                    username = {this.props.username}
+                                    username = {this.props.match.params.username}
                                     test = {this.state.test}
                                     ifAdmin = {this.state.ifAdmin}
                         />
@@ -75,19 +90,20 @@ class WaitingRoom extends Component{
                 
                 <div className = "display-chosen-cards-section">
                     <b>Current Chosen Cards</b>
-                    <DisplayChosenCards roomid = {this.props.roomid} />
+                    <DisplayChosenCards roomid = {this.props.match.params.roomid} />
                 </div>
 
                 {/* below component will not render anything */}
                 <div className = "display-recommended-roles-section">
-                    <UpdateRecommendedRoles numberOfPlayers = {this.state.numberOfPlayers} roomid = {this.props.roomid} />
+                    <UpdateRecommendedRoles numberOfPlayers = {this.state.numberOfPlayers} roomid = {this.props.match.params.roomid} />
                 </div>
 
                 <div className = "navbar">
-                    <NavBar roomid = {this.props.roomid} 
+                    <NavBar roomid = {this.props.match.params.roomid} 
                             ifAdmin= {this.state.ifAdmin} 
                             numberOfPlayers = {this.state.numberOfPlayers} 
-                            admin = {this.state.admin} 
+                            admin = {this.state.admin}
+                            username = {this.props.match.params.username} 
                     />
                 </div>
             </div>

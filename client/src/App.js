@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import { Route } from 'react-router-dom'
+import { Route, BrowserRouter } from 'react-router-dom'
 import Welcome from './components/Welcome/Welcome'
 import Login from './components/Login/Login'
 import Header from './components/Header/Header'
@@ -15,6 +15,7 @@ class App extends Component {
 
   RenderWaitingRoom( { match } ){
     return <WaitingRoom roomid = {match.params.roomid} username = {match.params.username} />
+    
   }
 
   RenderInGameRoom( { match } ){
@@ -26,8 +27,9 @@ class App extends Component {
       <div className="App">
         <Route exact path="/" component={Welcome}/>
         <Route path="/login" component={Login} />
-        <Route exact path="/waiting-room/:roomid/:username" component = {this.RenderWaitingRoom} />
-        <Route exact path="/in-game-room/:roomid/:username" component = {this.RenderInGameRoom} />
+        <Route exact path="/waiting-room/:roomid/:username" component = {WaitingRoom} />
+        <Route exact path="/in-game-room/:roomid/:username" component = {InGameRoom} />
+
         <div className="Header-Footer">
           <Header />
           <Footer />

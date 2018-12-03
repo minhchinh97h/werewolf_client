@@ -38,7 +38,7 @@ class NavBar extends Component{
 
                 { this.props.ifAdmin ? 
                     <div className="start-button-section">
-                        <StartBttn roomid = {this.props.roomid} />
+                        <StartBttn roomid = {this.props.roomid} username = {this.props.username} />
                     </div>
 
                     :
