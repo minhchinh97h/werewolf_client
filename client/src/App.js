@@ -13,15 +13,6 @@ class App extends Component {
   componentDidMount() {
   }
 
-  RenderWaitingRoom( { match } ){
-    return <WaitingRoom roomid = {match.params.roomid} username = {match.params.username} />
-    
-  }
-
-  RenderInGameRoom( { match } ){
-    return <InGameRoom roomid = {match.params.roomid} username = {match.params.username} />
-  }
-
   render() {
     return (
       <div className="App">

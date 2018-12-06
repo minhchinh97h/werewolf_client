@@ -15,7 +15,6 @@ class DisplayPlayerNames extends Component{
             }
         } )
         socket.on('GetPlayersAt' + this.props.roomid, data => {this.setState({renderPlayerNames: data.map(player => {return(<div key = {player}><p>{player}</p></div>)})})})
-        
     }
 
     render(){
