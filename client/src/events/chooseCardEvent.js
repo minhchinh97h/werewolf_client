@@ -4,8 +4,6 @@ class chooseCardEvent{
     addCard(name){
         chosenCards.push(name)
     }
-
-
 }
 
 export default chooseCardEvent

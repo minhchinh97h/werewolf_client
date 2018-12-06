@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
-
-
 class NumberOfPlayers extends Component{
+
+    state = {
+
+    }
 
     render(){
         return(

@@ -1,56 +1,188 @@
 import React, { Component } from 'react'
 
 import socketIOClient from 'socket.io-client'
-
-import chooseCardEvent from '../../../../events/chooseCardEvent'
+import currentRoles from '../../../../validation/currentRoles/currentRoles'
 
 const serverUrl = 'http://192.168.1.3:3001/'
 
-const chooseCardE = new chooseCardEvent()
+
 
 class DisplayCards extends Component {
     state = {
         renderCards: null,
-        choseCards: [],
-        admin: ''
+        renderPressedCards: null,
+        isCardSelected: false,
+        selectedCards: null,
+        pressedCards: null,
+        currentRoles: null
+    }
+
+    decreaseCardBttn = (name, e) => {
+        
+        currentRoles[name] -= 1
+        
+        if(currentRoles[name] < 0)
+            currentRoles[name] = 0
+        
+        let name_array = [],
+            value_array = []
+
+        for(var key in currentRoles){
+            if(currentRoles.hasOwnProperty(key))
+            {
+                if(currentRoles[key] > 0){
+                    name_array.push(key)
+                    value_array.push(currentRoles[key])
+                }
+                    
+            }
+        }
+        
+        this.setState({
+            renderPressedCards: name_array.map((name, index) => {
+                let key = 'pressed-card-' + index
+                return(
+                    <div key={key}>
+                        <p>{name}: x{value_array[index]}</p>
+                        <button type="button" onClick={this.decreaseCardBttn.bind(this, name)}>decrease</button>
+                    </div>
+                )
+            })
+        })
+
+        this.setState({
+            isCardSelected: true
+        })
     }
 
     chooseCardBttn = (name, e) => {
-        chooseCardE.addCard(name)
+        currentRoles[name] += 1
+        
+        let name_array = [],
+            value_array = []
+
+        for(var key in currentRoles){
+            if(currentRoles.hasOwnProperty(key))
+            {
+                if(currentRoles[key] > 0){
+                    name_array.push(key)
+                    value_array.push(currentRoles[key])
+                }
+                    
+            }
+        }
+        
+        this.setState({
+            renderPressedCards: name_array.map((name, index) => {
+                let key = 'pressed-card-' + index
+                return(
+                    <div key={key}>
+                        <p>{name}: x{value_array[index]} </p>
+                        <button type="button" onClick={this.decreaseCardBttn.bind(this, name)}>decrease</button>
+                    </div>
+                )
+            })
+        })
+
+        this.setState({
+            isCardSelected: true
+        })
+    }
+
+    submitCardsBttn = (e) => {
+        let sentData = {
+            roomid: this.props.roomid,
+            currentRoles: currentRoles
+        }
+
+        const socket = socketIOClient(serverUrl + 'submit-selected-cards')
+
+        socket.on('connect', () => {
+            socket.emit('JoinRoom', sentData)
+        })
     }
 
     componentDidMount(){
-        const socket = socketIOClient(serverUrl + 'get-admin', {
-            query: {
-                roomid: this.props.roomid
-            }
+        const cardSocket = socketIOClient(serverUrl + 'get-cards')
+
+        cardSocket.on('GetCards', data => {
+            this.setState({
+                renderCards: data.map( (card, index) => {
+                    let cardId = "card " + index
+                    return(
+                        <div key = {card.name}>
+                            <button type='button' onClick={this.chooseCardBttn.bind(this, card.name)} id={cardId}>{card.name}</button>
+                        </div>
+                    )
+                })
+            })
         })
 
-        socket.on('GetAdminAt' + this.props.roomid, data => {
-            if(this.props.username === data.admin){
-                const cardSocket = socketIOClient(serverUrl + 'get-cards')
-                cardSocket.on('GetCards', data => {
-                    this.setState({
-                        renderCards: data.map( (card, index) => {
-                            let cardId = "card " + index
-                            return(
-                                <div key = {card.name}>
-                                    <button type='button' onClick={this.chooseCardBttn.bind(this, card.name)} id={cardId}>{card.name}</button>
-                                </div>
-                            )
-                        })
+        const socket = socketIOClient(serverUrl + 'get-current-roles')
+
+        socket.on('connect', () => {
+            socket.emit('JoinRoom', this.props.roomid)
+        })
+
+        socket.on('GetSelectedCards', data => {
+            
+            if(data !== null){
+                for(var key in data){
+                    if(data.hasOwnProperty(key)){
+                        currentRoles[key] = data[key]
+                    }
+                }
+
+                let name_array = [],
+                value_array = []
+
+                for(var key in currentRoles){
+                    if(currentRoles.hasOwnProperty(key))
+                    {
+                        if(currentRoles[key] > 0){
+                            name_array.push(key)
+                            value_array.push(currentRoles[key])
+                        }
+                            
+                    }
+                }
+                
+                this.setState({
+                    renderPressedCards: name_array.map((name, index) => {
+                        let key = 'pressed-card-' + index
+                        return(
+                            <div key={key}>
+                                <p>{name}: x{value_array[index]} </p>
+                                <button type="button" onClick={this.decreaseCardBttn.bind(this, name)}>decrease</button>
+                            </div>
+                        )
                     })
                 })
             }
+            
         })
-
-        
     }
     
+    componentDidUpdate(prevProps, prevState){
+
+    }
+
     render(){
         return(
             <>
                 {this.state.renderCards}
+                
+                <div className = "display-chosen-cards">    
+                    <b>Current Chosen Cards Panel:</b>
+                    {this.state.renderPressedCards}
+
+                    <br></br>
+                    {this.state.isCardSelected ?
+                        <button type="button" onClick={this.submitCardsBttn.bind(this)}>submit</button>
+                        :
+                        null
+                    }
+                </div>
             </>
         )
     }

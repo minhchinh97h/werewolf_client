@@ -3,7 +3,6 @@ import React, { Component } from 'react'
 import GetAdmin from './GetAdmin/GetAdmin'
 import NumberOfPlayers from './NumberOfPlayers/NumberOfPlayers'
 import StartBttn from './StartBttn/StartBttn'
-
 import socketIOClient from 'socket.io-client'
 
 const serverUrl = 'http://192.168.1.3:3001/'
@@ -11,49 +10,35 @@ const serverUrl = 'http://192.168.1.3:3001/'
 class NavBar extends Component{
 
     state = {
-        ifAdmin: false,
-        admin: "",
-        numberOfPlayers: 0,
+        
     }
 
     componentDidMount(){
-        const socket = socketIOClient(serverUrl + 'get-admin', {
-            query: {
-                roomid: this.props.roomid
-            }
+        const socket = socketIOClient(serverUrl + 'start-game')
+
+        socket.on('connect', () => {
+            socket.emit('StartGame', this.props.roomid)
         })
 
-        socket.on('GetAdminAt' + this.props.roomid, data => {
-            this.setState({
-                admin: data.admin,
-                numberOfPlayers: data.numberOfPlayers
-            })
-
-            if(this.props.username === data.admin){
-                this.setState({
-                    ifAdmin: true
-                })
-            }
-            else{
-                this.setState({
-                    ifAdmin: false
-                })
-            }
+        socket.on('RedirectToGameRoom', data => {
+            if(data === "ok")
+                this.props.history.push(`/game-room/` + this.props.roomid)
         })
     }
+
     render(){
         return(
             <>
                 <div className="admin-section">
-                    <GetAdmin admin={this.state.admin} />
+                    <GetAdmin admin={this.props.admin} />
                 </div>
                 <div className="number-of-player-section">
-                    <NumberOfPlayers numberOfPlayers = {this.state.numberOfPlayers} />
+                    <NumberOfPlayers numberOfPlayers = {this.props.numberOfPlayers} roomid = {this.props.roomid}/>
                 </div>
 
-                { this.state.ifAdmin ? 
+                { this.props.ifAdmin ? 
                     <div className="start-button-section">
-                        <StartBttn />
+                        <StartBttn roomid = {this.props.roomid} username = {this.props.username} />
                     </div>
 
                     :
