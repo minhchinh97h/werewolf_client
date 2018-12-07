@@ -45,7 +45,7 @@ class InGameRoom extends Component{
         socket.on('RetrieveGameInfo', data => {
             gameInfo = data
             data.forEach((row) => {
-                if(row.name === this.props.match.params.username)
+                if(row.name === this.props.match.params.username){
 
                     this.setState({
                         renderPlayerRole: <b>You are {row.role}</b>
@@ -182,7 +182,7 @@ class InGameRoom extends Component{
                             renderRoleUI: <DogWolf roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                         })
                     }
-                    break
+                }
             });
         })
 
