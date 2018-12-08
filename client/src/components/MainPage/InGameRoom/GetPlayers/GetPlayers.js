@@ -14,12 +14,12 @@ class GetPlayers extends Component{
     }
 
     componentDidMount(){
-        const socket = socketIOClient(serverUrl + 'main-page', {
+        const getPlayerSocket = socketIOClient(serverUrl + 'main-page', {
             query: {
                 roomid : this.props.roomid
             }
         } )
-        socket.on('GetPlayersAt' + this.props.roomid, data => {this.setState({
+        getPlayerSocket.on('GetPlayersAt' + this.props.roomid, data => {this.setState({
             renderPlayers: data.map(player => {
                 if(player !== this.props.username){
                     return(
