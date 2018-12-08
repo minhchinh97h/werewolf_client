@@ -186,11 +186,7 @@ class InGameRoom extends Component{
             });
         })
 
-        socket.on('RetrieveGameTurn', data => {
-            if(data.name === this.props.match.params.username){
-
-            }
-        })
+        
         let currentSecond = 10
 
         let timer = setInterval(() => {
@@ -201,7 +197,7 @@ class InGameRoom extends Component{
 
             if(currentSecond < 0){
                 clearInterval(timer)
-                socket.emit('RequestToStartTheGame', this.props.match.params.roomid)
+                socket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
             }
             
         }, 1000)
@@ -216,7 +212,7 @@ class InGameRoom extends Component{
 
             <p>The game will start after {this.state.timer}</p>
 
-            <GetPlayers roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+            {this.state.renderRoleUI}
             </>
         ) 
     }
