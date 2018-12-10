@@ -13,8 +13,8 @@ class Werewolves extends Component{
         persontoKill: null
     }
 
-    killBttn = () => {
-
+    killBttn = (name, e) => {
+        const socket = socketIOClient(serverUrl + 'werewolves-chose')
     }
 
     componentDidMount(){
@@ -70,7 +70,7 @@ class Werewolves extends Component{
                 {this.state.renderUI}
 
                 <b></b>
-                
+
                 {this.state.renderPlayers}
             </>
         )
