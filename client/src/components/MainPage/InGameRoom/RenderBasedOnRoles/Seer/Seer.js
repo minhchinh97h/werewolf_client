@@ -36,6 +36,8 @@ class Seer extends Component{
             seer_player_bttn_ids.forEach((bttnId, index) => {
                 document.getElementById(bttnId).disabled = true
             })
+
+            
         }
 
     }

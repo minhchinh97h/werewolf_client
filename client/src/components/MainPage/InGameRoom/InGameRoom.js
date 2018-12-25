@@ -32,11 +32,39 @@ class InGameRoom extends Component{
     state = {
         renderPlayerRole: null,
         timer: null,
-        renderRoleUI: null
+        renderRoleUI: null,
+        renderStartBttn: null
+    }
+
+    startBttn = () => {
+        const socket = socketIOClient(serverUrl + 'in-game')
+
+        socket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
+
+        this.setState({
+            renderStartBttn: null
+        })
     }
 
     componentDidMount(){
-        
+        const adminSocket = socketIOClient(serverUrl + 'get-admin', {
+            query: {
+                roomid: this.props.match.params.roomid
+            }
+        })
+
+        adminSocket.on('connect', () => {
+            socket.emit('JoinRoom', this.props.match.params.roomid)
+        })
+
+        adminSocket.on('GetAdmin', data => {
+            if(this.props.match.params.username === data.admin){
+                this.setState({
+                    renderStartBttn: <button onClick={this.startBttn()}>Start the round</button>
+                })
+            }
+        })
+
         const socket = socketIOClient(serverUrl + 'in-game')
 
         socket.on('connect', () => {
@@ -195,20 +223,20 @@ class InGameRoom extends Component{
 
         //This below timer is for notifying the players when the game starts - needs to be synchronous with all the players
 
-        let currentSecond = 10
+        // let currentSecond = 10
         
-        let timer = setInterval(() => {
-            this.setState({
-                timer: currentSecond
-            })
-            currentSecond--
+        // let timer = setInterval(() => {
+        //     this.setState({
+        //         timer: currentSecond
+        //     })
+        //     currentSecond--
 
-            if(currentSecond < 0){
-                socket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
-                clearInterval(timer)
-            }
+        //     if(currentSecond < 0){
+                
+        //         clearInterval(timer)
+        //     }
             
-        }, 1000)
+        // }, 1000)
         
         
     }
