@@ -7,7 +7,7 @@ const serverUrl = 'http://192.168.1.3:3001/'
 class InGameRoom extends Component{
 
     state = {
-        
+        renderPlayerRole: null
     }
 
     componentDidMount(){
@@ -20,7 +20,9 @@ class InGameRoom extends Component{
         socket.on('GetRoleAssigned', data => {
             data.forEach((player) => {
                 if(player.name === this.props.match.params.username)
-                    console.log(player.role)
+                    this.setState({
+                        renderPlayerRole: <p>{player.role}</p>
+                    })
             });
         })
     }
@@ -28,6 +30,9 @@ class InGameRoom extends Component{
     render(){
         return(
             <>
+                <div className="in-game-display-role">
+                     <b>You are: {this.state.render}</b>
+                </div>
             </>
         ) 
     }
