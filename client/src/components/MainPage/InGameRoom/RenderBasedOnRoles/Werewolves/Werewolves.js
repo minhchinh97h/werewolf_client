@@ -3,7 +3,7 @@ import socketIOClient from 'socket.io-client'
 
 import GetPlayers from '../../GetPlayers/GetPlayers'
 
-const serverUrl = 'http://192.168.1.3:3001/'
+const serverUrl = 'http://localhost:3001/'
 
 class Werewolves extends Component{
 
@@ -18,6 +18,7 @@ class Werewolves extends Component{
     }
 
     componentDidMount(){
+        // to display all the players that are from the room
         const getPlayerSocket = socketIOClient(serverUrl + 'main-page', {
             query: {
                 roomid : this.props.roomid
@@ -37,6 +38,10 @@ class Werewolves extends Component{
 
         const socket = socketIOClient(serverUrl + 'in-game')
 
+        socket.on('connect', () => {
+            socket.emit('JoinRoom', this.props.roomid)
+        })
+        
         let currentSecond = 10
 
         socket.on('RetrieveGameStart1stRound', data => {
@@ -46,6 +51,7 @@ class Werewolves extends Component{
 
                     if(currentSecond < 0){
                         socket.emit('RequestToGet1stTurn', this.props.roomid)
+                        clearInterval(timer)
                     }
                 }, 1000)
             }
@@ -69,7 +75,7 @@ class Werewolves extends Component{
             <>
                 {this.state.renderUI}
 
-                <b></b>
+                <br></br>
 
                 {this.state.renderPlayers}
             </>

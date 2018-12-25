@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import socketIOClient from 'socket.io-client'
 
-const serverUrl = 'http://192.168.1.3:3001/'
+const serverUrl = 'http://localhost:3001/'
 
 
 class DisplayChosenCards extends Component{

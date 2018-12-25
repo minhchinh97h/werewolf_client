@@ -23,7 +23,7 @@ import WildChild from './RenderBasedOnRoles/WildChild/WildChild'
 import Witch from './RenderBasedOnRoles/Witch/Witch'
 
 
-const serverUrl = 'http://192.168.1.3:3001/'
+const serverUrl = 'http://localhost:3001/'
 
 let gameInfo
 
@@ -36,6 +36,7 @@ class InGameRoom extends Component{
     }
 
     componentDidMount(){
+        
         const socket = socketIOClient(serverUrl + 'in-game')
 
         socket.on('connect', () => {
@@ -184,11 +185,18 @@ class InGameRoom extends Component{
                     }
                 }
             });
+
+
+            
         })
 
         
-        let currentSecond = 10
+        
 
+        //This below timer is for notifying the players when the game starts - needs to be synchronous with all the players
+
+        let currentSecond = 10
+        
         let timer = setInterval(() => {
             this.setState({
                 timer: currentSecond
@@ -196,11 +204,12 @@ class InGameRoom extends Component{
             currentSecond--
 
             if(currentSecond < 0){
-                clearInterval(timer)
                 socket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
+                clearInterval(timer)
             }
             
         }, 1000)
+        
         
     }
 

@@ -8,7 +8,7 @@ import currentRoles from '../../validation/currentRoles/currentRoles'
 const uniqid = require('uniqid')
 const axios = require('axios')
 const cookies = new Cookies()
-const serverUrl = 'http://192.168.1.3:3001/'
+const serverUrl = 'http://localhost:3001/'
 
 let insertedRoomid,
     generatedUsername = "",
