@@ -14,7 +14,8 @@ class Seer extends Component{
         renderPlayers: null,
         personToSee: null,
         renderTargetRole: null,
-        confirmPopup: null
+        confirmPopup: null,
+        endTurnConfirm: null
     }
 
     playerToRevealBttn = (name, bttnId, e) => {
@@ -37,10 +38,23 @@ class Seer extends Component{
                 document.getElementById(bttnId).disabled = true
             })
 
-            
+
         }
 
     }
+
+    endTurnBttn = () => {
+        const socket = socketIOClient(serverUrl + 'retrieve-next-turn')
+        
+        let sendingData = {
+            roomid: this.props.roomid,
+            role: 'Seer/ Fortune Teller'
+        }
+
+        socket.on('connect', () => {
+            socket.emit('JoinRoom', sendingData)
+        })
+    }   
 
     componentDidMount(){
         // to display all the players that are from the room
@@ -77,16 +91,16 @@ class Seer extends Component{
         let currentSecond = 10
 
         socket.on('RetrieveGameStart1stRound', data => {
-            if(data === 'ok'){
-                let timer = setInterval(() => {
-                    currentSecond--
+            // if(data === 'ok'){
+            //     let timer = setInterval(() => {
+            //         currentSecond--
 
-                    if(currentSecond < 0){
+            //         if(currentSecond < 0){
                         socket.emit('RequestToGet1stTurn', this.props.roomid)
-                        clearInterval(timer)
-                    }
-                }, 1000)
-            }
+            //             clearInterval(timer)
+            //         }
+            //     }, 1000)
+            // }
         })
 
         //Retrieve the 1st turn, if the player is the first to be called, then render its ui
@@ -99,16 +113,46 @@ class Seer extends Component{
                         </div>
                     </>
                 })
+
+                //Seer's action
+                const seerSocket = socketIOClient(serverUrl + 'seer')
+
+                seerSocket.on('RevealPlayer', (data) => {
+                    this.setState({
+                        renderTargetRole: <b>The target's role is: {data}</b>,
+                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                    })
+                })
             }
         })
 
-        const seerSocket = socketIOClient(serverUrl + 'seer')
 
-        seerSocket.on('RevealPlayer', (data) => {
-            this.setState({
-                renderTargetRole: <b>The target's role is: {data}</b>
-            })
+        //Handle the called turn 
+        const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+
+        calledTurnSocket.on('getNextTurn', data => {
+            console.log(data)
+            if(data.name === this.props.username){
+                this.setState({
+                    renderUI: <>
+                        <div>
+                            <p>Who do you want to reveal?</p>
+                        </div>
+                    </>
+                })
+    
+                //Seer's action
+                const seerSocket = socketIOClient(serverUrl + 'seer')
+    
+                seerSocket.on('RevealPlayer', (data) => {
+                    this.setState({
+                        renderTargetRole: <b>The target's role is: {data}</b>,
+                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                    })
+                })
+            }
         })
+
     }
 
     render(){
@@ -123,6 +167,10 @@ class Seer extends Component{
                 <br></br>
 
                 {this.state.renderTargetRole}
+
+                <br></br>
+
+                {this.state.endTurnConfirm}
             </>
         )
     }

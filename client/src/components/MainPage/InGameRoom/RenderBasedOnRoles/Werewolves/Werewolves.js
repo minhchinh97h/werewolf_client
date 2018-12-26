@@ -46,14 +46,14 @@ class Werewolves extends Component{
 
         socket.on('RetrieveGameStart1stRound', data => {
             if(data === 'ok'){
-                let timer = setInterval(() => {
-                    currentSecond--
+                // let timer = setInterval(() => {
+                //     currentSecond--
 
-                    if(currentSecond < 0){
+                //     if(currentSecond < 0){
                         socket.emit('RequestToGet1stTurn', this.props.roomid)
-                        clearInterval(timer)
-                    }
-                }, 1000)
+                //         clearInterval(timer)
+                //     }
+                // }, 1000)
             }
         })
 
