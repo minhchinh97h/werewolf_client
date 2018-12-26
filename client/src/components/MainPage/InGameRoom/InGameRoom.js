@@ -24,16 +24,16 @@ import Witch from './RenderBasedOnRoles/Witch/Witch'
 
 const serverUrl = 'http://localhost:3001/'
 
-
+let socket
 
 class InGameRoom extends Component{
-
     state = {
         renderPlayerRole: null,
         timer: null,
         renderRoleUI: null,
         renderStartBttn: null,
-        startBttnClicked: false
+        startBttnClicked: false,
+        isAdmin: false
     }
 
     startBttn = () => {
@@ -47,15 +47,34 @@ class InGameRoom extends Component{
     }
 
     componentDidMount(){
-        
-
         //Get game info
-        const socket = socketIOClient(serverUrl + 'in-game')
+        socket = socketIOClient(serverUrl + 'in-game')
 
         socket.on('connect', () => {
             socket.emit('JoinRoom', this.props.match.params.roomid)
         })
 
+        //Get admin
+        const adminSocket = socketIOClient(serverUrl + 'get-admin', {
+            query: {
+                roomid: this.props.match.params.roomid
+            }
+        })
+        
+        adminSocket.on('connect', () => {
+            adminSocket.emit('JoinRoom', this.props.match.params.roomid)
+        })
+
+        adminSocket.on('GetAdmin', data => {
+            if(this.props.match.params.username === data.admin){
+                this.setState({
+                    renderStartBttn: <button type="button" onClick={this.startBttn}>Start the rounds</button>,
+                    isAdmin: true
+                })
+            }
+        })
+
+        
         socket.on('RetrieveGameInfo', data => {
 
             data.forEach((row) => {
@@ -196,28 +215,37 @@ class InGameRoom extends Component{
                             renderRoleUI: <DogWolf roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                         })
                     }
+
+                    //Handle the first round
+                    const socket = socketIOClient(serverUrl + 'in-game')
+
+                    socket.on('connect', () => {
+                        socket.emit('JoinRoom', this.props.match.params.roomid)
+                    })
+
+                    //after the timer counts to 0, have to inform players that Round 1 will start soon
+
+                    // let currentSecond = 10
+
+                    socket.on('RetrieveGameStart1stRound', data => {
+                        // if(data === 'ok'){
+                        //     let timer = setInterval(() => {
+                        //         currentSecond--
+
+                        //         if(currentSecond < 0){
+                            socket.emit('RequestToGet1stTurn', this.props.roomid)
+                        //             clearInterval(timer)
+                        //         }
+                        //     }, 1000)
+                        // }
+                    })
+
+                    
                 }
             });
         })
 
-        //Get admin
-        const adminSocket = socketIOClient(serverUrl + 'get-admin', {
-            query: {
-                roomid: this.props.match.params.roomid
-            }
-        })
         
-        adminSocket.on('connect', () => {
-            adminSocket.emit('JoinRoom', this.props.match.params.roomid)
-        })
-
-        adminSocket.on('GetAdmin', data => {
-            if(this.props.match.params.username === data.admin){
-                this.setState({
-                    renderStartBttn: <button type="button" onClick={this.startBttn}>Start the rounds</button>
-                })
-            }
-        })
         
 
         //This below timer is for notifying the players when the game starts - needs to be synchronous with all the players
@@ -244,6 +272,10 @@ class InGameRoom extends Component{
             this.setState({
                 renderStartBttn: null
             })
+        }
+
+        if(this.state.isAdmin !== prevState.isAdmin && this.state.isAdmin){
+            socket.emit('JoinRoomAndGetGameInfo', this.props.match.params.roomid)
         }
     }
 

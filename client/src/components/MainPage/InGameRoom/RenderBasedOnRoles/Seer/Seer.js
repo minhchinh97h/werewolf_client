@@ -79,28 +79,11 @@ class Seer extends Component{
             })
         })})
 
-
-        //Handle rounds
+        //Handle the first round
         const socket = socketIOClient(serverUrl + 'in-game')
 
         socket.on('connect', () => {
             socket.emit('JoinRoom', this.props.roomid)
-        })
-
-        //after the timer counts to 0, have to inform players that Round 1 will start soon
-        let currentSecond = 10
-
-        socket.on('RetrieveGameStart1stRound', data => {
-            // if(data === 'ok'){
-            //     let timer = setInterval(() => {
-            //         currentSecond--
-
-            //         if(currentSecond < 0){
-                        socket.emit('RequestToGet1stTurn', this.props.roomid)
-            //             clearInterval(timer)
-            //         }
-            //     }, 1000)
-            // }
         })
 
         //Retrieve the 1st turn, if the player is the first to be called, then render its ui
