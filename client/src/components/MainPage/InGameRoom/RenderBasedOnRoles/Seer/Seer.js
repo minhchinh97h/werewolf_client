@@ -49,9 +49,8 @@ class Seer extends Component{
             role: 'Seer/ Fortune Teller'
         }
 
-        socket.on('connect', () => {
-            socket.emit('JoinRoom', sendingData)
-        })
+        socket.emit('RequestToGetNextTurn', sendingData)
+        
     }   
 
     componentDidMount(){
@@ -81,14 +80,14 @@ class Seer extends Component{
         /* <-----------------------------------------------> */
 
         //Handle the first round (every character must have)
-        const socket = socketIOClient(serverUrl + 'in-game')
+        const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
-        socket.on('connect', () => {
-            socket.emit('JoinRoom', this.props.roomid)
+        firstRoundSocket.on('connect', () => {
+            firstRoundSocket.emit('JoinRoom', this.props.roomid)
         })
 
         //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
-        socket.on('Retrieve1stTurn', data => {
+        firstRoundSocket.on('Retrieve1stTurn', data => {
             if(data === this.props.username){
                 this.setState({
                     renderUI: <>
@@ -115,6 +114,10 @@ class Seer extends Component{
 
         //Handle the called turn (every character must have)
         const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+
+        calledTurnSocket.on('connect', () => {
+            calledTurnSocket.on('JoinRoom', this.props.roomid)
+        })
 
         calledTurnSocket.on('getNextTurn', data => {
             if(data.name === this.props.username){
