@@ -5,7 +5,7 @@ import GetPlayers from '../../GetPlayers/GetPlayers'
 
 const serverUrl = 'http://localhost:3001/'
 
-let seer_player_bttn_ids = []
+let seer_target_bttn_ids = []
 
 class Seer extends Component{
 
@@ -24,6 +24,7 @@ class Seer extends Component{
             player: name
         }
 
+        //Do not need to assign this socket to any room channel because it will only receive the response of its request
         const socket = socketIOClient(serverUrl + 'seer')
 
         // socket.on('connect', () => { 
@@ -34,13 +35,10 @@ class Seer extends Component{
         if(window.confirm("Do you want to view " + name + "'s card?")){
             socket.emit('Request', sendingData)
 
-            seer_player_bttn_ids.forEach((bttnId, index) => {
+            seer_target_bttn_ids.forEach((bttnId, index) => {
                 document.getElementById(bttnId).disabled = true
             })
-
-
         }
-
     }
 
     endTurnBttn = () => {
@@ -57,7 +55,7 @@ class Seer extends Component{
     }   
 
     componentDidMount(){
-        // to display all the players that are from the room
+        // to display all the players that are from the room (every character must have)
         const getPlayerSocket = socketIOClient(serverUrl + 'main-page', {
             query: {
                 roomid : this.props.roomid
@@ -66,9 +64,9 @@ class Seer extends Component{
         getPlayerSocket.on('GetPlayersAt' + this.props.roomid, data => {this.setState({
             renderPlayers: data.map((player, index) => {
                 if(player !== this.props.username){
-                    let id = "seer_player_bttn_" + index
+                    let id = "seer_target_bttn_" + index
 
-                    seer_player_bttn_ids.push(id)
+                    seer_target_bttn_ids.push(id)
 
                     return(
                         <div key = {player}>
@@ -79,14 +77,17 @@ class Seer extends Component{
             })
         })})
 
-        //Handle the first round
+
+        /* <-----------------------------------------------> */
+
+        //Handle the first round (every character must have)
         const socket = socketIOClient(serverUrl + 'in-game')
 
         socket.on('connect', () => {
             socket.emit('JoinRoom', this.props.roomid)
         })
 
-        //Retrieve the 1st turn, if the player is the first to be called, then render its ui
+        //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
         socket.on('Retrieve1stTurn', data => {
             if(data === this.props.username){
                 this.setState({
@@ -110,12 +111,16 @@ class Seer extends Component{
         })
 
 
-        //Handle the called turn 
+        /* <-----------------------------------------------> */
+
+        //Handle the called turn (every character must have)
         const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
         calledTurnSocket.on('getNextTurn', data => {
-            console.log(data)
             if(data.name === this.props.username){
+
+                //render UI
+
                 this.setState({
                     renderUI: <>
                         <div>

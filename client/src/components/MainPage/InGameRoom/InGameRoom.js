@@ -54,7 +54,10 @@ class InGameRoom extends Component{
             socket.emit('JoinRoom', this.props.match.params.roomid)
         })
 
-        //Get admin
+        //Get admin to broadcast the request to join the game when start button is pressed and to retrieve the game info
+        //We need to shrink the number of times that all the players make requests to only one (only admin) so that
+        //the server does not need to receive so many redundant incoming requests
+
         const adminSocket = socketIOClient(serverUrl + 'get-admin', {
             query: {
                 roomid: this.props.match.params.roomid
@@ -74,7 +77,8 @@ class InGameRoom extends Component{
             }
         })
 
-        
+        //when the start button is pressed (state is changed), get the game info (this is socket.io's event so that every listener
+        //in the room channel will receive the data whenever the event is triggered)
         socket.on('RetrieveGameInfo', data => {
 
             data.forEach((row) => {
@@ -217,23 +221,23 @@ class InGameRoom extends Component{
                     }
 
                     //Handle the first round
-                    const socket = socketIOClient(serverUrl + 'in-game')
+                    const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
-                    socket.on('connect', () => {
-                        socket.emit('JoinRoom', this.props.match.params.roomid)
+                    firstRoundSocket.on('connect', () => {
+                        firstRoundSocket.emit('JoinRoom', this.props.match.params.roomid)
                     })
 
                     //after the timer counts to 0, have to inform players that Round 1 will start soon
 
                     // let currentSecond = 10
 
-                    socket.on('RetrieveGameStart1stRound', data => {
+                    firstRoundSocket.on('RetrieveGameStart1stRound', data => {
                         // if(data === 'ok'){
                         //     let timer = setInterval(() => {
                         //         currentSecond--
 
                         //         if(currentSecond < 0){
-                            socket.emit('RequestToGet1stTurn', this.props.roomid)
+                            firstRoundSocket.emit('RequestToGet1stTurn', this.props.roomid)
                         //             clearInterval(timer)
                         //         }
                         //     }, 1000)
