@@ -8,6 +8,7 @@ const serverUrl = 'http://localhost:3001/'
 let seer_target_bttn_ids = []
 
 class Seer extends Component{
+    _isMounted = false
 
     state = {
         renderUI: null,
@@ -52,6 +53,8 @@ class Seer extends Component{
     }   
 
     componentDidMount(){
+        this._isMounted = true
+
         // to display all the players that are from the room (every character must have)
         const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
@@ -59,21 +62,25 @@ class Seer extends Component{
             getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
         })
 
-        getPlayerSocket.on('GetPlayers', data => {this.setState({
-            renderPlayers: data.map((player, index) => {
-                if(player !== this.props.username){
-                    let id = "seer_target_bttn_" + index
-
-                    seer_target_bttn_ids.push(id)
-
-                    return(
-                        <div key = {player}>
-                            <button id={id} type="button" onClick={this.playerToRevealBttn.bind(this, player, id)}>{player}</button>
-                        </div>
-                    )
-                }
-            })
-        })})
+        getPlayerSocket.on('GetPlayers', data => {
+            if(this._isMounted){
+                this.setState({
+                    renderPlayers: data.map((player, index) => {
+                        if(player !== this.props.username){
+                            let id = "seer_target_bttn_" + index
+    
+                            seer_target_bttn_ids.push(id)
+    
+                            return(
+                                <div key = {player}>
+                                    <button id={id} type="button" onClick={this.playerToRevealBttn.bind(this, player, id)}>{player}</button>
+                                </div>
+                            )
+                        }
+                    })
+                })
+            }
+        })
 
 
         /* <-----------------------------------------------> */
@@ -87,7 +94,7 @@ class Seer extends Component{
 
         //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
         firstRoundSocket.on('Retrieve1stTurn', data => {
-            if(data === this.props.username){
+            if(data === this.props.username && this._isMounted){
                 this.setState({
                     renderUI: <>
                         <div>
@@ -115,11 +122,11 @@ class Seer extends Component{
         const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
         calledTurnSocket.on('connect', () => {
-            calledTurnSocket.on('JoinRoom', this.props.roomid)
+            calledTurnSocket.emit('JoinRoom', this.props.roomid)
         })
 
         calledTurnSocket.on('getNextTurn', data => {
-            if(data === this.props.username){
+            if(data === this.props.username && this._isMounted){
 
                 //render UI
 
@@ -143,6 +150,10 @@ class Seer extends Component{
             }
         })
 
+    }
+
+    componentWillUnmount(){
+        this._isMounted = false
     }
 
     render(){

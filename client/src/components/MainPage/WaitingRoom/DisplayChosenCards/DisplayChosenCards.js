@@ -6,12 +6,14 @@ const serverUrl = 'http://localhost:3001/'
 
 
 class DisplayChosenCards extends Component{
+    _isMounted = false
 
     state = {
         renderChosenCards: null
     }
 
     componentDidMount(){
+        this._isMounted = true
         const socket = socketIOClient(serverUrl + 'get-current-roles')
         
         socket.on('connect', () => {
@@ -19,7 +21,7 @@ class DisplayChosenCards extends Component{
         })
 
         socket.on('GetSelectedCards', data => {
-            if(data !== null){
+            if(data !== null && this._isMounted){
                 let cards = []
 
                 for(var key in data){
@@ -41,6 +43,10 @@ class DisplayChosenCards extends Component{
             }
             
         })
+    }
+
+    componentWillUnmount(){
+        this._isMounted = false
     }
 
     render(){

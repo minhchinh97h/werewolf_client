@@ -8,6 +8,7 @@ let cupid_target_bttn_ids = [],
     playersToConnect = []
 
 class Cupid extends Component{
+    _isMounted = false
 
     state = {
         renderUI: null,
@@ -47,6 +48,8 @@ class Cupid extends Component{
     }  
 
     componentDidMount(){
+        this._isMounted = true
+
         // to display all the players that are from the room (every character must have)
         const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
@@ -55,22 +58,25 @@ class Cupid extends Component{
         })
 
         getPlayerSocket.on('GetPlayers', data => {
-            this.setState({
-                renderPlayers: data.map((player, index) => {
-                    if(player !== this.props.username){
-                        players.push(player)
-                        let id = "cupid_target_bttn_" + index
-
-                        cupid_target_bttn_ids.push(id)
-
-                        return(
-                            <div key = {player}>
-                                <button id={id} type="button" onClick={this.playersToConnect.bind(this, player, index, id)}>{player}</button>
-                            </div>
-                        )
-                    }
+            if(this._isMounted){
+                this.setState({
+                    renderPlayers: data.map((player, index) => {
+                        if(player !== this.props.username){
+                            players.push(player)
+                            let id = "cupid_target_bttn_" + index
+    
+                            cupid_target_bttn_ids.push(id)
+    
+                            return(
+                                <div key = {player}>
+                                    <button id={id} type="button" onClick={this.playersToConnect.bind(this, player, index, id)}>{player}</button>
+                                </div>
+                            )
+                        }
+                    })
                 })
-        })})
+            }
+        })
 
         /* <-----------------------------------------------> */
 
@@ -83,7 +89,7 @@ class Cupid extends Component{
 
         //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
         firstRoundSocket.on('Retrieve1stTurn', data => {
-            if(data === this.props.username){
+            if(data === this.props.username && this._isMounted){
                 this.setState({
                     renderUI: <>
                         <div>
@@ -114,7 +120,7 @@ class Cupid extends Component{
         })
 
         calledTurnSocket.on('getNextTurn', data => {
-            if(data === this.props.username){
+            if(data === this.props.username && this._isMounted){
 
                 //render UI
 
@@ -141,6 +147,10 @@ class Cupid extends Component{
         /* <-----------------------------------------------> */
 
         //Handle lover
+    }
+
+    componentWillUnmount(){
+        this._isMounted = false
     }
 
     componentDidUpdate(prevProps, prevState){

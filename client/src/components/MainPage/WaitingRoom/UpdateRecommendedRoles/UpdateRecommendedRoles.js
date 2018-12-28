@@ -5,13 +5,20 @@ import recommendedRoles from '../../../../validation/recommendedRoles/recommende
 const serverUrl = 'http://localhost:3001/'
 
 class DisplayRecommendedRoles extends Component{
+    _isMounted = false
+
     state = {
         renderRecommendedRoles: null
     }
 
     componentDidMount(){
+        this._isMounted = true
         
         
+    }
+
+    componentWillUnmount(){
+        this._isMounted = false
     }
 
     componentDidUpdate(prevProps, prevState){
@@ -92,10 +99,12 @@ class DisplayRecommendedRoles extends Component{
             })
     
             socket.on('UpdateRolesLimitAt', data => {
-                let roles = []
-                for(var key in data.recommendedRoles){
-                    if(data.recommendedRoles.hasOwnProperty(key)){
-                        roles.push(key + ': ' + data.recommendedRoles[key])
+                if(this._isMounted){
+                    let roles = []
+                    for(var key in data.recommendedRoles){
+                        if(data.recommendedRoles.hasOwnProperty(key)){
+                            roles.push(key + ': ' + data.recommendedRoles[key])
+                        }
                     }
                 }
             })

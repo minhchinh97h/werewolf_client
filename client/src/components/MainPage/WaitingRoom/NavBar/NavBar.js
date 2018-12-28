@@ -8,12 +8,14 @@ import socketIOClient from 'socket.io-client'
 const serverUrl = 'http://localhost:3001/'
 
 class NavBar extends Component{
+    _isMounted = false
 
     state = {
         
     }
 
     componentDidMount(){
+        this._isMounted = true
         const socket = socketIOClient(serverUrl + 'start-game')
 
         socket.on('connect', () => {
@@ -21,9 +23,13 @@ class NavBar extends Component{
         })
 
         socket.on('RedirectToGameRoom', data => {
-            if(data === "ok")
+            if(data === "ok" && this._isMounted)
                 this.props.history.push(`/game-room/` + this.props.roomid)
         })
+    }
+
+    componentWillUnmount(){
+        this._isMounted = false
     }
 
     render(){

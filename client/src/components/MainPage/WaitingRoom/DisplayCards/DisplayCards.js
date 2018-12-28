@@ -8,6 +8,8 @@ const serverUrl = 'http://localhost:3001/'
 
 
 class DisplayCards extends Component {
+    _isMounted = false
+
     state = {
         renderCards: null,
         renderPressedCards: null,
@@ -103,19 +105,22 @@ class DisplayCards extends Component {
     }
 
     componentDidMount(){
+        this._isMounted = true
         const cardSocket = socketIOClient(serverUrl + 'get-cards')
 
         cardSocket.on('GetCards', data => {
-            this.setState({
-                renderCards: data.map( (card, index) => {
-                    let cardId = "card " + index
-                    return(
-                        <div key = {card.name}>
-                            <button type='button' onClick={this.chooseCardBttn.bind(this, card.name)} id={cardId}>{card.name}</button>
-                        </div>
-                    )
+            if(this._isMounted){
+                this.setState({
+                    renderCards: data.map( (card, index) => {
+                        let cardId = "card " + index
+                        return(
+                            <div key = {card.name}>
+                                <button type='button' onClick={this.chooseCardBttn.bind(this, card.name)} id={cardId}>{card.name}</button>
+                            </div>
+                        )
+                    })
                 })
-            })
+            }
         })
 
         const socket = socketIOClient(serverUrl + 'get-current-roles')
@@ -126,7 +131,7 @@ class DisplayCards extends Component {
 
         socket.on('GetSelectedCards', data => {
             
-            if(data !== null){
+            if(data !== null && this._isMounted){
                 for(var key in data){
                     if(data.hasOwnProperty(key)){
                         currentRoles[key] = data[key]
@@ -163,8 +168,8 @@ class DisplayCards extends Component {
         })
     }
     
-    componentDidUpdate(prevProps, prevState){
-
+    componentWillUnmount(){
+        this._isMounted = false
     }
 
     render(){
