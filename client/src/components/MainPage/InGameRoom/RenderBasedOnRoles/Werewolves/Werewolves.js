@@ -19,12 +19,13 @@ class Werewolves extends Component{
 
     componentDidMount(){
         // to display all the players that are from the room
-        const getPlayerSocket = socketIOClient(serverUrl + 'main-page', {
-            query: {
-                roomid : this.props.roomid
-            }
-        } )
-        getPlayerSocket.on('GetPlayersAt' + this.props.roomid, data => {this.setState({
+        const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+
+        getPlayerSocket.on('connect', () => {
+            getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
+        })
+
+        getPlayerSocket.on('GetPlayers', data => {this.setState({
             renderPlayers: data.map(player => {
                 if(player !== this.props.username){
                     return(

@@ -12,9 +12,7 @@ class Seer extends Component{
     state = {
         renderUI: null,
         renderPlayers: null,
-        personToSee: null,
         renderTargetRole: null,
-        confirmPopup: null,
         endTurnConfirm: null
     }
 
@@ -55,12 +53,13 @@ class Seer extends Component{
 
     componentDidMount(){
         // to display all the players that are from the room (every character must have)
-        const getPlayerSocket = socketIOClient(serverUrl + 'main-page', {
-            query: {
-                roomid : this.props.roomid
-            }
-        } )
-        getPlayerSocket.on('GetPlayersAt' + this.props.roomid, data => {this.setState({
+        const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+        
+        getPlayerSocket.on('connect', () => {
+            getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
+        })
+
+        getPlayerSocket.on('GetPlayers', data => {this.setState({
             renderPlayers: data.map((player, index) => {
                 if(player !== this.props.username){
                     let id = "seer_target_bttn_" + index

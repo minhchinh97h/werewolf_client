@@ -11,7 +11,9 @@ class TheFox extends Component{
 
     state = {
         renderUI: null,
-        renderPlayers: null
+        renderPlayers: null,
+        renderTargetRole: null,
+        endTurnConfirm: null
     }
 
     playersToRevealBttn = (name, index, e) => {
@@ -57,12 +59,13 @@ class TheFox extends Component{
 
     componentDidMount(){
         // to display all the players that are from the room (every character must have)
-        const getPlayerSocket = socketIOClient(serverUrl + 'main-page', {
-            query: {
-                roomid : this.props.roomid
-            }
-        } )
-        getPlayerSocket.on('GetPlayersAt' + this.props.roomid, data => {this.setState({
+        const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+        
+        getPlayerSocket.on('connect', () => {
+            getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
+        })
+
+        getPlayerSocket.on('GetPlayers', data => {this.setState({
             renderPlayers: data.map((player, index) => {
                 if(player !== this.props.username){
                     players.push(player)
@@ -135,7 +138,7 @@ class TheFox extends Component{
                     </>
                 })
     
-                //Seer's action
+                //The Fox's action
                 const foxSocket = socketIOClient(serverUrl + 'the-fox')
     
                 foxSocket.on('GetScentPlayers', (data) => {

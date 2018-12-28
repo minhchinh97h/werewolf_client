@@ -9,12 +9,12 @@ class DisplayPlayerNames extends Component{
     }
 
     componentDidMount(){
-        const socket = socketIOClient(serverUrl + 'main-page', {
-            query: {
-                roomid : this.props.roomid
-            }
-        } )
-        socket.on('GetPlayersAt' + this.props.roomid, data => {this.setState({renderPlayerNames: data.map(player => {return(<div key = {player}><p>{player}</p></div>)})})})
+        const socket = socketIOClient(serverUrl + 'main-page')
+        socket.on('connect', () => {
+            socket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
+        })
+
+        socket.on('GetPlayers', data => {this.setState({renderPlayerNames: data.map(player => {return(<div key = {player}><p>{player}</p></div>)})})})
     }
 
     render(){
