@@ -114,7 +114,7 @@ class Cupid extends Component{
         })
 
         calledTurnSocket.on('getNextTurn', data => {
-            if(data.name === this.props.username){
+            if(data === this.props.username){
 
                 //render UI
 
@@ -137,6 +137,10 @@ class Cupid extends Component{
                 })
             }
         })
+
+        /* <-----------------------------------------------> */
+
+        //Handle lover
     }
 
     componentDidUpdate(prevProps, prevState){

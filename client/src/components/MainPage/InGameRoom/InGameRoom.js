@@ -82,170 +82,172 @@ class InGameRoom extends Component{
         socket.on('RetrieveGameInfo', data => {
 
             data.forEach((row) => {
-                if(row.name === this.props.match.params.username){
+                row.player.forEach(name => {
+                    if(name === this.props.match.params.username){
 
-                    this.setState({
-                        renderPlayerRole: <b>You are {row.role}</b>
-                    })
-
-                    if(row.role === "Werewolves"){
                         this.setState({
-                            renderRoleUI: <Werewolves roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            renderPlayerRole: <b>You are {row.name}</b>
                         })
-                    }
 
-                    else if(row.role === "Ordinary Townsfolk"){
-                        this.setState({
-                            renderRoleUI: <NoAbilityFolk roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                        if(row.name === "Werewolves"){
+                            this.setState({
+                                renderRoleUI: <Werewolves roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "Ordinary Townsfolk"){
+                            this.setState({
+                                renderRoleUI: <NoAbilityFolk roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "Seer/ Fortune Teller"){
+                            this.setState({
+                                renderRoleUI: <Seer roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "Hunter"){
+                            this.setState({
+                                renderRoleUI: <Hunter roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "Cupid"){
+                            this.setState({
+                                renderRoleUI: <Cupid roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                            })
+                        }
+
+                        else if(row.name === "Witch"){
+                            this.setState({
+                                renderRoleUI: <Witch roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                            })
+                        }
+
+                        else if(row.name === "Little Girl"){
+                            this.setState({
+                                renderRoleUI: <LittleGirl roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                            })
+                        }
+
+                        else if(row.name === "Thief"){
+                            this.setState({
+                                renderRoleUI: <Thief roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                            })
+                        }
+
+                        else if(row.name === "The village Idiot"){
+                            this.setState({
+                                renderRoleUI: <NoAbilityFolk roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                            })
+                        }
+
+                        else if(row.name === "The ancient"){
+                            this.setState({
+                                renderRoleUI: <NoAbilityFolk roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                            })
+                        }
+
+                        else if(row.name === "The scapegoat"){
+                            this.setState({
+                                renderRoleUI: <TheScapegoat roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "The savior"){
+                            this.setState({
+                                renderRoleUI: <TheSavior roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "The pied piper"){
+                            this.setState({
+                                renderRoleUI: <ThePiedPiper roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "The villager villager"){
+                            this.setState({
+                                renderRoleUI: <NoAbilityFolk roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "The two sisters"){
+                            this.setState({
+                                renderRoleUI: <TheSibblings roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "The three brothers"){
+                            this.setState({
+                                renderRoleUI: <TheSibblings roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "The knight with the rusty sword"){
+                            this.setState({
+                                renderRoleUI: <TheKnight roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "The fox"){
+                            this.setState({
+                                renderRoleUI: <TheFox roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "The bear leader"){
+                            this.setState({
+                                renderRoleUI: <BearLeader roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "The devoted servant"){
+                            this.setState({
+                                renderRoleUI: <DevotedServant roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "The wild child"){
+                            this.setState({
+                                renderRoleUI: <WildChild roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        else if(row.name === "The dog wolf"){
+                            this.setState({
+                                renderRoleUI: <DogWolf roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                            })
+                        }
+
+                        //Handle the first round
+                        const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
+
+                        firstRoundSocket.on('connect', () => {
+                            firstRoundSocket.emit('JoinRoom', this.props.match.params.roomid)
                         })
-                    }
 
-                    else if(row.role === "Seer/ Fortune Teller"){
-                        this.setState({
-                            renderRoleUI: <Seer roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                        //after the timer counts to 0, have to inform players that Round 1 will start soon
+
+                        // let currentSecond = 10
+
+                        firstRoundSocket.on('RetrieveGameStart1stRound', data => {
+                            // if(data === 'ok'){
+                            //     let timer = setInterval(() => {
+                            //         currentSecond--
+
+                            //         if(currentSecond < 0){
+                                firstRoundSocket.emit('RequestToGet1stTurn', this.props.roomid)
+                            //             clearInterval(timer)
+                            //         }
+                            //     }, 1000)
+                            // }
                         })
+
+                        
                     }
-
-                    else if(row.role === "Hunter"){
-                        this.setState({
-                            renderRoleUI: <Hunter roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                        })
-                    }
-
-                    else if(row.role === "Cupid"){
-                        this.setState({
-                            renderRoleUI: <Cupid roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
-                        })
-                    }
-
-                    else if(row.role === "Witch"){
-                        this.setState({
-                            renderRoleUI: <Witch roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
-                        })
-                    }
-
-                    else if(row.role === "Little Girl"){
-                        this.setState({
-                            renderRoleUI: <LittleGirl roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
-                        })
-                    }
-
-                    else if(row.role === "Thief"){
-                        this.setState({
-                            renderRoleUI: <Thief roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
-                        })
-                    }
-
-                    else if(row.role === "The village Idiot"){
-                        this.setState({
-                            renderRoleUI: <NoAbilityFolk roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
-                        })
-                    }
-
-                    else if(row.role === "The ancient"){
-                        this.setState({
-                            renderRoleUI: <NoAbilityFolk roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
-                        })
-                    }
-
-                    else if(row.role === "The scapegoat"){
-                        this.setState({
-                            renderRoleUI: <TheScapegoat roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                        })
-                    }
-
-                    else if(row.role === "The savior"){
-                        this.setState({
-                            renderRoleUI: <TheSavior roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                        })
-                    }
-
-                    else if(row.role === "The pied piper"){
-                        this.setState({
-                            renderRoleUI: <ThePiedPiper roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                        })
-                    }
-
-                    else if(row.role === "The villager villager"){
-                        this.setState({
-                            renderRoleUI: <NoAbilityFolk roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                        })
-                    }
-
-                    else if(row.role === "The two sisters"){
-                        this.setState({
-                            renderRoleUI: <TheSibblings roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                        })
-                    }
-
-                    else if(row.role === "The three brothers"){
-                        this.setState({
-                            renderRoleUI: <TheSibblings roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                        })
-                    }
-
-                    else if(row.role === "The knight with the rusty sword"){
-                        this.setState({
-                            renderRoleUI: <TheKnight roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                        })
-                    }
-
-                    else if(row.role === "The fox"){
-                        this.setState({
-                            renderRoleUI: <TheFox roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                        })
-                    }
-
-                    else if(row.role === "The bear leader"){
-                        this.setState({
-                            renderRoleUI: <BearLeader roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                        })
-                    }
-
-                    else if(row.role === "The devoted servant"){
-                        this.setState({
-                            renderRoleUI: <DevotedServant roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                        })
-                    }
-
-                    else if(row.role === "The wild child"){
-                        this.setState({
-                            renderRoleUI: <WildChild roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                        })
-                    }
-
-                    else if(row.role === "The dog wolf"){
-                        this.setState({
-                            renderRoleUI: <DogWolf roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                        })
-                    }
-
-                    //Handle the first round
-                    const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
-
-                    firstRoundSocket.on('connect', () => {
-                        firstRoundSocket.emit('JoinRoom', this.props.match.params.roomid)
-                    })
-
-                    //after the timer counts to 0, have to inform players that Round 1 will start soon
-
-                    // let currentSecond = 10
-
-                    firstRoundSocket.on('RetrieveGameStart1stRound', data => {
-                        // if(data === 'ok'){
-                        //     let timer = setInterval(() => {
-                        //         currentSecond--
-
-                        //         if(currentSecond < 0){
-                            firstRoundSocket.emit('RequestToGet1stTurn', this.props.roomid)
-                        //             clearInterval(timer)
-                        //         }
-                        //     }, 1000)
-                        // }
-                    })
-
-                    
-                }
+                })
             });
         })
 

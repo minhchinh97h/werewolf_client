@@ -60,7 +60,7 @@ class TheFox extends Component{
     componentDidMount(){
         // to display all the players that are from the room (every character must have)
         const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
-        
+
         getPlayerSocket.on('connect', () => {
             getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
         })
@@ -94,6 +94,7 @@ class TheFox extends Component{
 
         //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
         firstRoundSocket.on('Retrieve1stTurn', data => {
+            
             if(data === this.props.username){
                 this.setState({
                     renderUI: <>
@@ -126,7 +127,7 @@ class TheFox extends Component{
         })
 
         calledTurnSocket.on('getNextTurn', data => {
-            if(data.name === this.props.username){
+            if(data === this.props.username){
 
                 //render UI
 

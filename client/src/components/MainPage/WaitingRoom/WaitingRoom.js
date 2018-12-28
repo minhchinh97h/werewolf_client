@@ -13,6 +13,7 @@ const serverUrl = 'http://localhost:3001/'
 
 
 class WaitingRoom extends Component{
+    _isMounted = false
 
     state = {
         ifAdmin: false,
@@ -22,6 +23,8 @@ class WaitingRoom extends Component{
     }
 
     componentDidMount(){
+        this._isMounted = true
+
         const socket = socketIOClient(serverUrl + 'get-admin', {
             query: {
                 roomid: this.props.match.params.roomid
@@ -33,20 +36,22 @@ class WaitingRoom extends Component{
         })
 
         socket.on('GetAdmin', data => {
-            this.setState({
-                admin: data.admin,
-                numberOfPlayers: data.numberOfPlayers
-            })
-
-            if(this.props.match.params.username === data.admin){
+            if(this._isMounted){
                 this.setState({
-                    ifAdmin: true
+                    admin: data.admin,
+                    numberOfPlayers: data.numberOfPlayers
                 })
-            }
-            else{
-                this.setState({
-                    ifAdmin: false
-                })
+    
+                if(this.props.match.params.username === data.admin){
+                    this.setState({
+                        ifAdmin: true
+                    })
+                }
+                else{
+                    this.setState({
+                        ifAdmin: false
+                    })
+                }
             }
         })
 
@@ -57,11 +62,15 @@ class WaitingRoom extends Component{
         })
         
         startGameSocket.on('RedirectToGameRoom', data => {
-            if(data === "ok")
+            if(data === "ok" && this._isMounted)
                 this.props.history.push('/in-game-room/' + this.props.match.params.roomid + '/' + this.props.match.params.username)
         })
     }
 
+    componentWillUnmount(){
+        this._isMounted = false
+    }
+    
     componentDidUpdate(prevProps, prevState){
         if(this.state.ifStartGame !== prevState.ifStartGame && this.state.ifStartGame){
             

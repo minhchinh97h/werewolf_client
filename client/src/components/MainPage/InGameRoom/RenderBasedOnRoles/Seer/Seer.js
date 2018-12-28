@@ -54,7 +54,7 @@ class Seer extends Component{
     componentDidMount(){
         // to display all the players that are from the room (every character must have)
         const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
-        
+
         getPlayerSocket.on('connect', () => {
             getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
         })
@@ -98,7 +98,7 @@ class Seer extends Component{
 
                 //Seer's action
                 const seerSocket = socketIOClient(serverUrl + 'seer')
-
+                
                 seerSocket.on('RevealPlayer', (data) => {
                     this.setState({
                         renderTargetRole: <b>The target's role is: {data}</b>,
@@ -119,7 +119,7 @@ class Seer extends Component{
         })
 
         calledTurnSocket.on('getNextTurn', data => {
-            if(data.name === this.props.username){
+            if(data === this.props.username){
 
                 //render UI
 
