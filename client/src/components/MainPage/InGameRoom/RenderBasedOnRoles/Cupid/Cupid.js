@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 import socketIOClient from 'socket.io-client'
 
-import GetPlayers from '../../GetPlayers/GetPlayers'
-
 const serverUrl = 'http://localhost:3001/'
 
 let cupid_target_bttn_ids = [],
-    players= []
+    players= [],
+    playersToConnect = []
 
 class Cupid extends Component{
 
@@ -14,24 +13,25 @@ class Cupid extends Component{
         renderUI: null,
         renderPlayers: null,
         renderTargetConnection: null,
-        endTurnConfirm: null,
-        playersToConnect: new Array(2)
+        endTurnConfirm: null
     }
 
     playersToConnect = (name, index, bttnId, e) => {
-        
-        const socket = socketIOClient(serverUrl + 'cupid')
-
-        let playersToConnect = this.state.playersToConnect
-
         if(window.confirm("Do you want to choose " + name + "?")){
             playersToConnect.push(name)
 
-            this.setState({
-                playersToConnect: playersToConnect
-            })
-
             document.getElementById(bttnId).disabled = true
+
+            if(playersToConnect.length === 2){
+                const socket = socketIOClient(serverUrl + 'cupid')
+
+                let sendingData = {
+                    roomid: this.props.roomid,
+                    playersToConnect: playersToConnect
+                }
+
+                socket.emit('RequestToConnectPlayers', sendingData)
+            }
         }
     }
 
@@ -93,9 +93,9 @@ class Cupid extends Component{
                 })
 
                 //Cupid's action
-                const foxSocket = socketIOClient(serverUrl + 'cupid')
+                const cupidSocket = socketIOClient(serverUrl + 'cupid')
 
-                foxSocket.on('ConnectedPlayers', (data) => {
+                cupidSocket.on('ConnectedPlayers', (data) => {
                     this.setState({
                         renderTargetConnection: <b>{data.player1} is now connected with {data.player2}</b>,
                         endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
@@ -127,9 +127,9 @@ class Cupid extends Component{
                 })
     
                 //Cupid's action
-                const foxSocket = socketIOClient(serverUrl + 'cupid')
+                const cupidSocket = socketIOClient(serverUrl + 'cupid')
     
-                foxSocket.on('ConnectedPlayers', (data) => {
+                cupidSocket.on('ConnectedPlayers', (data) => {
                     this.setState({
                         renderTargetConnection: <b>{data.player1} is now connected with {data.player2}</b>,
                         endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
@@ -140,12 +140,7 @@ class Cupid extends Component{
     }
 
     componentDidUpdate(prevProps, prevState){
-        if(this.state.playersToConnect !== prevState.playersToConnect){
-            console.log(false)
-        }
-        else{
-            console.log(true)
-        }
+        
     }
 
     render(){
