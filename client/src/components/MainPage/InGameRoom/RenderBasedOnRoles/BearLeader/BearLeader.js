@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import socketIOClient from 'socket.io-client'
 
-import GetPlayers from '../../GetPlayers/GetPlayers'
-
 const serverUrl = 'http://localhost:3001/'
 
 let bear_target_bttn_ids = [],
@@ -14,13 +12,34 @@ class BearLeader extends Component{
     state = {
         renderUI: null,
         renderPlayers: null,
-
+        endTurnConfirm: null,
+        renderScentTargetNeighbor: null,
+        renderLovers: null
     }
 
     PlayerToScent = (name, index, e) => {
+        if(window.confirm("Do you want to scent " + name +"?")){
+            const socket = socketIOClient(serverUrl + 'bear')
 
+            let sendingData = {
+                roomid: this.props.roomid,
+                player: name
+            }
+
+            socket.emit('RequestToScentPlayer', sendingData)
+        }
     }
 
+    endTurnBttn = () => {
+        const socket = socketIOClient(serverUrl + 'retrieve-next-turn')
+        
+        let sendingData = {
+            roomid: this.props.roomid,
+            role: 'The bear leader'
+        }
+
+        socket.emit('RequestToGetNextTurn', sendingData)
+    }  
 
     componentDidMount(){
         this._isMounted = true
@@ -75,9 +94,9 @@ class BearLeader extends Component{
                     //Bear's action
                     const bearSocket = socketIOClient(serverUrl + 'bear')
 
-                    bearSocket.on('ConnectedPlayers', (data) => {
+                    bearSocket.on('ScentPlayer', (data) => {
                         this.setState({
-                            renderTargetConnection: <b>{data.player1} is now connected with {data.player2}</b>,
+                            renderScentTargetNeighbor: <b>{data ? 'Werewolve(s) exists' : 'There is none of Werewolves'}</b> ,
                             endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
                         })
                     })
@@ -107,13 +126,35 @@ class BearLeader extends Component{
                     //Bear's action
                     const bearSocket = socketIOClient(serverUrl + 'bear')
         
-                    bearSocket.on('ConnectedPlayers', (data) => {
+                    bearSocket.on('ScentPlayer', (data) => {
                         this.setState({
-                            renderTargetConnection: <b>{data.player1} is now connected with {data.player2}</b>,
+                            renderScentTargetNeighbor: <b>{data ? 'Werewolve(s) exists' : 'There is none of Werewolves'}</b>,
                             endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
                         })
                     })
                 }
+            })
+
+            /* <-----------------------------------------------> */
+
+            //Handle lover (every character must have)
+            const loverSocket = socketIOClient(serverUrl + 'in-game')
+
+            loverSocket.on('RevealLovers', (data) => {
+                data.forEach((info, index) => {
+                    if(info.player === this.props.username){
+                        if(index === 0)
+                            this.setState({
+                                renderLovers: <b>You are now in love with {data[index+1].player} - {data[index+1].role}</b>
+                            })
+                        
+                        else{
+                            this.setState({
+                                renderLovers: <b>You are now in love with {data[index-1].player} - {data[index-1].role}</b>
+                            })
+                        }
+                    }
+                })
             })
         }
     }
@@ -130,6 +171,18 @@ class BearLeader extends Component{
                 <br></br>
 
                 {this.state.renderPlayers}
+
+                <br></br>
+
+                {this.state.renderScentTargetNeighbor}
+
+                <br></br>
+
+                {this.state.renderLovers}
+
+                <br></br>
+
+                {this.state.endTurnConfirm}
             </>
         )
     }

@@ -14,7 +14,8 @@ class Cupid extends Component{
         renderUI: null,
         renderPlayers: null,
         renderTargetConnection: null,
-        endTurnConfirm: null
+        endTurnConfirm: null,
+        renderLovers: null,
     }
 
     playersToConnect = (name, index, bttnId, e) => {
@@ -50,15 +51,15 @@ class Cupid extends Component{
     componentDidMount(){
         this._isMounted = true
 
-        // to display all the players that are from the room (every character must have)
-        const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+        if(this._isMounted){
+            // to display all the players that are from the room (every character must have)
+            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
-        getPlayerSocket.on('connect', () => {
-            getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
-        })
+            getPlayerSocket.on('connect', () => {
+                getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
+            })
 
-        getPlayerSocket.on('GetPlayers', data => {
-            if(this._isMounted){
+            getPlayerSocket.on('GetPlayers', data => {
                 this.setState({
                     renderPlayers: data.map((player, index) => {
                         if(player !== this.props.username){
@@ -75,78 +76,98 @@ class Cupid extends Component{
                         }
                     })
                 })
-            }
-        })
+                
+            })
 
-        /* <-----------------------------------------------> */
+            /* <-----------------------------------------------> */
 
-        //Handle the first round (every character must have)
-        const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
+            //Handle the first round (every character must have)
+            const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
-        firstRoundSocket.on('connect', () => {
-            firstRoundSocket.emit('JoinRoom', this.props.roomid)
-        })
+            firstRoundSocket.on('connect', () => {
+                firstRoundSocket.emit('JoinRoom', this.props.roomid)
+            })
 
-        //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
-        firstRoundSocket.on('Retrieve1stTurn', data => {
-            if(data === this.props.username && this._isMounted){
-                this.setState({
-                    renderUI: <>
-                        <div>
-                            <p>Who do you want to connect?</p>
-                        </div>
-                    </>
-                })
-
-                //Cupid's action
-                const cupidSocket = socketIOClient(serverUrl + 'cupid')
-
-                cupidSocket.on('ConnectedPlayers', (data) => {
+            //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
+            firstRoundSocket.on('Retrieve1stTurn', data => {
+                if(data === this.props.username){
                     this.setState({
-                        renderTargetConnection: <b>{data.player1} is now connected with {data.player2}</b>,
-                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                        renderUI: <>
+                            <div>
+                                <p>Who do you want to connect?</p>
+                            </div>
+                        </>
                     })
-                })
-            }
-        })
 
-        /* <-----------------------------------------------> */
+                    //Cupid's action
+                    const cupidSocket = socketIOClient(serverUrl + 'cupid')
 
-        //Handle the called turn (every character must have)
-        const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+                    cupidSocket.on('ConnectedPlayers', (data) => {
+                        this.setState({
+                            renderTargetConnection: <b>{data[0].player} is now connected with {data[1].player}</b>,
+                            endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                        })
+                    })
+                }
+            })
 
-        calledTurnSocket.on('connect', () => {
-            calledTurnSocket.emit('JoinRoom', this.props.roomid)
-        })
+            /* <-----------------------------------------------> */
 
-        calledTurnSocket.on('getNextTurn', data => {
-            if(data === this.props.username && this._isMounted){
+            //Handle the called turn (every character must have)
+            const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
-                //render UI
+            calledTurnSocket.on('connect', () => {
+                calledTurnSocket.emit('JoinRoom', this.props.roomid)
+            })
 
-                this.setState({
-                    renderUI: <>
-                        <div>
-                            <p>Who do you want to connect?</p>
-                        </div>
-                    </>
-                })
-    
-                //Cupid's action
-                const cupidSocket = socketIOClient(serverUrl + 'cupid')
-    
-                cupidSocket.on('ConnectedPlayers', (data) => {
+            calledTurnSocket.on('getNextTurn', data => {
+                if(data === this.props.username){
+
+                    //render UI
+
                     this.setState({
-                        renderTargetConnection: <b>{data.player1} is now connected with {data.player2}</b>,
-                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                        renderUI: <>
+                            <div>
+                                <p>Who do you want to connect?</p>
+                            </div>
+                        </>
                     })
+        
+                    //Cupid's action
+                    const cupidSocket = socketIOClient(serverUrl + 'cupid')
+        
+                    cupidSocket.on('ConnectedPlayers', (data) => {
+                        this.setState({
+                            renderTargetConnection: <b>{data[0].player} is now connected with {data[1].player}</b>,
+                            endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                        })
+                    })
+                }
+            })
+
+            /* <-----------------------------------------------> */
+
+            //Handle lover (every character must have)
+            const loverSocket = socketIOClient(serverUrl + 'in-game')
+
+            loverSocket.on('RevealLovers', (data) => {
+                data.forEach((info, index) => {
+                    if(info.player === this.props.username){
+                        if(index === 0)
+                            this.setState({
+                                renderLovers: <b>You are now in love with {data[index+1].player} - {data[index+1].role}</b>
+                            })
+                        
+                        else{
+                            this.setState({
+                                renderLovers: <b>You are now in love with {data[index-1].player} - {data[index-1].role}</b>
+                            })
+                        }
+                    }
                 })
-            }
-        })
+            })
+        }
 
-        /* <-----------------------------------------------> */
-
-        //Handle lover
     }
 
     componentWillUnmount(){
@@ -169,6 +190,10 @@ class Cupid extends Component{
                 <br></br>
 
                 {this.state.renderTargetConnection}
+
+                <br></br>
+
+                {this.state.renderLovers}
 
                 <br></br>
 
