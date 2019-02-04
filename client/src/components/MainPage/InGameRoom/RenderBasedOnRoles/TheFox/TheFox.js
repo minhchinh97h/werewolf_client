@@ -15,7 +15,8 @@ class TheFox extends Component{
         renderPlayers: null,
         renderTargetRole: null,
         endTurnConfirm: null,
-        renderLovers: null
+        renderLovers: null,
+        renderCharmedPlayers: null
     }
 
     playersToRevealBttn = (name, index, e) => {
@@ -179,6 +180,35 @@ class TheFox extends Component{
                     }
                 })
             })
+
+            /* <-----------------------------------------------> */
+
+            //Handle changes of the total charmed players via a socket event (every character must have)
+            const getCharmedSocket = socketIOClient(serverUrl + 'piper')
+
+            getCharmedSocket.on('GetListOfCharmed', (data) => {
+
+                data.every((player) => {
+                    if(this.props.username === player){
+                        this.setState({
+                            renderCharmedPlayers: data.map((player, index) => {
+                                let key = 'charmed_' + index
+                                return(
+                                    <div key={key}>
+                                        <p>{player}</p>
+                                    </div>
+                                )
+                            })
+                        })
+
+                        return false
+                    }
+
+                    else
+                        return true
+                })
+                
+            })
         }
     }
 
@@ -198,6 +228,11 @@ class TheFox extends Component{
                 <br></br>
 
                 {this.state.renderTargetRole}
+
+                <br></br>
+
+                <h3>List of Charmed Players: </h3>
+                {this.state.renderCharmedPlayers}
 
                 <br></br>
 

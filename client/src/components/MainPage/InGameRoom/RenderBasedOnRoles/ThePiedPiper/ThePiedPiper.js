@@ -104,7 +104,7 @@ class ThePiedPiper extends Component{
                     const piperSocket = socketIOClient(serverUrl + 'piper')
 
                     piperSocket.on('CharmedPlayers', (data) => {
-                        prompt(data[0].player + " is now connected with " + data[1].player)
+                        prompt(data[0].player + ', ' + data[1].player + ' are charmed!')
 
                         this.setState({
                             endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
@@ -139,7 +139,7 @@ class ThePiedPiper extends Component{
                     const piperSocket = socketIOClient(serverUrl + 'piper')
         
                     piperSocket.on('CharmedPlayers', (data) => {
-                        prompt(data[0].player + " is now connected with " + data[1].player)
+                        prompt(data[0].player + ', ' + data[1].player + ' are charmed!')
                         this.setState({
                             endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
                         })
@@ -175,15 +175,24 @@ class ThePiedPiper extends Component{
             const getCharmedSocket = socketIOClient(serverUrl + 'piper')
 
             getCharmedSocket.on('GetListOfCharmed', (data) => {
-                this.setState({
-                    renderCharmedPlayers: data.map((player, index) => {
-                        let key = 'charmed_' + index
-                        return(
-                            <div key={key}>
-                                <p>{player}</p>
-                            </div>
-                        )
-                    })
+                data.every((player) => {
+                    if(this.props.username === player){
+                        this.setState({
+                            renderCharmedPlayers: data.map((player, index) => {
+                                let key = 'charmed_' + index
+                                return(
+                                    <div key={key}>
+                                        <p>{player}</p>
+                                    </div>
+                                )
+                            })
+                        })
+
+                        return false
+                    }
+
+                    else
+                        return true
                 })
             })
         }
