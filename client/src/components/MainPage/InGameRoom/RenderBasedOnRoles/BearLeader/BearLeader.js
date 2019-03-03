@@ -160,7 +160,7 @@ class BearLeader extends Component{
 
             /* <-----------------------------------------------> */
 
-            //Handle changes of the total charmed players via a socket event
+            //Handle changes of the total charmed players via a socket event (every character must have)
             const getCharmedSocket = socketIOClient(serverUrl + 'piper')
 
             getCharmedSocket.on('GetListOfCharmed', (data) => {

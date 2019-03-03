@@ -175,8 +175,8 @@ class Seer extends Component{
 
             /* <-----------------------------------------------> */
 
-            //Handle changes of the total charmed players via a socket event
-            const getCharmedSocket = socketIOClient(serverUrl + 'piper')
+            //Handle changes of the total charmed players via a socket event (every character must have)
+            const getCharmedSocket = socketIOClient(serverUrl + 'piper') 
 
             getCharmedSocket.on('GetListOfCharmed', (data) => {
                 data.every((player) => {
