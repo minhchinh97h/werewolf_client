@@ -189,6 +189,15 @@ class TheSavior extends Component{
                         return true
                 })
             })
+
+            /* <-----------------------------------------------> */
+
+            //Handle the end of a round (every character must have)
+            const roundEndsSocket = socketIOClient(serverUrl + 'retrieve-round-ends')
+
+            roundEndsSocket.on('RoundEnds', data => {
+                console.log(data)
+            })
         }
     }
 
