@@ -41,7 +41,7 @@ class TheFox extends Component{
         const socket = socketIOClient(serverUrl + 'the-fox')
 
         if(window.confirm("Do you want to scent " + name + " and the two adjacent neighbors?")){
-            socket.emit('Request', sendingData)
+            socket.emit('RequestToScent', sendingData)
 
             the_fox_target_bttn_ids.forEach((bttnId, index) => {
                 document.getElementById(bttnId).disabled = true

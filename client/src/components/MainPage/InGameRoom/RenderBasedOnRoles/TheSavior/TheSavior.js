@@ -12,7 +12,8 @@ class TheSavior extends Component{
     _isMounted = false
 
     state = {
-        
+        isDead: false,
+        isSilence: false
     }
 
     ProtectPlayer = (name, e) => {
@@ -194,15 +195,43 @@ class TheSavior extends Component{
 
             //Handle the end of a round (every character must have)
             const roundEndsSocket = socketIOClient(serverUrl + 'retrieve-round-ends')
+            
+            roundEndsSocket.emit('JoinRoom', this.props.roomid)
 
             roundEndsSocket.on('RoundEnds', data => {
-                console.log(data)
+                
+                data.deaths.forEach((death, i) => {
+                    if(this.props.username === death){
+                        this.setState((prevState) => ({
+                            isDead: !prevState.isDead
+                        }))
+                    }
+                })
+
+                if(data.silence === this.props.username)
+                    this.setState((prevState) => ({
+                        isSilence: !prevState.isSilence
+                    }))
+                
+                //To do when the player is alive, use conditional statement in render method with this.state.isDead to update the UI if player is alive
+                //1st: create a timer 
+                //2nd: Use the similar UI layout for implementing the voting stage
+                //3rd: after player confirms another player to execute, add a cancel button to re-choose (or not, just one confirmation button and an alert as Cupid's)
             })
         }
     }
 
     componentWillUnmount(){
         this._isMounted = false
+    }
+
+    componentDidUpdate(prevProps, prevState){
+        if(this.state.isDead && this.state.isDead !== prevState.isDead){
+            //To do when the player is dead
+            //disable all buttons
+            //display all the roles
+            //faden the screen's color to gray
+        }
     }
 
     render(){

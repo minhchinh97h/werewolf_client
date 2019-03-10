@@ -28,10 +28,6 @@ class Seer extends Component{
         //Do not need to assign this socket to any room channel because it will only receive the response of its request
         const socket = socketIOClient(serverUrl + 'seer')
 
-        // socket.on('connect', () => { 
-        //     socket.emit('JoinRoom', sendingData)
-        // })
-
 
         if(window.confirm("Do you want to view " + name + "'s card?")){
             socket.emit('Request', sendingData)

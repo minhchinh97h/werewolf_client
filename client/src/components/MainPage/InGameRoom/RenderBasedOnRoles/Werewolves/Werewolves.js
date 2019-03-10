@@ -185,6 +185,10 @@ class Werewolves extends Component{
             //Handle other werewolves choices && confirmation that the kill target is saved into database && final target
             const otherSocket = socketIOClient(serverUrl + 'werewolves')
 
+            //Join room for the werewolves namespace
+            otherSocket.on('connect', () => {
+                otherSocket.emit('JoinRoom', this.props.roomid)
+            })
 
             //others choices
             otherSocket.on('OtherChoices', (data) => {
