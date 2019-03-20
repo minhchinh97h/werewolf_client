@@ -5,7 +5,7 @@ import NumberOfPlayers from './NumberOfPlayers/NumberOfPlayers'
 import StartBttn from './StartBttn/StartBttn'
 import socketIOClient from 'socket.io-client'
 
-const serverUrl = 'http://localhost:3001/'
+import serverUrl from '../../../../serverUrl'
 
 class NavBar extends Component{
     _isMounted = false
@@ -35,13 +35,6 @@ class NavBar extends Component{
     render(){
         return(
             <>
-                <div className="admin-section">
-                    <GetAdmin admin={this.props.admin} />
-                </div>
-                <div className="number-of-player-section">
-                    <NumberOfPlayers numberOfPlayers = {this.props.numberOfPlayers} roomid = {this.props.roomid}/>
-                </div>
-
                 { this.props.ifAdmin ? 
                     <div className="start-button-section">
                         <StartBttn roomid = {this.props.roomid} username = {this.props.username} />

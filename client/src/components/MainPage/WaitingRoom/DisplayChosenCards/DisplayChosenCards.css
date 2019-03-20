@@ -1,0 +1,21 @@
+.display-chosen-cards{
+    position: relative;
+    height: 70%;
+    width: 100%;
+    border-top: 1px solid #168eff;
+    border-bottom: 1px solid #168eff;
+    overflow: auto;
+    display: block;
+}
+
+.chosen-card-container{
+    height: 20%;
+    width:70%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #de86fc;
+    margin: 15px auto;
+
+    color: #106fc7;
+}

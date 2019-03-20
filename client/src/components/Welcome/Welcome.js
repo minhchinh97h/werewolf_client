@@ -9,6 +9,11 @@ class Welcome extends Component{
         this.props.history.push(`/login`)
     }
 
+    componentDidMount(){
+        document.getElementById("header").classList.remove("hide-header")
+        document.getElementById("header").classList.add("hide-header")
+    }
+
     componentDidUpdate(prevProps, prevState){
     }    
 
@@ -16,25 +21,17 @@ class Welcome extends Component{
         return(
             <div className="Welcome-page-cover">
                 <div className="Welcome-page-title">
-                    <h2>Welcome to the game</h2>
+                    <h2>The Werewolves of Millers Hollow</h2>
+                    <p className="small-title-description">This game is not in use for any business purposes</p>
                 </div>
                 <div className="Welcome-page-body">
-                    <p>This is the body</p>
+                    <p>Press Play to start!</p>
                 </div>
                 <div className="Welcome-page-button">
-                    <button onClick={this.playButton.bind(this)}>
+                    <button onClick={this.playButton}>
                         Play
                     </button>
                 </div>
-            </div>
-        )
-    }
-
-
-    testing(){
-        return(
-            <div>
-                <h2>test</h2>
             </div>
         )
     }

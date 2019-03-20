@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import socketIOClient from 'socket.io-client'
 import recommendedRoles from '../../../../validation/recommendedRoles/recommendedRoles'
 
-const serverUrl = 'http://localhost:3001/'
+import serverUrl from '../../../../serverUrl'
 
 class DisplayRecommendedRoles extends Component{
     _isMounted = false

@@ -1,0 +1,78 @@
+.admin-choose-cards-and-submit-button-container{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
+    transform: translateX(0);
+    transition: transform 1s ease;
+}
+
+.display-cards-container{
+    height: 80%;
+    width: 90%;
+    overflow: auto;
+    border-right: 1px solid #168eff;
+    border-left: 1px solid #168eff;
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+}
+
+.card-item{
+    width: 60%;
+    height: 20%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-item p {
+    margin: 5px;
+    font-weight: 500;
+    color: #5825ff;
+}
+
+.card-button{
+    border-radius: 10px;
+    height: 40px;
+    width: 60%;
+    -webkit-appearance: none;
+    font-size: 11px;
+    color: #0084ff;
+    border-color: #bf00ff;
+    background-color:white;
+    touch-action: manipulation;
+}
+
+.card-button:focus{
+    outline: none;
+}
+
+.card-quantity-holder{
+    width: 40px;
+}
+
+.minus-sign{
+    color: #bf00ff;
+}
+
+.submit-card-collection-button-holder{
+    width: 100%;
+    height: 20%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.submit-card-collection-button-holder>button{
+    border-radius: 10px;
+    height: 50px;
+    width: 30%;
+    -webkit-appearance: none;
+    font-size: 20px;
+    color: #0084ff;
+    border-color: #bf00ff;
+    background-color:white;
+}

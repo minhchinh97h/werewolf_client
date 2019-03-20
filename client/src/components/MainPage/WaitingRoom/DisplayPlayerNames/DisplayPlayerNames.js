@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import socketIOClient from 'socket.io-client'
+import serverUrl from '../../../../serverUrl'
 
-const serverUrl = 'http://localhost:3001/'
+import "./DisplayPlayerNames.css"
 
 class DisplayPlayerNames extends Component{
     _isMounted = false
@@ -21,7 +22,7 @@ class DisplayPlayerNames extends Component{
         socket.on('GetPlayers', data => 
         {
             if(this._isMounted)
-                this.setState({renderPlayerNames: data.map(player => {return(<div key = {player}><p>{player}</p></div>)})})
+                this.setState({renderPlayerNames: data.map(player => {return(<div key = {player} className="player-name-holder"><p>{player}</p></div>)})})
         })
     }
 

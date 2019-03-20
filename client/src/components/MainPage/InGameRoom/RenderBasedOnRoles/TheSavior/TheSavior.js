@@ -43,7 +43,7 @@ class TheSavior extends Component{
     }  
 
     componentDidMount(){
-        _isMounted = true
+        this._isMounted = true
 
         if(this._isMounted){
             // to display all the players that are from the room (every character must have)

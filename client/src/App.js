@@ -16,15 +16,14 @@ class App extends Component {
   render() {
     return (
       <div className="App">
+        <Header />
+        
         <Route exact path="/" component={Welcome}/>
         <Route path="/login" component={Login} />
         <Route exact path="/waiting-room/:roomid/:username" component = {WaitingRoom} />
         <Route exact path="/in-game-room/:roomid/:username" component = {InGameRoom} />
 
-        <div className="Header-Footer">
-          <Header />
-          <Footer />
-        </div>
+        <Footer />
       </div>
     );
   }

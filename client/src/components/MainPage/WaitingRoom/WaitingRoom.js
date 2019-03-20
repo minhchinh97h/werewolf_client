@@ -4,39 +4,49 @@ import DisplayPlayerNames from './DisplayPlayerNames/DisplayPlayerNames'
 import DisplayCards from './DisplayCards/DisplayCards'
 import DisplayChosenCards from './DisplayChosenCards/DisplayChosenCards'
 import UpdateRecommendedRoles from './UpdateRecommendedRoles/UpdateRecommendedRoles'
-
 import NavBar from './NavBar/NavBar'
 
 import socketIOClient from 'socket.io-client'
 
-const serverUrl = 'http://localhost:3001/'
+import serverUrl from '../../../serverUrl'
 
+import "./WaitingRoom.css"
 
 class WaitingRoom extends Component{
     _isMounted = false
 
     state = {
-        ifAdmin: false,
         admin: "",
         numberOfPlayers: 0,
-        ifStartGame: false
+        ifStartGame: false,
+        renderDisplayCardTabWhetherPlayerIsAdmin: null,
+        renderStartButtonIfAdmin: null
+    }
+
+    startGameBttn = (e) => {
+        const socket = socketIOClient(serverUrl + 'start-game') 
+
+        socket.on('connect', () => {
+            socket.emit('start', this.props.match.params.roomid)
+        })
     }
 
     componentDidMount(){
         this._isMounted = true
 
-        const socket = socketIOClient(serverUrl + 'get-admin', {
-            query: {
-                roomid: this.props.match.params.roomid
-            }
-        })
+        if(this._isMounted){
+            //Socket to get admin of the room
+            const socket = socketIOClient(serverUrl + 'get-admin', {
+                query: {
+                    roomid: this.props.match.params.roomid
+                }
+            })
 
-        socket.on('connect', () => {
-            socket.emit('JoinRoom', this.props.match.params.roomid)
-        })
+            socket.on('connect', () => {
+                socket.emit('JoinRoom', this.props.match.params.roomid)
+            })
 
-        socket.on('GetAdmin', data => {
-            if(this._isMounted){
+            socket.on('GetAdmin', data => {
                 this.setState({
                     admin: data.admin,
                     numberOfPlayers: data.numberOfPlayers
@@ -44,27 +54,41 @@ class WaitingRoom extends Component{
     
                 if(this.props.match.params.username === data.admin){
                     this.setState({
-                        ifAdmin: true
+                        renderDisplayCardTabWhetherPlayerIsAdmin: <DisplayCards roomid = {this.props.match.params.roomid}
+                                                                        admin = {this.state.admin}
+                                                                        username = {this.props.match.params.username}
+                                                                    />,
+                        renderStartButtonIfAdmin:   <div className="start-button-container">
+                                                        <button type='button' onClick={this.startGameBttn}>Start</button>
+                                                    </div>
+                                                                    
                     })
                 }
                 else{
                     this.setState({
-                        ifAdmin: false
+                        renderDisplayCardTabWhetherPlayerIsAdmin: <>
+                                                                <div className = "display-chosen-cards-section" id="display-cards-container">
+                                                                    <div className = "title-of-chosen-cards-tab">
+                                                                        <h4>Card Collection</h4>
+                                                                    </div>
+                                                                    <DisplayChosenCards roomid = {this.props.match.params.roomid} />
+                                                                </div>
+                                                                </>
                     })
                 }
-            }
-        })
+            })
+            
+            const startGameSocket = socketIOClient(serverUrl + 'start-game')
 
-        const startGameSocket = socketIOClient(serverUrl + 'start-game')
-
-        startGameSocket.on('connect', () => {
-            startGameSocket.emit('JoinRoom', this.props.match.params.roomid)
-        })
-        
-        startGameSocket.on('RedirectToGameRoom', data => {
-            if(data === "ok" && this._isMounted)
-                this.props.history.push('/in-game-room/' + this.props.match.params.roomid + '/' + this.props.match.params.username)
-        })
+            startGameSocket.on('connect', () => {
+                startGameSocket.emit('JoinRoom', this.props.match.params.roomid)
+            })
+            
+            startGameSocket.on('RedirectToGameRoom', data => {
+                if(data === "ok")
+                    this.props.history.push('/in-game-room/' + this.props.match.params.roomid + '/' + this.props.match.params.username)
+            })
+        }
     }
 
     componentWillUnmount(){
@@ -72,49 +96,40 @@ class WaitingRoom extends Component{
     }
     
     componentDidUpdate(prevProps, prevState){
-        if(this.state.ifStartGame !== prevState.ifStartGame && this.state.ifStartGame){
-            
-        }
     }
 
     render(){
         return(
-            <div>
-                <br></br>
-                <div className = "display-player-names">
-                    <DisplayPlayerNames roomid = {this.props.match.params.roomid} />
+            <div className="waiting-room-container">
+                <div className="waiting-room-title">
+                    <h2>Waiting Room</h2>
                 </div>
-                {this.state.ifAdmin?
-                    <div className = "display-cards">
-                        <DisplayCards roomid = {this.props.match.params.roomid}
-                                    admin = {this.state.admin}
-                                    username = {this.props.match.params.username}
-                                    test = {this.state.test}
-                                    ifAdmin = {this.state.ifAdmin}
-                        />
-                    </div>
-                    :
-                    null
-                }
                 
-                <div className = "display-chosen-cards-section">
-                    <b>Current Chosen Cards</b>
-                    <DisplayChosenCards roomid = {this.props.match.params.roomid} />
-                </div>
+                
+                <div className="waiting-room-main-data-container" >
+                
+                    {this.state.renderDisplayCardTabWhetherPlayerIsAdmin}
 
-                {/* below component will not render anything */}
-                <div className = "display-recommended-roles-section">
+                    {/* below component will not render anything */}
                     <UpdateRecommendedRoles numberOfPlayers = {this.state.numberOfPlayers} roomid = {this.props.match.params.roomid} />
+
+                    <div className = "room-information-container" id="room-information-container">
+                        <div className= "room-id-and-number-of-players-container">
+                            <p>Room ID: {this.props.match.params.roomid} </p>
+                            <p>No. of Players: {this.state.numberOfPlayers} </p>
+                            <p>Admin: {this.state.admin}</p>
+                            <p>Your Name: {this.props.match.params.username}</p>
+                        </div>
+
+                        <div className = "display-player-names-container">
+                            <DisplayPlayerNames roomid = {this.props.match.params.roomid} />
+                        </div>
+
+                        {this.state.renderStartButtonIfAdmin}
+                    </div>
                 </div>
 
-                <div className = "navbar">
-                    <NavBar roomid = {this.props.match.params.roomid} 
-                            ifAdmin= {this.state.ifAdmin} 
-                            numberOfPlayers = {this.state.numberOfPlayers} 
-                            admin = {this.state.admin}
-                            username = {this.props.match.params.username} 
-                    />
-                </div>
+                
             </div>
         ) 
     }

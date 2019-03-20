@@ -2,10 +2,9 @@ import React, { Component } from 'react'
 
 import socketIOClient from 'socket.io-client'
 import currentRoles from '../../../../validation/currentRoles/currentRoles'
+import serverUrl from '../../../../serverUrl'
 
-const serverUrl = 'http://localhost:3001/'
-
-
+import "./DisplayCards.css"
 
 class DisplayCards extends Component {
     _isMounted = false
@@ -19,13 +18,14 @@ class DisplayCards extends Component {
         currentRoles: null
     }
 
+    //Used to leave one card out of the current chosen card collection
     decreaseCardBttn = (name, e) => {
-        
         currentRoles[name] -= 1
         
-        if(currentRoles[name] < 0)
+        if(currentRoles[name] < 0 || currentRoles[name] === 0){
             currentRoles[name] = 0
-        
+            document.getElementById(name + "-quantity").innerText = ""
+        }
         let name_array = [],
             value_array = []
 
@@ -40,16 +40,13 @@ class DisplayCards extends Component {
             }
         }
         
-        this.setState({
-            renderPressedCards: name_array.map((name, index) => {
-                let key = 'pressed-card-' + index
-                return(
-                    <div key={key}>
-                        <p>{name}: x{value_array[index]}</p>
-                        <button type="button" onClick={this.decreaseCardBttn.bind(this, name)}>decrease</button>
-                    </div>
-                )
-            })
+        name_array.map((name, index) => {
+            let quantityId = name + "-quantity"
+            
+            if(value_array[index] === 0)
+                document.getElementById(quantityId).innerText = ""
+            else
+                document.getElementById(quantityId).innerText = "x" + value_array[index]
         })
 
         this.setState({
@@ -57,6 +54,7 @@ class DisplayCards extends Component {
         })
     }
 
+    //Used to choose a card and add it to the chosen card collection
     chooseCardBttn = (name, e) => {
         currentRoles[name] += 1
         
@@ -74,16 +72,10 @@ class DisplayCards extends Component {
             }
         }
         
-        this.setState({
-            renderPressedCards: name_array.map((name, index) => {
-                let key = 'pressed-card-' + index
-                return(
-                    <div key={key}>
-                        <p>{name}: x{value_array[index]} </p>
-                        <button type="button" onClick={this.decreaseCardBttn.bind(this, name)}>decrease</button>
-                    </div>
-                )
-            })
+        name_array.map((name, index) => {
+            let quantityId = name + "-quantity"
+
+            document.getElementById(quantityId).innerText = "x" + value_array[index]
         })
 
         this.setState({
@@ -91,6 +83,7 @@ class DisplayCards extends Component {
         })
     }
 
+    //Used to submit the card collection to database
     submitCardsBttn = (e) => {
         let sentData = {
             roomid: this.props.roomid,
@@ -106,66 +99,71 @@ class DisplayCards extends Component {
 
     componentDidMount(){
         this._isMounted = true
-        const cardSocket = socketIOClient(serverUrl + 'get-cards')
 
-        cardSocket.on('GetCards', data => {
-            if(this._isMounted){
+        if(this._isMounted){
+
+            const cardSocket = socketIOClient(serverUrl + 'get-cards')
+
+            cardSocket.on('GetCards', data => {
                 this.setState({
                     renderCards: data.map( (card, index) => {
-                        let cardId = "card " + index
+                        let cardId = "card " + index,
+                            quantityId = card.name + "-quantity"
                         return(
-                            <div key = {card.name}>
-                                <button type='button' onClick={this.chooseCardBttn.bind(this, card.name)} id={cardId}>{card.name}</button>
+                            <div key = {card.name} className="card-item">
+                                <button className ="card-button" type='button' onClick={this.chooseCardBttn.bind(this, card.name)} id={cardId}>{card.name}</button>
+                                <div className="card-quantity-holder">
+                                    <p id={quantityId}></p>
+                                </div> 
+                                <i className="fas fa-minus-square minus-sign fa-sm" onClick={this.decreaseCardBttn.bind(this, card.name)}></i>
                             </div>
                         )
                     })
                 })
-            }
-        })
 
-        const socket = socketIOClient(serverUrl + 'get-current-roles')
+                //To make sure DOM elements (card-item) show up when below socket's data arrives.
+                const socket = socketIOClient(serverUrl + 'get-current-roles')
 
-        socket.on('connect', () => {
-            socket.emit('JoinRoom', this.props.roomid)
-        })
+                socket.on('connect', () => {
+                    socket.emit('JoinRoom', this.props.roomid)
+                })
 
-        socket.on('GetSelectedCards', data => {
-            
-            if(data !== null && this._isMounted){
-                for(var key in data){
-                    if(data.hasOwnProperty(key)){
-                        currentRoles[key] = data[key]
-                    }
-                }
-
-                let name_array = [],
-                value_array = []
-
-                for(var key in currentRoles){
-                    if(currentRoles.hasOwnProperty(key))
-                    {
-                        if(currentRoles[key] > 0){
-                            name_array.push(key)
-                            value_array.push(currentRoles[key])
+                socket.on('GetSelectedCards', data => {
+                    
+                    if(data !== null && this._isMounted){
+                        for(var key in data){
+                            if(data.hasOwnProperty(key)){
+                                currentRoles[key] = data[key]
+                            }
                         }
-                            
-                    }
-                }
+
+                        let name_array = [],
+                        value_array = []
+
+                        for(var key in currentRoles){
+                            if(currentRoles.hasOwnProperty(key))
+                            {
+                                if(currentRoles[key] > 0){
+                                    name_array.push(key)
+                                    value_array.push(currentRoles[key])
+                                }
+                                    
+                            }
+                        }
+                        
+                        name_array.map((name, index) => {
+                            let quantityId = name + "-quantity"
                 
-                this.setState({
-                    renderPressedCards: name_array.map((name, index) => {
-                        let key = 'pressed-card-' + index
-                        return(
-                            <div key={key}>
-                                <p>{name}: x{value_array[index]} </p>
-                                <button type="button" onClick={this.decreaseCardBttn.bind(this, name)}>decrease</button>
-                            </div>
-                        )
-                    })
+                            document.getElementById(quantityId).innerText = "x" + value_array[index]
+                        })
+
+                    }
+                
                 })
-            }
-            
-        })
+            })
+
+                
+        }
     }
     
     componentWillUnmount(){
@@ -175,19 +173,22 @@ class DisplayCards extends Component {
     render(){
         return(
             <>
-                {this.state.renderCards}
-                
-                <div className = "display-chosen-cards">    
-                    <b>Current Chosen Cards Panel:</b>
-                    {this.state.renderPressedCards}
-
-                    <br></br>
-                    {this.state.isCardSelected ?
-                        <button type="button" onClick={this.submitCardsBttn.bind(this)}>submit</button>
-                        :
-                        null
-                    }
+            <div className="admin-choose-cards-and-submit-button-container" id="display-cards-container">
+                <div className = "display-cards-container">
+                    {this.state.renderCards}
+                    
+                    
                 </div>
+                <div className="submit-card-collection-button-holder">
+                        {this.state.isCardSelected ?
+
+                                <button type="button" onClick={this.submitCardsBttn.bind(this)}>submit</button>
+                                :
+                                null
+                        }
+                </div>
+            </div>
+            
             </>
         )
     }

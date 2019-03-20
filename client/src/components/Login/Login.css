@@ -1,0 +1,135 @@
+.Login-page-cover{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.Login-page-title{
+    font-weight: 500;
+    font-size: 26px;
+    margin: 50px;
+    color: #b6a0ff;
+    text-shadow: 1px 0px #b6a0ff
+}
+
+.Login-page-body{
+    position: relative;
+}
+
+.input-overlay{
+    position: absolute;
+    height: 40px;
+    top: 0;
+    left: 227px;
+    margin: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.warning-mark{
+    color: rgb(255, 0, 0);
+}
+
+.input-overlay-roomid{
+    top: 122px;
+}
+
+.icon-display-invisible{
+    display: none
+}
+
+.checkmark{
+    color: green;
+}
+
+.warning-holder{
+    width: 100%;
+    height: 20px;
+    padding: 0;
+    display: flex;
+    padding-left: 20px;
+}
+
+.warning-holder p {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    color: red;
+}
+
+.Login-page-body input{
+    height: 40px;
+    width: 200px;
+    margin: 20px;
+    padding: 0px 30px 0px 15px;
+    color: #8a68f7;
+    border: none;
+    border-bottom: 1px solid #d452ff;
+    border-radius: 0;
+}
+
+
+.Login-page-body input:focus{
+    outline: none
+}
+
+.Login-page-body input::placeholder{
+    color: #8a68f7;
+}
+
+.button-of-Login{
+    width: 90px;
+    height: 30px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 5px;
+    box-shadow: none;
+    border: 1px solid #5ca9f1;
+    background-color: #ebf6ff;
+    color: #5ca9f1;
+}
+
+.button-of-Login:focus{
+    outline: none;
+}
+
+.button-of-Login:hover{
+    background-color: #b9dcfc;
+}
+
+.button-of-Login:active{
+    background-color: #5ca9f1;
+    color: white;
+}
+
+.create-new-room-button{
+    width: 240px;
+    margin-top: 10px;
+}
+
+.new-room-created-holder{
+    width: 100%;
+    height: 20px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.new-room-created-holder p{
+    margin-top: 15px;
+    color: #d676f7;
+}
+
+.new-room-id{
+    font-size: 24px;
+    margin: 10px;
+    font-weight: 500;
+    color: #d452ff;
+}
+
+.timer-display{
+    height: 20px;
+}
