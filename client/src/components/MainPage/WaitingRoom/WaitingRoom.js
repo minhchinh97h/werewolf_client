@@ -6,6 +6,8 @@ import DisplayChosenCards from './DisplayChosenCards/DisplayChosenCards'
 import UpdateRecommendedRoles from './UpdateRecommendedRoles/UpdateRecommendedRoles'
 import NavBar from './NavBar/NavBar'
 
+import Header from '../../Header/Header'
+
 import socketIOClient from 'socket.io-client'
 
 import serverUrl from '../../../serverUrl'
@@ -35,6 +37,8 @@ class WaitingRoom extends Component{
         this._isMounted = true
 
         if(this._isMounted){
+            //Display header
+            document.getElementById("header").classList.remove("hide-header")
             //Socket to get admin of the room
             const socket = socketIOClient(serverUrl + 'get-admin', {
                 query: {
@@ -100,6 +104,9 @@ class WaitingRoom extends Component{
 
     render(){
         return(
+            <>
+            <Header />
+
             <div className="waiting-room-container">
                 <div className="waiting-room-title">
                     <h2>Waiting Room</h2>
@@ -118,7 +125,7 @@ class WaitingRoom extends Component{
                             <p>Room ID: {this.props.match.params.roomid} </p>
                             <p>No. of Players: {this.state.numberOfPlayers} </p>
                             <p>Admin: {this.state.admin}</p>
-                            <p>Your Name: {this.props.match.params.username}</p>
+                            <p>Name: {this.props.match.params.username}</p>
                         </div>
 
                         <div className = "display-player-names-container">
@@ -128,9 +135,8 @@ class WaitingRoom extends Component{
                         {this.state.renderStartButtonIfAdmin}
                     </div>
                 </div>
-
-                
             </div>
+            </>
         ) 
     }
 }

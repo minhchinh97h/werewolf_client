@@ -300,8 +300,6 @@ class Login extends Component{
     }
 
     componentDidMount(){
-        document.getElementById("header").classList.remove("hide-header")
-        document.getElementById("header").classList.add("hide-header")
     }
 
     componentDidUpdate(prevProps, prevState){

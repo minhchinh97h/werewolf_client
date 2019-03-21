@@ -1,11 +1,15 @@
 import React, { Component } from 'react'
 import socketIOClient from 'socket.io-client'
 
-const serverUrl = 'http://localhost:3001/'
+import serverUrl from '../../../../../serverUrl'
 
 let cupid_target_bttn_ids = [],
     players= [],
     playersToConnect = []
+
+//need to set up the socket first, because the when making direct socket to server, server will only response to the received socket
+//meaning socket in an onclick function will get response it that scope, the response will not be received in the socket in componentDidMount
+const cupidSocket = socketIOClient(serverUrl + 'cupid')
 
 class Cupid extends Component{
     _isMounted = false
@@ -26,14 +30,14 @@ class Cupid extends Component{
             document.getElementById(bttnId).disabled = true
 
             if(playersToConnect.length === 2){
-                const socket = socketIOClient(serverUrl + 'cupid')
+                // const socket = socketIOClient(serverUrl + 'cupid')
 
                 let sendingData = {
                     roomid: this.props.roomid,
                     playersToConnect: playersToConnect
                 }
 
-                socket.emit('RequestToConnectPlayers', sendingData)
+                cupidSocket.emit('RequestToConnectPlayers', sendingData)
             }
         }
     }
@@ -99,16 +103,6 @@ class Cupid extends Component{
                             </div>
                         </>
                     })
-
-                    //Cupid's action
-                    const cupidSocket = socketIOClient(serverUrl + 'cupid')
-
-                    cupidSocket.on('ConnectedPlayers', (data) => {
-                        this.setState({
-                            renderTargetConnection: <b>{data[0].player} is now connected with {data[1].player}</b>,
-                            endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                        })
-                    })
                 }
             })
 
@@ -123,9 +117,7 @@ class Cupid extends Component{
 
             calledTurnSocket.on('getNextTurn', data => {
                 if(data === this.props.username){
-
                     //render UI
-
                     this.setState({
                         renderUI: <>
                             <div>
@@ -133,17 +125,15 @@ class Cupid extends Component{
                             </div>
                         </>
                     })
-        
-                    //Cupid's action
-                    const cupidSocket = socketIOClient(serverUrl + 'cupid')
-        
-                    cupidSocket.on('ConnectedPlayers', (data) => {
-                        this.setState({
-                            renderTargetConnection: <b>{data[0].player} is now connected with {data[1].player}</b>,
-                            endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                        })
-                    })
                 }
+            })
+
+            //Cupid's action
+            cupidSocket.on('ConnectedPlayers', (data) => {
+                this.setState({
+                    renderTargetConnection: <b>{data[0].player} is now connected with {data[1].player}</b>,
+                    endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                })
             })
 
             /* <-----------------------------------------------> */

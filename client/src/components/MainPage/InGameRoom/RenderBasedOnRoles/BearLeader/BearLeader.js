@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import socketIOClient from 'socket.io-client'
 
-const serverUrl = 'http://localhost:3001/'
+import serverUrl from '../../../../../serverUrl'
 
 let bear_target_bttn_ids = [],
     players = []

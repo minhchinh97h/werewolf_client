@@ -1,0 +1,85 @@
+.in-game-header-container{
+    position: fixed;
+    width:100%;
+    height: 40px;
+    z-index: 13;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-template-rows: auto;
+    color: #0084ff;
+    top: 0;
+}
+
+.in-game-header-item-holder{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border:none;
+    border-right: 1px solid #5221f7;
+    background-color: white;
+}
+
+.in-game-header-item-holder:active{
+    filter: grayscale(70%)
+}
+
+.in-game-header-item-holder > i {
+    color: #0084ff;
+}
+
+.in-game-main-container{
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.in-game-title{
+    position: relative;
+    height:20%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 26px;
+    color: #b6a0ff;
+    text-shadow: 1px 0px #b6a0ff
+}
+
+.in-game-title > h2{
+    margin-top: 50px;
+}
+
+.in-game-role-tab-container{
+    height: 80%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.in-game-role-tab-title{
+    height: 20%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.in-game-role-tab-title > h4 {
+    color: #106fc7;
+    font-size: 24px;
+}
+
+.in-game-role-tab-main{
+    height: 60%;
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border-top: 1px solid #168eff;
+    border-bottom: 1px solid #168eff;
+    overflow: auto;
+}

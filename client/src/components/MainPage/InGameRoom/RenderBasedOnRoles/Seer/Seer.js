@@ -3,7 +3,7 @@ import socketIOClient from 'socket.io-client'
 
 import GetPlayers from '../../GetPlayers/GetPlayers'
 
-const serverUrl = 'http://localhost:3001/'
+import serverUrl from '../../../../../serverUrl'
 
 let seer_target_bttn_ids = []
 
@@ -207,24 +207,14 @@ class Seer extends Component{
             <>
                 {this.state.renderUI}
                 
-                <br></br>
-
                 {this.state.renderPlayers}
 
-                <br></br>
-
                 {this.state.renderTargetRole}
-
-                <br></br>
 
                 <h3>List of Charmed Players: </h3>
                 {this.state.renderCharmedPlayers}
 
-                <br></br>
-
                 {this.state.renderLovers}
-
-                <br></br>
 
                 {this.state.endTurnConfirm}
             </>

@@ -3,7 +3,8 @@ import socketIOClient from 'socket.io-client'
 
 import GetPlayers from '../../GetPlayers/GetPlayers'
 
-const serverUrl = 'http://localhost:3001/'
+import serverUrl from '../../../../../serverUrl'
+
 
 let players = [],
     otherWolves = [],
@@ -136,7 +137,14 @@ class Werewolves extends Component{
             //Handle lover (every character must have)
             const loverSocket = socketIOClient(serverUrl + 'in-game')
 
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
+            loverSocket.on('connect', () => {
+                loverSocket.emit('JoinRoom', this.props.roomid)
+            })
+
             loverSocket.on('RevealLovers', (data) => {
+                console.log(data)
                 data.forEach((info, index) => {
                     if(info.player === this.props.username){
                         if(index === 0)
@@ -158,6 +166,10 @@ class Werewolves extends Component{
             //Handle changes of the total charmed players via a socket event (every character must have)
             const getCharmedSocket = socketIOClient(serverUrl + 'piper')
 
+            getCharmedSocket.on('connect', () => {
+                getCharmedSocket.emit('JoinRoom', this.props.roomid)
+            })
+            
             getCharmedSocket.on('GetListOfCharmed', (data) => {
                 data.every((player) => {
                     if(this.props.username === player){
@@ -247,7 +259,7 @@ class Werewolves extends Component{
 
     render(){
         return(
-            <>
+            <>  
                 {this.state.renderUI}
                 
                 <br></br>
