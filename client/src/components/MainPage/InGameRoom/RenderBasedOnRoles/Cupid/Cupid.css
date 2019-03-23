@@ -1,0 +1,49 @@
+.in-game-cupid-layer1-container{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+.in-game-cupid-layer2-container{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+
+    font-size: 26px;
+    color: #359bfa;
+    font-weight: 500;
+}
+
+.in-game-cupid-layer2-container > button{
+    margin: 20px auto;
+    border-radius: 10px;
+    height: 50px;
+    width: 200px;
+    -webkit-appearance: none;
+    font-size: 20px;
+    color: #0084ff;
+    border-color: #bf00ff;
+    background-color:white;
+}
+
+.in-game-cupid-layer-container-visible{
+    transform: all 1s ease;
+    opacity: 1;
+    visibility:visible;
+}
+
+.in-game-cupid-layer-container-invisible{
+    visibility: hidden;
+    opacity: 0;
+    transform: all 1s ease
+}

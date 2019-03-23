@@ -21,6 +21,9 @@ import Werewolves from './RenderBasedOnRoles/Werewolves/Werewolves'
 import WildChild from './RenderBasedOnRoles/WildChild/WildChild'
 import Witch from './RenderBasedOnRoles/Witch/Witch'
 
+
+import DisplayPlayerNames from '../WaitingRoom/DisplayPlayerNames/DisplayPlayerNames'
+
 import Header from '../../Header/Header'
 
 import "./InGameRoom.css"
@@ -38,7 +41,10 @@ class InGameRoom extends Component{
         renderRoleUI: null,
         renderStartBttn: null,
         startBttnClicked: false,
-        isAdmin: false
+        isAdmin: false,
+        renderLovers: null,
+        renderCharmedPlayers: null,
+        admin: ''
     }
 
     startBttn = () => {
@@ -59,7 +65,7 @@ class InGameRoom extends Component{
             socket = socketIOClient(serverUrl + 'in-game')
 
             socket.on('connect', () => {
-                socket.emit('JoinRoom', this.props.match.params.roomid)
+                socket.emit('GetGameInfo', this.props.match.params.roomid)
             })
 
             //Get admin to broadcast the request to join the game when start button is pressed and to retrieve the game info
@@ -77,6 +83,7 @@ class InGameRoom extends Component{
             })
 
             adminSocket.on('GetAdmin', data => {
+                this.setState({admin: data.admin})
                 if(this.props.match.params.username === data.admin){
                     this.setState({
                         renderStartBttn: <button type="button" onClick={this.startBttn}>Start the rounds</button>,
@@ -262,26 +269,68 @@ class InGameRoom extends Component{
                 //     }, 1000)
                 }
             })
-        }
-        
 
-        //This below timer is for notifying the players when the game starts - needs to be synchronous with all the players
+            /* <-----------------------------------------------> */
 
-        // let currentSecond = 10
-        
-        // let timer = setInterval(() => {
-        //     this.setState({
-        //         timer: currentSecond
-        //     })
-        //     currentSecond--
+            //Handle lover (every character must have)
+            const loverSocket = socketIOClient(serverUrl + 'in-game')
 
-        //     if(currentSecond < 0){
-                
-        //         clearInterval(timer)
-        //     }
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
+            loverSocket.on('connect', () => {
+                loverSocket.emit('JoinRoom', this.props.match.params.roomid)
+            })
             
-        // }, 1000)
-        
+            loverSocket.on('RevealLovers', (data) => {
+                data.forEach((info, index) => {
+                    if(info.player === this.props.match.params.username){
+                        if(index === 0)
+                            this.setState({
+                                renderLovers: <p>You are now in love with {data[index+1].player} - {data[index+1].role}</p>
+                            })
+                        
+                        else{
+                            this.setState({
+                                renderLovers: <p>You are now in love with {data[index-1].player} - {data[index-1].role}</p>
+                            })
+                        }
+                    }
+                })
+            })
+
+            /* <-----------------------------------------------> */
+
+            //Handle changes of the total charmed players via a socket event (every character must have)
+            const getCharmedSocket = socketIOClient(serverUrl + 'in-game')
+
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
+            getCharmedSocket.on('connect', () => {
+                getCharmedSocket.emit('JoinRoom', this.props.match.params.roomid)
+            })
+            
+            getCharmedSocket.on('GetListOfCharmed', (data) => {
+                data.every((player) => {
+                    if(this.props.match.params.username === player){
+                        this.setState({
+                            renderCharmedPlayers: data.map((player, index) => {
+                                let key = 'charmed_' + index
+                                return(
+                                    <div key={key}>
+                                        <p>{player}</p>
+                                    </div>
+                                )
+                            })
+                        })
+
+                        return false
+                    }
+
+                    else
+                        return true
+                })
+            })
+        }
     }
 
     componentWillUnmount(){
@@ -294,50 +343,60 @@ class InGameRoom extends Component{
                 renderStartBttn: null
             })
         }
-
-        if(this.state.isAdmin !== prevState.isAdmin && this.state.isAdmin){
-            socket.emit('JoinRoomAndGetGameInfo', this.props.match.params.roomid)
-        }
     }
 
-    ChooseUserTab = (e) => {
-        //Display which user tab is highlighted
-        document.getElementById("user-tab-button").classList.remove("tab-active")
-        document.getElementById("card-collection-button").classList.remove("tab-active")
-        document.getElementById("final-tab-button").classList.remove("tab-active")
+    ChooseLeftTab = (e) => {
+        //Display which left tab is highlighted
+        document.getElementById("left-icon").classList.remove("tab-active")
+        document.getElementById("middle-icon").classList.remove("tab-active")
+        document.getElementById("right-icon").classList.remove("tab-active")
 
-        document.getElementById("user-tab-button").classList.add("tab-active")
+        document.getElementById("left-icon").classList.add("tab-active")
 
 
-        //transition to user tab, card collection tab of Admin page is automatically shown at first (firstly visible, others are invisible)
-        document.getElementById("room-information-container").classList.remove("room-information-container-visible")
-        document.getElementById("display-cards-container").classList.remove("display-cards-container-invisible")
+        //transition to the left tab
+        document.getElementById("left-tab").classList.remove("in-game-user-tab-container-visible")
+        document.getElementById("middle-tab").classList.remove("in-game-role-tab-container-invisible-move-right")
+        document.getElementById("middle-tab").classList.remove("in-game-role-tab-container-invisible-move-left")
+        document.getElementById("right-tab").classList.remove("in-game-extra-info-tab-container-visible")
 
-        document.getElementById("room-information-container").classList.add("room-information-container-visible")
-        document.getElementById("display-cards-container").classList.add("display-cards-container-invisible")
+        document.getElementById("left-tab").classList.add("in-game-user-tab-container-visible")
+        document.getElementById("middle-tab").classList.add("in-game-role-tab-container-invisible-move-right")
     }
 
-    ChooseMainTab = () => {
-        //Display which card collection tab is highlighted
-        document.getElementById("user-tab-button").classList.remove("tab-active")
-        document.getElementById("card-collection-button").classList.remove("tab-active")
-        document.getElementById("final-tab-button").classList.remove("tab-active")
+    ChooseMiddleTab = () => {
+        //Display which middle tab is highlighted
+        document.getElementById("left-icon").classList.remove("tab-active")
+        document.getElementById("middle-icon").classList.remove("tab-active")
+        document.getElementById("right-icon").classList.remove("tab-active")
 
-        document.getElementById("card-collection-button").classList.add("tab-active")
+        document.getElementById("middle-icon").classList.add("tab-active")
 
 
-        //transition to card collection tab
-        document.getElementById("room-information-container").classList.remove("room-information-container-visible")
-        document.getElementById("display-cards-container").classList.remove("display-cards-container-invisible")
+        //transition to the middle tab
+        document.getElementById("left-tab").classList.remove("in-game-user-tab-container-visible")
+        document.getElementById("middle-tab").classList.remove("in-game-role-tab-container-invisible-move-right")
+        document.getElementById("middle-tab").classList.remove("in-game-role-tab-container-invisible-move-left")
+        document.getElementById("right-tab").classList.remove("in-game-extra-info-tab-container-visible")
+
     }
 
-    ChooseSpecialRoleTab = () => {
-        //Display which final tab is highlighted
-        document.getElementById("user-tab-button").classList.remove("tab-active")
-        document.getElementById("card-collection-button").classList.remove("tab-active")
-        document.getElementById("final-tab-button").classList.remove("tab-active")
+    ChooseRightTab = () => {
+        //Display which right tab is highlighted
+        document.getElementById("left-icon").classList.remove("tab-active")
+        document.getElementById("middle-icon").classList.remove("tab-active")
+        document.getElementById("right-icon").classList.remove("tab-active")
 
-        document.getElementById("final-tab-button").classList.add("tab-active")
+        document.getElementById("right-icon").classList.add("tab-active")
+
+        //transition to the right tab
+        document.getElementById("left-tab").classList.remove("in-game-user-tab-container-visible")
+        document.getElementById("middle-tab").classList.remove("in-game-role-tab-container-invisible-move-right")
+        document.getElementById("middle-tab").classList.remove("in-game-role-tab-container-invisible-move-left")
+        document.getElementById("right-tab").classList.remove("in-game-extra-info-tab-container-visible")
+
+        document.getElementById("right-tab").classList.add("in-game-extra-info-tab-container-visible")
+        document.getElementById("middle-tab").classList.add("in-game-role-tab-container-invisible-move-left")
     }
 
     render(){
@@ -345,15 +404,15 @@ class InGameRoom extends Component{
             <>
             {/* Header for in game room */}
             <div className="in-game-header-container">
-                <button className="in-game-header-item-holder" onClick={this.ChooseUserTab}>
+                <button className="in-game-header-item-holder" onClick={this.ChooseLeftTab} id="left-icon">
                     <i className="fas fa-user fa-lg"></i>
                 </button>
 
-                <button className="in-game-header-item-holder" onClick={this.ChooseMainTab}>
+                <button className="in-game-header-item-holder tab-active" onClick={this.ChooseMiddleTab} id="middle-icon">
                     <i className="fas fa-boxes fa-lg"></i>
 
                 </button>
-                <button className="in-game-header-item-holder" onClick={this.ChooseSpecialRoleTab}>
+                <button className="in-game-header-item-holder" onClick={this.ChooseRightTab} id="right-icon">
                     <i className="fas fa-clipboard-list fa-lg"></i>
                 </button>
             </div>
@@ -363,13 +422,43 @@ class InGameRoom extends Component{
                     <h2>In Game Room</h2>
                 </div>
 
-                <div className="in-game-role-tab-container">
+                {/* Main tab / middle tab*/}
+                <div className="in-game-role-tab-container" id="middle-tab">
                     <div className="in-game-role-tab-title">
                         <h4>{this.state.renderPlayerRole}</h4>
                     </div>
                     <div className="in-game-role-tab-main">
                         {this.state.renderRoleUI}
+                    </div>
+
+                    <div className="in-game-role-tab-start-end-button-container">
                         {this.state.renderStartBttn}
+                    </div>
+                </div>
+
+                {/* User tab / left tab*/}
+                <div className = "in-game-user-tab-container" id="left-tab">
+                    <div className= "in-game-room-info-container">
+                        <p>Room ID: {this.props.match.params.roomid} </p>
+                        <p>Admin: {this.state.admin}</p>
+                        <p>Name: {this.props.match.params.username}</p>
+                    </div>
+
+                    {/* History log container */}
+                    <div className= "in-game-room-history-container">
+                        
+                    </div>
+                </div>
+
+
+                {/* Extra info tab / right tab */}
+                <div className = "in-game-extra-info-tab-container" id="right-tab">
+                    <div className= "in-game-lover-info">
+                        {this.state.renderLovers}
+                    </div>
+
+                    <div className= "in-game-charm-info">
+                        <h4>List of Charmed Players</h4>
                     </div>
                 </div>
             </div>

@@ -3,8 +3,9 @@ import socketIOClient from 'socket.io-client'
 
 import serverUrl from '../../../../../serverUrl'
 
-let bear_target_bttn_ids = [],
-    players = []
+let bear_target_bttn_ids = []
+
+const bearSocket = socketIOClient(serverUrl + 'bear')
 
 class BearLeader extends Component{
     _isMounted = false
@@ -20,14 +21,12 @@ class BearLeader extends Component{
 
     PlayerToScent = (name, index, e) => {
         if(window.confirm("Do you want to scent " + name +"?")){
-            const socket = socketIOClient(serverUrl + 'bear')
-
             let sendingData = {
                 roomid: this.props.roomid,
                 player: name
             }
 
-            socket.emit('RequestToScentPlayer', sendingData)
+            bearSocket.emit('RequestToScentPlayer', sendingData)
         }
     }
 
@@ -57,7 +56,6 @@ class BearLeader extends Component{
                 this.setState({
                     renderPlayers: data.map((player, index) => {
                         if(player !== this.props.username){
-                            players.push(player)
                             let id = "bear_target_bttn_" + index
     
                             bear_target_bttn_ids.push(id)
@@ -91,16 +89,6 @@ class BearLeader extends Component{
                             </div>
                         </>
                     })
-
-                    //Bear's action
-                    const bearSocket = socketIOClient(serverUrl + 'bear')
-
-                    bearSocket.on('ScentPlayer', (data) => {
-                        this.setState({
-                            renderScentTargetNeighbor: <b>{data ? 'Werewolve(s) exists' : 'There is none of Werewolves'}</b> ,
-                            endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                        })
-                    })
                 }
             })
 
@@ -124,22 +112,28 @@ class BearLeader extends Component{
                         </>
                     })
         
-                    //Bear's action
-                    const bearSocket = socketIOClient(serverUrl + 'bear')
-        
-                    bearSocket.on('ScentPlayer', (data) => {
-                        this.setState({
-                            renderScentTargetNeighbor: <b>{data ? 'Werewolve(s) exists' : 'There is none of Werewolves'}</b>,
-                            endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                        })
-                    })
+                    
                 }
+            })
+
+            //Bear's action
+            bearSocket.on('ScentPlayer', (data) => {
+                this.setState({
+                    renderScentTargetNeighbor: <b>{data ? 'Werewolve(s) exists' : 'There is none of Werewolves'}</b>,
+                    endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                })
             })
 
             /* <-----------------------------------------------> */
 
             //Handle lover (every character must have)
             const loverSocket = socketIOClient(serverUrl + 'in-game')
+
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
+            loverSocket.on('connect', () => {
+                loverSocket.emit('JoinRoom', this.props.roomid)
+            })
 
             loverSocket.on('RevealLovers', (data) => {
                 data.forEach((info, index) => {
@@ -161,7 +155,13 @@ class BearLeader extends Component{
             /* <-----------------------------------------------> */
 
             //Handle changes of the total charmed players via a socket event (every character must have)
-            const getCharmedSocket = socketIOClient(serverUrl + 'piper')
+            const getCharmedSocket = socketIOClient(serverUrl + 'in-game')
+
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
+            getCharmedSocket.on('connect', () => {
+                getCharmedSocket.emit('JoinRoom', this.props.roomid)
+            })
 
             getCharmedSocket.on('GetListOfCharmed', (data) => {
                 data.every((player) => {

@@ -1,13 +1,10 @@
 import React, { Component } from 'react'
 import socketIOClient from 'socket.io-client'
 
-import GetPlayers from '../../GetPlayers/GetPlayers'
-
 import serverUrl from '../../../../../serverUrl'
 
 
-let players = [],
-    otherWolves = [],
+let otherWolves = [],
     targetChoice = ''
 
 class Werewolves extends Component{
@@ -35,13 +32,16 @@ class Werewolves extends Component{
         }
 
         socket.emit("RequestMyChoice", sendingData)
+
+        this.setState({choseTarget: <p>{targetChoice}</p>})
     }
 
     AgreeOnKill = (e) => {
         const socket = socketIOClient(serverUrl + 'werewolves')
 
         let sendingData = {
-            choseTarget: targetChoice
+            choseTarget: targetChoice,
+            roomid: this.props.roomid
         }
 
         socket.emit("RequestToAgreeKill", sendingData)
@@ -73,7 +73,6 @@ class Werewolves extends Component{
                 this.setState({
                     renderPlayers: data.map((player, index) => {
                         if(player !== this.props.username){
-                            players.push(player)
                             let id = "werewolves_target_bttn_" + index
     
                             return(
@@ -119,17 +118,24 @@ class Werewolves extends Component{
             })
 
             calledTurnSocket.on('getNextTurn', data => {
-                if(data === this.props.username){
+                if(data instanceof Array){
+                    data.every(player => {
+                        if(player === this.props.username){
+                            //render UI
+                            this.setState({
+                                renderUI: <>
+                                    <div>
+                                        <p>Who do you want to kill?</p>
+                                    </div>
+                                </>
+                            })
+                            return false
+                        }
 
-                    //render UI
-                    this.setState({
-                        renderUI: <>
-                            <div>
-                                <p>Who do you want to kill?</p>
-                            </div>
-                        </>
+                        return true
                     })
                 }
+                
             })
 
             /* <-----------------------------------------------> */
@@ -144,7 +150,6 @@ class Werewolves extends Component{
             })
 
             loverSocket.on('RevealLovers', (data) => {
-                console.log(data)
                 data.forEach((info, index) => {
                     if(info.player === this.props.username){
                         if(index === 0)
@@ -164,8 +169,10 @@ class Werewolves extends Component{
             /* <-----------------------------------------------> */
 
             //Handle changes of the total charmed players via a socket event (every character must have)
-            const getCharmedSocket = socketIOClient(serverUrl + 'piper')
+            const getCharmedSocket = socketIOClient(serverUrl + 'in-game')
 
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
             getCharmedSocket.on('connect', () => {
                 getCharmedSocket.emit('JoinRoom', this.props.roomid)
             })
@@ -205,19 +212,19 @@ class Werewolves extends Component{
             //others choices
             otherSocket.on('OtherChoices', (data) => {
                 //to advoid duplication
-                otherWolves.every((wolf, index) => {
+
+                let isContainWolfName = false
+
+                otherWolves.forEach((wolf, index) => {
                     if(wolf.wolfName === data.wolfName){
                         wolf.choseTarget = data.choseTarget
-
-                        return false
+                        isContainWolfName = true
                     }
-                    
-                    wolf.name = data.wolfName
-                    wolf.choseTarget = data.choseTarget
-
-                    return true
                 })
 
+                if(!isContainWolfName){
+                    otherWolves.push(data)
+                }
 
                 this.setState({
                     renderOtherChoices: otherWolves.map((choice, index) => {

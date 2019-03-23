@@ -71,7 +71,6 @@
     background-color: white;
     transition: transform 1s ease;
     transform: translateX(-110%);
-    
 }
 
 .room-information-container-visible{

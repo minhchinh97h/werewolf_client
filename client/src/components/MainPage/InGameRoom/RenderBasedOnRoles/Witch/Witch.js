@@ -5,8 +5,9 @@ import GetPlayers from '../../GetPlayers/GetPlayers'
 
 const serverUrl = 'http://localhost:3001/'
 
-let players = [],
-    target = ''
+let target = ''
+
+const witchSocket = socketIOClient(serverUrl + 'witch')
 
 class Witch extends Component{
     _isMounted = false
@@ -21,27 +22,23 @@ class Witch extends Component{
 
     KillPlayerBttn = (name, e) => {
         target = name
-        const socket = socketIOClient(serverUrl + 'witch')
-
         let sendingData = {
             roomid: this.props.roomid,
             target_kill: name
         }
 
-        socket.emit('RequestToKillPlayer', sendingData)
+        witchSocket.emit('RequestToKillPlayer', sendingData)
     }
 
     ProtectPlayerBttn = (name, e) => {
         target = name
-
-        const socket = socketIOClient(serverUrl + 'witch')
 
         let sendingData = {
             roomid: this.props.roomid,
             target_protect: name
         }
 
-        socket.emit('RequestToProtectPlayer', sendingData)
+        witchSocket.emit('RequestToProtectPlayer', sendingData)
     }
 
     endTurnBttn = () => {
@@ -70,7 +67,6 @@ class Witch extends Component{
                 this.setState({
                     renderPlayers: data.map((player, index) => {
                         if(player !== this.props.username){
-                            players.push(player)
                             let id = "witch_target_bttn_" + index,
                                 killId = "witch_kill_bttn_" + index,
                                 protectId = "witch_protect_bttn" + index
@@ -107,29 +103,6 @@ class Witch extends Component{
                             </div>
                         </>
                     })
-
-                    //witch's action
-                    const witchSocket = socketIOClient(serverUrl + 'witch')
-
-                    witchSocket.on('KillPlayer', (data) => {
-                        if(data === 'ok'){
-                            alert('Killed ' + target + "!")
-                            this.setState({
-                                endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                            })
-                        }
-                        
-                    })
-
-                    witchSocket.on('ProtectPlayer', (data) => {
-                        if(data === 'ok'){
-                            alert('Protected ' + target + "!")
-                            this.setState({
-                                endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                            })
-                        }
-                        
-                    })
                 }
             })
 
@@ -144,7 +117,6 @@ class Witch extends Component{
 
             calledTurnSocket.on('getNextTurn', data => {
                 if(data === this.props.username){
-
                     //render UI
                     this.setState({
                         renderUI: <>
@@ -153,26 +125,24 @@ class Witch extends Component{
                             </div>
                         </>
                     })
-        
-                    //witch's action
-                    const witchSocket = socketIOClient(serverUrl + 'witch')
-        
-                    witchSocket.on('KillPlayer', (data) => {
-                        if(data === 'ok'){
-                            alert('Killed ' + target + "!")
-                            this.setState({
-                                endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                            })
-                        }
+                }
+            })
+            
+            //witch's action
+            witchSocket.on('KillPlayer', (data) => {
+                if(data === 'ok'){
+                    alert('Killed ' + target + "!")
+                    this.setState({
+                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
                     })
+                }
+            })
 
-                    witchSocket.on('ProtectPlayer', (data) => {
-                        if(data === 'ok'){
-                            alert('Protected ' + target + "!")
-                            this.setState({
-                                endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                            })
-                        }
+            witchSocket.on('ProtectPlayer', (data) => {
+                if(data === 'ok'){
+                    alert('Protected ' + target + "!")
+                    this.setState({
+                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
                     })
                 }
             })
@@ -181,6 +151,12 @@ class Witch extends Component{
 
             //Handle lover (every character must have)
             const loverSocket = socketIOClient(serverUrl + 'in-game')
+
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
+            loverSocket.on('connect', () => {
+                loverSocket.emit('JoinRoom', this.props.roomid)
+            })
 
             loverSocket.on('RevealLovers', (data) => {
                 data.forEach((info, index) => {
@@ -202,7 +178,13 @@ class Witch extends Component{
             /* <-----------------------------------------------> */
 
             //Handle changes of the total charmed players via a socket event (every character must have)
-            const getCharmedSocket = socketIOClient(serverUrl + 'piper')
+            const getCharmedSocket = socketIOClient(serverUrl + 'in-game')
+
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
+            getCharmedSocket.on('connect', () => {
+                getCharmedSocket.emit('JoinRoom', this.props.roomid)
+            })
 
             getCharmedSocket.on('GetListOfCharmed', (data) => {
                 data.every((player) => {

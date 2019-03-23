@@ -6,6 +6,8 @@ import serverUrl from '../../../../../serverUrl'
 let the_fox_target_bttn_ids = [],
     players = []
 
+const foxSocket = socketIOClient(serverUrl + 'the-fox')
+        
 class TheFox extends Component{
     _isMounted = false
 
@@ -36,11 +38,8 @@ class TheFox extends Component{
             players: chosenPlayers
         }
 
-        //Do not need to assign this socket to any room channel because it will only receive the response of its request
-        const socket = socketIOClient(serverUrl + 'the-fox')
-
         if(window.confirm("Do you want to scent " + name + " and the two adjacent neighbors?")){
-            socket.emit('RequestToScent', sendingData)
+            foxSocket.emit('RequestToScent', sendingData)
 
             the_fox_target_bttn_ids.forEach((bttnId, index) => {
                 document.getElementById(bttnId).disabled = true
@@ -71,6 +70,8 @@ class TheFox extends Component{
             })
 
             getPlayerSocket.on('GetPlayers', data => {
+                players = []
+
                 this.setState({
                     renderPlayers: data.map((player, index) => {
                         if(player !== this.props.username){
@@ -110,16 +111,6 @@ class TheFox extends Component{
                             </div>
                         </>
                     })
-
-                    //The Fox's action
-                    const foxSocket = socketIOClient(serverUrl + 'the-fox')
-
-                    foxSocket.on('GetScentPlayers', (data) => {
-                        this.setState({
-                            renderTargetRole: <b>Is there any werewolves? {data ? "YES": "NO"}</b>,
-                            endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                        })
-                    })
                 }
             })
 
@@ -137,7 +128,6 @@ class TheFox extends Component{
                 if(data === this.props.username){
 
                     //render UI
-
                     this.setState({
                         renderUI: <>
                             <div>
@@ -146,22 +136,28 @@ class TheFox extends Component{
                         </>
                     })
         
-                    //The Fox's action
-                    const foxSocket = socketIOClient(serverUrl + 'the-fox')
-        
-                    foxSocket.on('GetScentPlayers', (data) => {
-                        this.setState({
-                            renderTargetRole: <b>Is there any werewolves? {data ? "YES" : "NO"}</b>,
-                            endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                        })
-                    })
+                    
                 }
+            })
+
+            //The Fox's action
+            foxSocket.on('GetScentPlayers', (data) => {
+                this.setState({
+                    renderTargetRole: <b>Is there any werewolves? {data ? "YES" : "NO"}</b>,
+                    endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                })
             })
 
             /* <-----------------------------------------------> */
 
             //Handle lover (every character must have)
             const loverSocket = socketIOClient(serverUrl + 'in-game')
+
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
+            loverSocket.on('connect', () => {
+                loverSocket.emit('JoinRoom', this.props.roomid)
+            })
 
             loverSocket.on('RevealLovers', (data) => {
                 data.forEach((info, index) => {
@@ -183,10 +179,15 @@ class TheFox extends Component{
             /* <-----------------------------------------------> */
 
             //Handle changes of the total charmed players via a socket event (every character must have)
-            const getCharmedSocket = socketIOClient(serverUrl + 'piper')
+            const getCharmedSocket = socketIOClient(serverUrl + 'in-game')
+
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
+            getCharmedSocket.on('connect', () => {
+                getCharmedSocket.emit('JoinRoom', this.props.roomid)
+            })
 
             getCharmedSocket.on('GetListOfCharmed', (data) => {
-
                 data.every((player) => {
                     if(this.props.username === player){
                         this.setState({

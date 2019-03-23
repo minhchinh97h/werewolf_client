@@ -8,6 +8,8 @@ const serverUrl = 'http://localhost:3001/'
 let players = [],
     protectTarget = ''
 
+const saviorSocket = socketIOClient(serverUrl + 'savior')
+
 class TheSavior extends Component{
     _isMounted = false
 
@@ -20,14 +22,12 @@ class TheSavior extends Component{
         if(window.confirm("Do you want to protect " + name + "?")){
             protectTarget = name
 
-            const socket = socketIOClient(serverUrl + 'savior')
-
             let sendingData = {
                 roomid: this.props.roomid,
                 protectTarget: protectTarget
             }
 
-            socket.emit('RequestToProtectPlayer', sendingData)
+            saviorSocket.emit('RequestToProtectPlayer', sendingData)
         }
     }
 
@@ -90,19 +90,6 @@ class TheSavior extends Component{
                             </div>
                         </>
                     })
-
-                    //Savior's action
-                    const saviorSocket = socketIOClient(serverUrl + 'savior')
-
-                    saviorSocket.on('ProtectedPlayer', (data) => {
-                        if(data === 'ok'){
-                            alert(protectTarget + " is protected!")
-
-                            this.setState({
-                                endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                            })
-                        }
-                    })
                 }
             })
 
@@ -117,7 +104,6 @@ class TheSavior extends Component{
 
             calledTurnSocket.on('getNextTurn', data => {
                 if(data === this.props.username){
-
                     //render UI
                     this.setState({
                         renderUI: <>
@@ -126,18 +112,16 @@ class TheSavior extends Component{
                             </div>
                         </>
                     })
-        
-                    //Savior's action
-                    const saviorSocket = socketIOClient(serverUrl + 'savior')
-        
-                    saviorSocket.on('ProtectedPlayer', (data) => {
-                        if(data === 'ok'){
-                            alert(protectTarget + " is protected!")
+                }
+            })
 
-                            this.setState({
-                                endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                            })
-                        }
+            //Savior's action
+            saviorSocket.on('ProtectedPlayer', (data) => {
+                if(data === 'ok'){
+                    alert(protectTarget + " is protected!")
+
+                    this.setState({
+                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
                     })
                 }
             })
@@ -146,6 +130,12 @@ class TheSavior extends Component{
 
             //Handle lover (every character must have)
             const loverSocket = socketIOClient(serverUrl + 'in-game')
+
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
+            loverSocket.on('connect', () => {
+                loverSocket.emit('JoinRoom', this.props.roomid)
+            })
 
             loverSocket.on('RevealLovers', (data) => {
                 data.forEach((info, index) => {
@@ -167,7 +157,13 @@ class TheSavior extends Component{
             /* <-----------------------------------------------> */
 
             //Handle changes of the total charmed players via a socket event (every character must have)
-            const getCharmedSocket = socketIOClient(serverUrl + 'piper')
+            const getCharmedSocket = socketIOClient(serverUrl + 'in-game')
+
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
+            getCharmedSocket.on('connect', () => {
+                getCharmedSocket.emit('JoinRoom', this.props.roomid)
+            })
 
             getCharmedSocket.on('GetListOfCharmed', (data) => {
                 data.every((player) => {

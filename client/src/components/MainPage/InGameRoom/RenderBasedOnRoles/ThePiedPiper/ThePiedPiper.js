@@ -7,6 +7,8 @@ const serverUrl = 'http://localhost:3001/'
 let piper_target_bttn_ids = [],
     playersToCharm = []
 
+const piperSocket = socketIOClient(serverUrl + 'piper')
+        
 class ThePiedPiper extends Component{
     _isMounted = false
 
@@ -25,14 +27,12 @@ class ThePiedPiper extends Component{
             document.getElementById(bttnId).disabled = true
 
             if(playersToCharm.length === 2){
-                const socket = socketIOClient(serverUrl + 'piper')
-
                 let sendingData = {
                     roomid: this.props.roomid,
                     playersToCharm: playersToCharm
                 }
 
-                socket.emit('RequestToCharmPlayers', sendingData)
+                piperSocket.emit('RequestToCharmPlayers', sendingData)
 
                 playersToCharm.length = 0
             }
@@ -99,17 +99,6 @@ class ThePiedPiper extends Component{
                             </div>
                         </>
                     })
-
-                    //Piper's action
-                    const piperSocket = socketIOClient(serverUrl + 'piper')
-
-                    piperSocket.on('CharmedPlayers', (data) => {
-                        prompt(data[0].player + ', ' + data[1].player + ' are charmed!')
-
-                        this.setState({
-                            endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                        })
-                    })
                 }
             })
 
@@ -126,7 +115,6 @@ class ThePiedPiper extends Component{
                 if(data === this.props.username){
 
                     //render UI
-
                     this.setState({
                         renderUI: <>
                             <div>
@@ -134,23 +122,26 @@ class ThePiedPiper extends Component{
                             </div>
                         </>
                     })
-        
-                    //Piper's action
-                    const piperSocket = socketIOClient(serverUrl + 'piper')
-        
-                    piperSocket.on('CharmedPlayers', (data) => {
-                        prompt(data[0].player + ', ' + data[1].player + ' are charmed!')
-                        this.setState({
-                            endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                        })
-                    })
                 }
+            })
+
+            //Piper's action
+            piperSocket.on('CharmedPlayers', (data) => {
+                this.setState({
+                    endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                })
             })
 
             /* <-----------------------------------------------> */
 
             //Handle lover (every character must have)
             const loverSocket = socketIOClient(serverUrl + 'in-game')
+
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
+            loverSocket.on('connect', () => {
+                loverSocket.emit('JoinRoom', this.props.roomid)
+            })
 
             loverSocket.on('RevealLovers', (data) => {
                 data.forEach((info, index) => {
@@ -172,9 +163,16 @@ class ThePiedPiper extends Component{
             /* <-----------------------------------------------> */
 
             //Handle changes of the total charmed players via a socket event (every character must have)
-            const getCharmedSocket = socketIOClient(serverUrl + 'piper')
+            const getCharmedSocket = socketIOClient(serverUrl + 'in-game')
+
+            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
+            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
+            getCharmedSocket.on('connect', () => {
+                getCharmedSocket.emit('JoinRoom', this.props.roomid)
+            })
 
             getCharmedSocket.on('GetListOfCharmed', (data) => {
+                console.log(data)
                 data.every((player) => {
                     if(this.props.username === player){
                         this.setState({
