@@ -1,0 +1,4 @@
+.piper-choose-player-button-disable{
+    filter: grayscale(100%) !important;
+    background-color: rgb(177, 177, 177) !important;
+}

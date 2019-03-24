@@ -17,28 +17,39 @@ class Witch extends Component{
         renderLovers: null,
         renderCharmedPlayers: null,
         renderUI: null,
-        endTurnConfirm: null
+        endTurnConfirm: null,
+        renderWitchAction: null,
+        target: ''
     }
 
     KillPlayerBttn = (name, e) => {
         target = name
-        let sendingData = {
-            roomid: this.props.roomid,
-            target_kill: name
-        }
 
-        witchSocket.emit('RequestToKillPlayer', sendingData)
+        if(window.confirm("Do you want to kill " + name + "?")){
+            let sendingData = {
+                roomid: this.props.roomid,
+                target_kill: name
+            }
+            
+            witchSocket.emit('RequestToKillPlayer', sendingData)
+
+            this.setState({target})
+        }
     }
 
     ProtectPlayerBttn = (name, e) => {
         target = name
 
-        let sendingData = {
-            roomid: this.props.roomid,
-            target_protect: name
-        }
+        if(window.confirm("Do you want to save " + name + "?")){
+            let sendingData = {
+                roomid: this.props.roomid,
+                target_protect: name
+            }
+    
+            witchSocket.emit('RequestToProtectPlayer', sendingData)
 
-        witchSocket.emit('RequestToProtectPlayer', sendingData)
+            this.setState({target})
+        }
     }
 
     endTurnBttn = () => {
@@ -46,7 +57,7 @@ class Witch extends Component{
         
         let sendingData = {
             roomid: this.props.roomid,
-            role: 'Werewolves'
+            role: 'Witch'
         }
 
         socket.emit('RequestToGetNextTurn', sendingData)
@@ -60,7 +71,7 @@ class Witch extends Component{
             const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
-                getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
+                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
             })
 
             getPlayerSocket.on('GetPlayers', data => {
@@ -74,8 +85,10 @@ class Witch extends Component{
                             return(
                                 <div key = {player}>
                                     <p id={id}>{player}</p>
-                                    <button id={killId} onClick={this.KillPlayerBttn.bind(this, player)}>Kill</button>
-                                    <button id={protectId} onClick={this.ProtectPlayerBttn.bind(this, player)}>Protect</button>
+                                    <div>
+                                        <button id={killId} onClick={this.KillPlayerBttn.bind(this, player)}>Kill</button>
+                                        <button id={protectId} onClick={this.ProtectPlayerBttn.bind(this, player)}>Protect</button>
+                                    </div>
                                 </div>
                             )
                         }
@@ -98,9 +111,7 @@ class Witch extends Component{
                 if(data === this.props.username){
                     this.setState({
                         renderUI: <>
-                            <div>
                                 <p>Choose your target to kill and to protect?</p>
-                            </div>
                         </>
                     })
                 }
@@ -117,12 +128,9 @@ class Witch extends Component{
 
             calledTurnSocket.on('getNextTurn', data => {
                 if(data === this.props.username){
-                    //render UI
                     this.setState({
                         renderUI: <>
-                            <div>
-                                <p>Choose your target to kill and to protect?</p>
-                            </div>
+                            <p>Choose your target to kill and to protect?</p>
                         </>
                     })
                 }
@@ -130,82 +138,51 @@ class Witch extends Component{
             
             //witch's action
             witchSocket.on('KillPlayer', (data) => {
+                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
+                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
+
+                document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
+
                 if(data === 'ok'){
-                    alert('Killed ' + target + "!")
                     this.setState({
+                        renderWitchAction: <p><b>{this.state.target}</b> Killed!</p>,
+                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                    })
+                }
+
+                else if(data === 'No Kill Potion Left'){
+                    this.setState({
+                        renderWitchAction: <p>No Kill Potion Left!</p>,
                         endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
                     })
                 }
             })
 
             witchSocket.on('ProtectPlayer', (data) => {
+                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
+                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
+
+                document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
+
                 if(data === 'ok'){
-                    alert('Protected ' + target + "!")
                     this.setState({
+                        renderWitchAction: <p><b>{this.state.target}</b> Saved!</p>,
                         endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
                     })
                 }
-            })
 
-            /* <-----------------------------------------------> */
-
-            //Handle lover (every character must have)
-            const loverSocket = socketIOClient(serverUrl + 'in-game')
-
-            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
-            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
-            loverSocket.on('connect', () => {
-                loverSocket.emit('JoinRoom', this.props.roomid)
-            })
-
-            loverSocket.on('RevealLovers', (data) => {
-                data.forEach((info, index) => {
-                    if(info.player === this.props.username){
-                        if(index === 0)
-                            this.setState({
-                                renderLovers: <b>You are now in love with {data[index+1].player} - {data[index+1].role}</b>
-                            })
-                        
-                        else{
-                            this.setState({
-                                renderLovers: <b>You are now in love with {data[index-1].player} - {data[index-1].role}</b>
-                            })
-                        }
-                    }
-                })
-            })
-
-            /* <-----------------------------------------------> */
-
-            //Handle changes of the total charmed players via a socket event (every character must have)
-            const getCharmedSocket = socketIOClient(serverUrl + 'in-game')
-
-            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
-            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
-            getCharmedSocket.on('connect', () => {
-                getCharmedSocket.emit('JoinRoom', this.props.roomid)
-            })
-
-            getCharmedSocket.on('GetListOfCharmed', (data) => {
-                data.every((player) => {
-                    if(this.props.username === player){
-                        this.setState({
-                            renderCharmedPlayers: data.map((player, index) => {
-                                let key = 'charmed_' + index
-                                return(
-                                    <div key={key}>
-                                        <p>{player}</p>
-                                    </div>
-                                )
-                            })
-                        })
-
-                        return false
-                    }
-
-                    else
-                        return true
-                })
+                else if(data === 'No Heal Potion Left'){
+                    this.setState({
+                        renderWitchAction: <p>No Heal Potion Left!</p>,
+                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                    })
+                }
             })
         }
     }
@@ -219,27 +196,21 @@ class Witch extends Component{
 
         return(
             <>
-                {this.state.renderUI}
+            <div className="in-game-cupid-layer1-container in-game-cupid-layer-container-visible" id="cupid-layer1">
+                <div className="in-game-render-ui-container">
+                    {this.state.renderUI}
+                </div>
                 
-                <br></br>
+                <div className="in-game-render-players-container">
+                    {this.state.renderPlayers}
+                </div>
 
-                {this.state.renderPlayers}
+            </div>
 
-                <br></br>
-
-                <br></br>
-
-                <h3>List of Charmed Players: </h3>
-                {this.state.renderCharmedPlayers}
-
-                <br></br>
-
-                {this.state.renderLovers}
-
-                <br></br>
-
+            <div className="in-game-cupid-layer2-container in-game-cupid-layer-container-invisible" id="cupid-layer2">
+                {this.state.renderWitchAction}
                 {this.state.endTurnConfirm}
-
+            </div>  
             </>
         )
     }

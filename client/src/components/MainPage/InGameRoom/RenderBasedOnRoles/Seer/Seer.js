@@ -55,7 +55,7 @@ class Seer extends Component{
             const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
-                getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
+                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
             })
 
             getPlayerSocket.on('GetPlayers', data => {
@@ -67,9 +67,7 @@ class Seer extends Component{
                             seer_target_bttn_ids.push(id)
     
                             return(
-                                <div key = {player}>
-                                    <button id={id} type="button" onClick={this.playerToRevealBttn.bind(this, player, id)}>{player}</button>
-                                </div>
+                                <button key = {player} id={id} type="button" onClick={this.playerToRevealBttn.bind(this, player, id)}>{player}</button>
                             )
                         }
                     })
@@ -89,11 +87,10 @@ class Seer extends Component{
             //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
             firstRoundSocket.on('Retrieve1stTurn', data => {
                 if(data === this.props.username){
+                    //render UI
                     this.setState({
                         renderUI: <>
-                            <div>
                                 <p>Who do you want to reveal?</p>
-                            </div>
                         </>
                     })
                 }
@@ -111,86 +108,28 @@ class Seer extends Component{
 
             calledTurnSocket.on('getNextTurn', data => {
                 if(data === this.props.username){
-
                     //render UI
                     this.setState({
                         renderUI: <>
-                            <div>
                                 <p>Who do you want to reveal?</p>
-                            </div>
                         </>
                     })
-        
-                    
                 }
             })
 
             //Seer's action
             seerSocket.on('RevealPlayer', (data) => {
+                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
+                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
+
+                document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
+
                 this.setState({
-                    renderTargetRole: <b>The target's role is: {data}</b>,
+                    renderTargetRole: <p><b>{data.username}</b>'s role is: <b>{data.role}</b></p>,
                     endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                })
-            })
-
-            /* <-----------------------------------------------> */
-
-            //Handle lover (every character must have)
-            const loverSocket = socketIOClient(serverUrl + 'in-game')
-
-            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
-            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
-            loverSocket.on('connect', () => {
-                loverSocket.emit('JoinRoom', this.props.roomid)
-            })
-
-            loverSocket.on('RevealLovers', (data) => {
-                data.forEach((info, index) => {
-                    if(info.player === this.props.username){
-                        if(index === 0)
-                            this.setState({
-                                renderLovers: <b>You are now in love with {data[index+1].player} - {data[index+1].role}</b>
-                            })
-                        
-                        else{
-                            this.setState({
-                                renderLovers: <b>You are now in love with {data[index-1].player} - {data[index-1].role}</b>
-                            })
-                        }
-                    }
-                })
-            })
-
-            /* <-----------------------------------------------> */
-
-            //Handle changes of the total charmed players via a socket event (every character must have)
-            const getCharmedSocket = socketIOClient(serverUrl + 'piper') 
-
-            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
-            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
-            getCharmedSocket.on('connect', () => {
-                getCharmedSocket.emit('JoinRoom', this.props.roomid)
-            })
-
-            getCharmedSocket.on('GetListOfCharmed', (data) => {
-                data.every((player) => {
-                    if(this.props.username === player){
-                        this.setState({
-                            renderCharmedPlayers: data.map((player, index) => {
-                                let key = 'charmed_' + index
-                                return(
-                                    <div key={key}>
-                                        <p>{player}</p>
-                                    </div>
-                                )
-                            })
-                        })
-
-                        return false
-                    }
-
-                    else
-                        return true
                 })
             })
         }
@@ -203,18 +142,22 @@ class Seer extends Component{
     render(){
         return(
             <>
-                {this.state.renderUI}
-                
-                {this.state.renderPlayers}
+                <div className="in-game-cupid-layer1-container in-game-cupid-layer-container-visible" id="cupid-layer1">
+                    
+                    <div className="in-game-render-ui-container">
+                        {this.state.renderUI}
+                    </div>
+                    
+                    <div className="in-game-render-players-container">
+                        {this.state.renderPlayers}
+                    </div>
 
-                {this.state.renderTargetRole}
+                </div>
 
-                <h3>List of Charmed Players: </h3>
-                {this.state.renderCharmedPlayers}
-
-                {this.state.renderLovers}
-
-                {this.state.endTurnConfirm}
+                <div className="in-game-cupid-layer2-container in-game-cupid-layer-container-invisible" id="cupid-layer2">
+                    {this.state.renderTargetRole}
+                    {this.state.endTurnConfirm}
+                </div>  
             </>
         )
     }

@@ -21,11 +21,6 @@ import Werewolves from './RenderBasedOnRoles/Werewolves/Werewolves'
 import WildChild from './RenderBasedOnRoles/WildChild/WildChild'
 import Witch from './RenderBasedOnRoles/Witch/Witch'
 
-
-import DisplayPlayerNames from '../WaitingRoom/DisplayPlayerNames/DisplayPlayerNames'
-
-import Header from '../../Header/Header'
-
 import "./InGameRoom.css"
 
 import serverUrl from '../../../serverUrl'
@@ -44,7 +39,9 @@ class InGameRoom extends Component{
         isAdmin: false,
         renderLovers: null,
         renderCharmedPlayers: null,
-        admin: ''
+        admin: '',
+        isDead: false,
+        roundEnds: false
     }
 
     startBttn = () => {
@@ -235,10 +232,6 @@ class InGameRoom extends Component{
                                         renderRoleUI: <DogWolf roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                                     })
                                 }
-
-                                
-
-                                
                             }
                         })
                     }
@@ -309,6 +302,8 @@ class InGameRoom extends Component{
                 getCharmedSocket.emit('JoinRoom', this.props.match.params.roomid)
             })
             
+            getCharmedSocket.emit('RequestToRetrieveCharmPlayers', this.props.match.params.roomid)
+
             getCharmedSocket.on('GetListOfCharmed', (data) => {
                 data.every((player) => {
                     if(this.props.match.params.username === player){
@@ -316,9 +311,7 @@ class InGameRoom extends Component{
                             renderCharmedPlayers: data.map((player, index) => {
                                 let key = 'charmed_' + index
                                 return(
-                                    <div key={key}>
-                                        <p>{player}</p>
-                                    </div>
+                                    <p key={key}>{player}</p>
                                 )
                             })
                         })
@@ -329,6 +322,35 @@ class InGameRoom extends Component{
                     else
                         return true
                 })
+            })
+
+            /* <-----------------------------------------------> */
+
+            //Handle the end of a round (every character must have)
+            const roundEndsSocket = socketIOClient(serverUrl + 'retrieve-round-ends')
+            
+            roundEndsSocket.on('connect', () => {
+                roundEndsSocket.emit('JoinRoom', this.props.match.params.roomid)
+            })
+            
+            roundEndsSocket.on('RoundEnds', data => {
+                console.log(data)
+                if(data.dead instanceof Array)
+                    data.dead.forEach((death, i) => {
+                        if(this.props.username === death){
+                            this.setState({isDead: true})
+                        }
+                    })
+
+                // if(data.silence === this.props.username)
+                //     this.setState((prevState) => ({
+                //         isSilence: !prevState.isSilence
+                //     }))
+                
+                //To do when the player is alive, use conditional statement in render method with this.state.isDead to update the UI if player is alive
+                //1st: create a timer 
+                //2nd: Use the similar UI layout for implementing the voting stage
+                //3rd: after player confirms another player to execute, add a cancel button to re-choose (or not, just one confirmation button and an alert as Cupid's)
             })
         }
     }
@@ -459,6 +481,7 @@ class InGameRoom extends Component{
 
                     <div className= "in-game-charm-info">
                         <h4>List of Charmed Players</h4>
+                        {this.state.renderCharmedPlayers}
                     </div>
                 </div>
             </div>

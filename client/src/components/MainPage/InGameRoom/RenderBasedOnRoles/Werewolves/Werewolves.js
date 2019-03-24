@@ -3,9 +3,11 @@ import socketIOClient from 'socket.io-client'
 
 import serverUrl from '../../../../../serverUrl'
 
+import "./Werewolves.css"
 
 let otherWolves = [],
-    targetChoice = ''
+    targetChoice = '',
+    werewolvesIconId_arr = []
 
 class Werewolves extends Component{
     _isMounted = false
@@ -66,24 +68,23 @@ class Werewolves extends Component{
             const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
-                getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
+                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
             })
 
             getPlayerSocket.on('GetPlayers', data => {
                 this.setState({
                     renderPlayers: data.map((player, index) => {
-                        if(player !== this.props.username){
-                            let id = "werewolves_target_bttn_" + index
-    
-                            return(
-                                <div key = {player}>
-                                    <button id={id} type="button" onClick={this.chooseTargetBttn.bind(this, player)}>{player}</button>
-                                </div>
-                            )
-                        }
+                        let id = "werewolves_target_bttn_" + player,
+                            werewolvesIconId = "werewolves_icon_" + player
+                        werewolvesIconId_arr.push(werewolvesIconId)
+                        return(
+                            <div key = {player} className="in-game-render-players-container-werewolve">
+                                <button  id={id} type="button" onClick={this.chooseTargetBttn.bind(this, player)}>{player}</button>
+                                <div id={werewolvesIconId} className="in-game-render-players-container-werewolve-chosen"></div>
+                            </div>
+                        )
                     })
                 })
-                
             })
 
             /* <-----------------------------------------------> */
@@ -97,13 +98,19 @@ class Werewolves extends Component{
 
             //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
             firstRoundSocket.on('Retrieve1stTurn', data => {
-                if(data === this.props.username){
-                    this.setState({
-                        renderUI: <>
-                            <div>
-                                <p>Who do you want to kill?</p>
-                            </div>
-                        </>
+                if(data instanceof Array){
+                    data.every(player => {
+                        if(player === this.props.username){
+                            //render UI
+                            this.setState({
+                                renderUI: <>
+                                        <p>Who do you want to kill?</p>
+                                </>
+                            })
+                            return false
+                        }
+
+                        return true
                     })
                 }
             })
@@ -124,9 +131,7 @@ class Werewolves extends Component{
                             //render UI
                             this.setState({
                                 renderUI: <>
-                                    <div>
                                         <p>Who do you want to kill?</p>
-                                    </div>
                                 </>
                             })
                             return false
@@ -140,73 +145,28 @@ class Werewolves extends Component{
 
             /* <-----------------------------------------------> */
 
-            //Handle lover (every character must have)
-            const loverSocket = socketIOClient(serverUrl + 'in-game')
-
-            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
-            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
-            loverSocket.on('connect', () => {
-                loverSocket.emit('JoinRoom', this.props.roomid)
-            })
-
-            loverSocket.on('RevealLovers', (data) => {
-                data.forEach((info, index) => {
-                    if(info.player === this.props.username){
-                        if(index === 0)
-                            this.setState({
-                                renderLovers: <b>You are now in love with {data[index+1].player} - {data[index+1].role}</b>
-                            })
-                        
-                        else{
-                            this.setState({
-                                renderLovers: <b>You are now in love with {data[index-1].player} - {data[index-1].role}</b>
-                            })
-                        }
-                    }
-                })
-            })
-
-            /* <-----------------------------------------------> */
-
-            //Handle changes of the total charmed players via a socket event (every character must have)
-            const getCharmedSocket = socketIOClient(serverUrl + 'in-game')
-
-            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
-            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
-            getCharmedSocket.on('connect', () => {
-                getCharmedSocket.emit('JoinRoom', this.props.roomid)
-            })
-            
-            getCharmedSocket.on('GetListOfCharmed', (data) => {
-                data.every((player) => {
-                    if(this.props.username === player){
-                        this.setState({
-                            renderCharmedPlayers: data.map((player, index) => {
-                                let key = 'charmed_' + index
-                                return(
-                                    <div key={key}>
-                                        <p>{player}</p>
-                                    </div>
-                                )
-                            })
-                        })
-
-                        return false
-                    }
-
-                    else
-                        return true
-                })
-            })
-
-            /* <-----------------------------------------------> */
-
             //Handle other werewolves choices && confirmation that the kill target is saved into database && final target
             const otherSocket = socketIOClient(serverUrl + 'werewolves')
 
             //Join room for the werewolves namespace
             otherSocket.on('connect', () => {
                 otherSocket.emit('JoinRoom', this.props.roomid)
+            })
+
+            //Request to get other werewolves in this specific socket
+            otherSocket.emit('RequestToGetOtherWerewolves', this.props.roomid)
+
+            otherSocket.on('GetOtherWerewolves', data => {
+                data.forEach((player) => {
+                    if(document.getElementById("werewolves_target_bttn_" + player)){
+                        let wolfNode = document.getElementById("werewolves_target_bttn_" + player)
+                        wolfNode.innerText += " (Wolf)"
+                        wolfNode.classList.remove("grayder-background")
+                        wolfNode.classList.add("grayder-background")
+                        wolfNode.disabled = true
+
+                    }
+                })
             })
 
             //others choices
@@ -226,13 +186,8 @@ class Werewolves extends Component{
                     otherWolves.push(data)
                 }
 
-                this.setState({
-                    renderOtherChoices: otherWolves.map((choice, index) => {
-                        let id = "other_werewolves_choices_" + index
-                        return (<div key={id} id={id}>
-                                    {choice.wolfName} : {choice.choseTarget} 
-                                </div>)
-                    })
+                otherWolves.forEach((choice) => {
+                    document.getElementById("werewolves_icon_"+ choice.wolfName).innerText = choice.choseTarget
                 })
             })
 
@@ -262,23 +217,29 @@ class Werewolves extends Component{
 
     componentWillUnmount(){
         this._isMounted = false
+
+        werewolvesIconId_arr.length = 0
     }
 
     render(){
         return(
             <>  
-                {this.state.renderUI}
+            <div className="in-game-cupid-layer1-container in-game-cupid-layer-container-visible" id="cupid-layer1">
+                    
+                <div className="in-game-render-ui-container">
+                    {this.state.renderUI}
+                </div>
                 
-                <br></br>
+                <div className="in-game-render-players-container">
+                    {this.state.renderPlayers}
+                </div>
 
-                {this.state.renderPlayers}
+            </div>
 
-                <br></br>
-
-                {this.state.renderOtherChoices}
-
-                <br></br>
-
+            <div className="in-game-cupid-layer2-container in-game-cupid-layer-container-invisible" id="cupid-layer2">
+                {this.state.renderTargetConnection}
+                {this.state.endTurnConfirm}
+            </div> 
                 {this.state.choseTarget}
 
                 <br></br>
@@ -288,19 +249,6 @@ class Werewolves extends Component{
                 <br></br>
 
                 {this.state.renderFinalTarget}
-
-                <br></br>
-
-                <h3>List of Charmed Players: </h3>
-                {this.state.renderCharmedPlayers}
-
-                <br></br>
-
-                {this.state.renderLovers}
-
-                <br></br>
-
-                {this.state.endTurnConfirm}
             </>
         )
     }

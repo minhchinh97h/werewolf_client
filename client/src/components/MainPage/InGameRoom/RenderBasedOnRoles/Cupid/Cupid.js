@@ -39,6 +39,8 @@ class Cupid extends Component{
                 }
 
                 cupidSocket.emit('RequestToConnectPlayers', sendingData)
+
+                playersToConnect.length = 0
             }
         }
     }
@@ -62,7 +64,7 @@ class Cupid extends Component{
             const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
-                getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
+                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
             })
 
             getPlayerSocket.on('GetPlayers', data => {
@@ -133,23 +135,17 @@ class Cupid extends Component{
                 document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
 
                 this.setState({
-                    renderTargetConnection: <p>{data[0].player} is now connected with {data[1].player}</p>,
+                    renderTargetConnection: <p><b>{data[0].player}</b> is now connected with <b>{data[1].player}</b></p>,
                     endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
                 })
             })
-
-            
-            
         }
 
     }
 
     componentWillUnmount(){
         this._isMounted = false
-    }
-
-    componentDidUpdate(prevProps, prevState){
-        
+        playersToConnect.length = 0
     }
 
     render(){

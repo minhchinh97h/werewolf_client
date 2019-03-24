@@ -3,7 +3,8 @@ import socketIOClient from 'socket.io-client'
 
 import serverUrl from '../../../../../serverUrl'
 
-let bear_target_bttn_ids = []
+let bear_target_bttn_ids = [],
+    players = []
 
 const bearSocket = socketIOClient(serverUrl + 'bear')
 
@@ -16,17 +17,35 @@ class BearLeader extends Component{
         endTurnConfirm: null,
         renderScentTargetNeighbor: null,
         renderLovers: null,
-        renderCharmedPlayers: null
+        renderCharmedPlayers: null,
+        scentTarget: null
     }
 
     PlayerToScent = (name, index, e) => {
+        let playersToScent = []
+        if(index >= 1 && index < players.length - 1){
+            playersToScent.push(players[index-1])
+            playersToScent.push(players[index+1])
+        }
+
+        else if (index === 0){
+            playersToScent.push(players[index + 1])
+        }
+
+        else if(index === players.length - 1){
+            playersToScent.push(players[index - 1])
+        }
+
         if(window.confirm("Do you want to scent " + name +"?")){
             let sendingData = {
                 roomid: this.props.roomid,
-                player: name
+                playersToScent: playersToScent
             }
-
             bearSocket.emit('RequestToScentPlayer', sendingData)
+
+
+            this.setState({scentTarget : name})
+            players.length = 0
         }
     }
 
@@ -49,21 +68,21 @@ class BearLeader extends Component{
             const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
-                getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
+                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
             })
 
             getPlayerSocket.on('GetPlayers', data => {
+                players = data.filter((player) => {return player !== this.props.username})
+
                 this.setState({
-                    renderPlayers: data.map((player, index) => {
+                    renderPlayers: players.map((player, index) => {
                         if(player !== this.props.username){
                             let id = "bear_target_bttn_" + index
     
                             bear_target_bttn_ids.push(id)
     
                             return(
-                                <div key = {player}>
-                                    <button id={id} type="button" onClick={this.PlayerToScent.bind(this, player, index)}>{player}</button>
-                                </div>
+                                <button key = {player} id={id} type="button" onClick={this.PlayerToScent.bind(this, player, index)}>{player}</button>
                             )
                         }
                     })
@@ -84,9 +103,7 @@ class BearLeader extends Component{
                 if(data === this.props.username){
                     this.setState({
                         renderUI: <>
-                            <div>
-                                <p>Who do you want to scent its neighbor?</p>
-                            </div>
+                            <p>Who do you want to scent its neighbor?</p>
                         </>
                     })
                 }
@@ -101,87 +118,27 @@ class BearLeader extends Component{
 
             calledTurnSocket.on('getNextTurn', data => {
                 if(data === this.props.username){
-
-                    //render UI
-
                     this.setState({
                         renderUI: <>
-                            <div>
-                                <p>Who do you want to scent its neighbor?</p>
-                            </div>
+                            <p>Who do you want to scent its neighbor?</p>
                         </>
                     })
-        
-                    
                 }
             })
 
             //Bear's action
             bearSocket.on('ScentPlayer', (data) => {
+                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
+                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
+
+                document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
+
                 this.setState({
-                    renderScentTargetNeighbor: <b>{data ? 'Werewolve(s) exists' : 'There is none of Werewolves'}</b>,
+                    renderScentTargetNeighbor: <p>{data ? <>Werewolve(s) exists around <b>{this.state.scentTarget}</b></> : <>There is none of Werewolves around <b>{this.state.scentTarget}</b></>}</p>,
                     endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                })
-            })
-
-            /* <-----------------------------------------------> */
-
-            //Handle lover (every character must have)
-            const loverSocket = socketIOClient(serverUrl + 'in-game')
-
-            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
-            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
-            loverSocket.on('connect', () => {
-                loverSocket.emit('JoinRoom', this.props.roomid)
-            })
-
-            loverSocket.on('RevealLovers', (data) => {
-                data.forEach((info, index) => {
-                    if(info.player === this.props.username){
-                        if(index === 0)
-                            this.setState({
-                                renderLovers: <b>You are now in love with {data[index+1].player} - {data[index+1].role}</b>
-                            })
-                        
-                        else{
-                            this.setState({
-                                renderLovers: <b>You are now in love with {data[index-1].player} - {data[index-1].role}</b>
-                            })
-                        }
-                    }
-                })
-            })
-
-            /* <-----------------------------------------------> */
-
-            //Handle changes of the total charmed players via a socket event (every character must have)
-            const getCharmedSocket = socketIOClient(serverUrl + 'in-game')
-
-            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
-            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
-            getCharmedSocket.on('connect', () => {
-                getCharmedSocket.emit('JoinRoom', this.props.roomid)
-            })
-
-            getCharmedSocket.on('GetListOfCharmed', (data) => {
-                data.every((player) => {
-                    if(this.props.username === player){
-                        this.setState({
-                            renderCharmedPlayers: data.map((player, index) => {
-                                let key = 'charmed_' + index
-                                return(
-                                    <div key={key}>
-                                        <p>{player}</p>
-                                    </div>
-                                )
-                            })
-                        })
-
-                        return false
-                    }
-
-                    else
-                        return true
                 })
             })
         }
@@ -189,33 +146,29 @@ class BearLeader extends Component{
 
     componentWillUnmount(){
         this._isMounted = false
+        
+        players.length = 0
     }
 
     render(){
         return(
             <>
-                {this.state.renderUI}
-
-                <br></br>
-
-                {this.state.renderPlayers}
-
-                <br></br>
-
-                {this.state.renderScentTargetNeighbor}
-
-                <br></br>
+            <div className="in-game-cupid-layer1-container in-game-cupid-layer-container-visible" id="cupid-layer1">
+                    
+                <div className="in-game-render-ui-container">
+                    {this.state.renderUI}
+                </div>
                 
-                <h3>List of Charmed Players: </h3>
-                {this.state.renderCharmedPlayers}
+                <div className="in-game-render-players-container">
+                    {this.state.renderPlayers}
+                </div>
 
-                <br></br>
+            </div>
 
-                {this.state.renderLovers}
-
-                <br></br>
-
+            <div className="in-game-cupid-layer2-container in-game-cupid-layer-container-invisible" id="cupid-layer2">
+                {this.state.renderScentTargetNeighbor}
                 {this.state.endTurnConfirm}
+            </div>  
             </>
         )
     }

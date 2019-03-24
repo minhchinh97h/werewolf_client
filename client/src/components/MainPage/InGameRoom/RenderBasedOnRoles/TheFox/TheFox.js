@@ -4,7 +4,8 @@ import socketIOClient from 'socket.io-client'
 import serverUrl from '../../../../../serverUrl'
 
 let the_fox_target_bttn_ids = [],
-    players = []
+    players = [],
+    target 
 
 const foxSocket = socketIOClient(serverUrl + 'the-fox')
         
@@ -21,6 +22,7 @@ class TheFox extends Component{
     }
 
     playersToRevealBttn = (name, index, e) => {
+        target = name
         let chosenPlayers = []
 
         chosenPlayers.push(name)
@@ -66,7 +68,7 @@ class TheFox extends Component{
             const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
-                getPlayerSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
+                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
             })
 
             getPlayerSocket.on('GetPlayers', data => {
@@ -81,9 +83,7 @@ class TheFox extends Component{
                             the_fox_target_bttn_ids.push(id)
     
                             return(
-                                <div key = {player}>
-                                    <button id={id} type="button" onClick={this.playersToRevealBttn.bind(this, player, index)}>{player}</button>
-                                </div>
+                                <button key = {player} id={id} type="button" onClick={this.playersToRevealBttn.bind(this, player, index)}>{player}</button>
                             )
                         }
                     })
@@ -102,13 +102,11 @@ class TheFox extends Component{
 
             //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
             firstRoundSocket.on('Retrieve1stTurn', data => {
-                
                 if(data === this.props.username){
+                    //render UI
                     this.setState({
                         renderUI: <>
-                            <div>
-                                <p>Who do you want to scent?</p>
-                            </div>
+                            <p>Who do you want to scent?</p>
                         </>
                     })
                 }
@@ -126,88 +124,29 @@ class TheFox extends Component{
 
             calledTurnSocket.on('getNextTurn', data => {
                 if(data === this.props.username){
-
                     //render UI
                     this.setState({
                         renderUI: <>
-                            <div>
-                                <p>Who do you want to scent?</p>
-                            </div>
+                            <p>Who do you want to scent?</p>
                         </>
                     })
-        
-                    
                 }
             })
 
             //The Fox's action
             foxSocket.on('GetScentPlayers', (data) => {
+                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
+                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
+
+                document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
+
                 this.setState({
-                    renderTargetRole: <b>Is there any werewolves? {data ? "YES" : "NO"}</b>,
+                    renderTargetRole: <p>Is there any werewolves near <b>{target}</b>? <b>{data ? "YES" : "NO"}</b></p>,
                     endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
                 })
-            })
-
-            /* <-----------------------------------------------> */
-
-            //Handle lover (every character must have)
-            const loverSocket = socketIOClient(serverUrl + 'in-game')
-
-            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
-            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
-            loverSocket.on('connect', () => {
-                loverSocket.emit('JoinRoom', this.props.roomid)
-            })
-
-            loverSocket.on('RevealLovers', (data) => {
-                data.forEach((info, index) => {
-                    if(info.player === this.props.username){
-                        if(index === 0)
-                            this.setState({
-                                renderLovers: <b>You are now in love with {data[index+1].player} - {data[index+1].role}</b>
-                            })
-                        
-                        else{
-                            this.setState({
-                                renderLovers: <b>You are now in love with {data[index-1].player} - {data[index-1].role}</b>
-                            })
-                        }
-                    }
-                })
-            })
-
-            /* <-----------------------------------------------> */
-
-            //Handle changes of the total charmed players via a socket event (every character must have)
-            const getCharmedSocket = socketIOClient(serverUrl + 'in-game')
-
-            //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
-            //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
-            getCharmedSocket.on('connect', () => {
-                getCharmedSocket.emit('JoinRoom', this.props.roomid)
-            })
-
-            getCharmedSocket.on('GetListOfCharmed', (data) => {
-                data.every((player) => {
-                    if(this.props.username === player){
-                        this.setState({
-                            renderCharmedPlayers: data.map((player, index) => {
-                                let key = 'charmed_' + index
-                                return(
-                                    <div key={key}>
-                                        <p>{player}</p>
-                                    </div>
-                                )
-                            })
-                        })
-
-                        return false
-                    }
-
-                    else
-                        return true
-                })
-                
             })
         }
     }
@@ -219,28 +158,22 @@ class TheFox extends Component{
     render(){
         return(
             <>
-                {this.state.renderUI}
+            <div className="in-game-cupid-layer1-container in-game-cupid-layer-container-visible" id="cupid-layer1">
+                    
+                <div className="in-game-render-ui-container">
+                    {this.state.renderUI}
+                </div>
                 
-                <br></br>
+                <div className="in-game-render-players-container">
+                    {this.state.renderPlayers}
+                </div>
 
-                {this.state.renderPlayers}
+            </div>
 
-                <br></br>
-
+            <div className="in-game-cupid-layer2-container in-game-cupid-layer-container-invisible" id="cupid-layer2">
                 {this.state.renderTargetRole}
-
-                <br></br>
-
-                <h3>List of Charmed Players: </h3>
-                {this.state.renderCharmedPlayers}
-
-                <br></br>
-
-                {this.state.renderLovers}
-
-                <br></br>
-
                 {this.state.endTurnConfirm}
+            </div>  
             </>
         )
     }
