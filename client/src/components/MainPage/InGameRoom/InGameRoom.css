@@ -95,6 +95,14 @@
     width: 90%;
     border-top: 1px solid #168eff;
     border-bottom: 1px solid #168eff;
+    
+}
+
+.in-game-role-tab-main > p {
+    font-size: 24px;
+    color: #106fc7;
+    margin: 50px;
+    font-weight: 500;
 }
 
 .in-game-render-ui-container{

@@ -87,7 +87,7 @@ class Werewolves extends Component{
                     renderPlayers: data.map((player, index) => {
                         let id = "werewolves_target_bttn_" + player,
                             werewolvesIconId = "werewolves_icon_" + player
-                        werewolvesIconId_arr.push(werewolvesIconId)
+                        
                         return(
                             <div key = {player} className="in-game-render-players-container-werewolve">
                                 <button  id={id} type="button" onClick={this.chooseTargetBttn.bind(this, player)}>{player}</button>
@@ -237,7 +237,7 @@ class Werewolves extends Component{
     componentWillUnmount(){
         this._isMounted = false
 
-        werewolvesIconId_arr.length = 0
+        
     }
 
     render(){

@@ -20,6 +20,7 @@ import Thief from './RenderBasedOnRoles/Thief/Thief'
 import Werewolves from './RenderBasedOnRoles/Werewolves/Werewolves'
 import WildChild from './RenderBasedOnRoles/WildChild/WildChild'
 import Witch from './RenderBasedOnRoles/Witch/Witch'
+import RoundEnd from './RenderBasedOnRoles/RoundEnd/RoundEnd'
 
 import "./InGameRoom.css"
 
@@ -27,8 +28,12 @@ import serverUrl from '../../../serverUrl'
 
 let socket
 
+
+
 class InGameRoom extends Component{
     _isMounted = false
+
+    
 
     state = {
         renderPlayerRole: null,
@@ -334,14 +339,15 @@ class InGameRoom extends Component{
             })
             
             roundEndsSocket.on('RoundEnds', data => {
-                console.log(data)
+                
                 if(data.dead instanceof Array)
                     data.dead.forEach((death, i) => {
                         if(this.props.username === death){
                             this.setState({isDead: true})
                         }
                     })
-
+                
+                this.setState({roundEnds: true})
                 // if(data.silence === this.props.username)
                 //     this.setState((prevState) => ({
                 //         isSilence: !prevState.isSilence
@@ -449,9 +455,27 @@ class InGameRoom extends Component{
                     <div className="in-game-role-tab-title">
                         <h4>{this.state.renderPlayerRole}</h4>
                     </div>
-                    <div className="in-game-role-tab-main">
-                        {this.state.renderRoleUI}
-                    </div>
+
+                    {!this.state.roundEnds ? 
+                        <div className="in-game-role-tab-main">
+                            {this.state.renderRoleUI}
+                        </div >
+                    :
+                        <>
+                        {this.state.isDead ?
+                            <div className="in-game-role-tab-main">
+                                <p>You are dead</p>
+                            </div>
+
+                            :
+
+                            <div className="in-game-role-tab-main">
+                                <RoundEnd roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} startTime = {new Date().getTime()}/>
+                            </div>
+                        }
+                        </>
+                    }
+                    
 
                     <div className="in-game-role-tab-start-end-button-container">
                         {this.state.renderStartBttn}

@@ -10,6 +10,13 @@ import InGameRoom from './components/MainPage/InGameRoom/InGameRoom'
 
 
 class App extends Component {
+  constructor(props){
+    super(props)
+
+    if(performance.navigation.type === 1)
+      console.log("page reloaded")
+  }
+
   componentDidMount() {
   }
 

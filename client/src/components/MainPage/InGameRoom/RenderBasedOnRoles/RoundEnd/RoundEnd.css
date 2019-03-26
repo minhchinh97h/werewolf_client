@@ -1,0 +1,46 @@
+.grayder-background{
+    filter: grayscale(70%) !important;
+    background-color: rgb(185, 185, 185);
+}
+
+.in-game-render-players-container-werewolve{
+    height: 70px !important;
+    width: 90% !important;
+    margin: auto auto !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.in-game-render-players-container-werewolve button{
+    border-radius: 10px;
+    height: 50px;
+    width: 200px;
+    -webkit-appearance: none;
+    font-size: 14px;
+    color: #0084ff;
+    border-color: #bf00ff;
+    background-color:white;
+}
+
+.in-game-render-players-container-werewolve-chosen{
+    width: 100% !important;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    color: #359bfa;
+}
+
+.agree-on-kill-button{
+    border-radius: 10px;
+    height: 40px;
+    width: 130px;
+    -webkit-appearance: none;
+    font-size: 14px;
+    color: #0084ff;
+    border-color: #bf00ff;
+    background-color:white;
+    margin-left: 10px;
+}
