@@ -19,7 +19,7 @@ class DisplayPlayerNames extends Component{
             socket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
         })
 
-        socket.on('GetPlayers', data => 
+        socket.on('GetBroadCastPlayers', data => 
         {
             if(this._isMounted)
                 this.setState({renderPlayerNames: data.map(player => {return(<div key = {player} className="player-name-holder"><p>{player}</p></div>)})})

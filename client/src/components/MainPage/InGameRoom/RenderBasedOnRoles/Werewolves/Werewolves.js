@@ -9,6 +9,12 @@ let otherWolves = [],
     targetChoice = '',
     werewolvesIconId_arr = []
 
+let otherSocket
+
+const ownChoiceConfirmKill = socketIOClient(serverUrl + 'werewolves')
+        
+
+
 class Werewolves extends Component{
     _isMounted = false
 
@@ -20,7 +26,8 @@ class Werewolves extends Component{
         renderOtherChoices: null,
         choseTarget: null,
         renderCharmedPlayers: null,
-        renderFinalTarget: null
+        renderFinalTarget: null,
+        renderOwnTarget: null
     }
 
     chooseTargetBttn = (name, e) => {
@@ -39,14 +46,15 @@ class Werewolves extends Component{
     }
 
     AgreeOnKill = (e) => {
-        const socket = socketIOClient(serverUrl + 'werewolves')
+        if(window.confirm("Kill " + targetChoice + "?")){
+            let sendingData = {
+                choseTarget: targetChoice,
+                roomid: this.props.roomid
+            }
 
-        let sendingData = {
-            choseTarget: targetChoice,
-            roomid: this.props.roomid
+            ownChoiceConfirmKill.emit("RequestToAgreeKill", sendingData)
+            this.setState({renderOwnTarget: <div><p>Your choice: <strong>{targetChoice}</strong></p></div>})
         }
-
-        socket.emit("RequestToAgreeKill", sendingData)
     }
 
     endTurnBttn = () => {
@@ -58,12 +66,15 @@ class Werewolves extends Component{
         }
 
         socket.emit('RequestToGetNextTurn', sendingData)
+
+        this.setState({endTurnConfirm: null})
     }  
 
     componentDidMount(){
         this._isMounted = true
 
         if(this._isMounted){
+
             // to display all the players that are from the room (every character must have)
             const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
@@ -83,6 +94,57 @@ class Werewolves extends Component{
                                 <div id={werewolvesIconId} className="in-game-render-players-container-werewolve-chosen"></div>
                             </div>
                         )
+                    })
+                })
+
+                //Handle other werewolves choices && confirmation that the kill target is saved into database && final target
+                otherSocket = socketIOClient(serverUrl + 'werewolves')
+
+                //Join room for the werewolves namespace
+                otherSocket.on('connect', () => {
+                    otherSocket.emit('JoinRoom', this.props.roomid)
+                })
+
+                //Request to get other werewolves in this specific socket
+                otherSocket.emit('RequestToGetOtherWerewolves', this.props.roomid)
+
+                otherSocket.on('GetOtherWerewolves', data => {
+                    data.forEach((player) => {
+                        if(document.getElementById("werewolves_target_bttn_" + player)){
+                            let wolfNode = document.getElementById("werewolves_target_bttn_" + player)
+                            wolfNode.innerText += " (Wolf)"
+                            wolfNode.classList.remove("grayder-background")
+                            wolfNode.classList.add("grayder-background")
+                            wolfNode.disabled = true
+                        }
+                    })
+                })
+
+                //others choices
+                otherSocket.on('OtherChoices', (data) => {
+                    //to advoid duplication
+                    let isContainWolfName = false
+
+                    otherWolves.forEach((wolf, index) => {
+                        if(wolf.wolfName === data.wolfName){
+                            wolf.choseTarget = data.choseTarget
+                            isContainWolfName = true
+                        }
+                    })
+
+                    if(!isContainWolfName){
+                        otherWolves.push(data)
+                    }
+
+                    otherWolves.forEach((choice) => {
+                        document.getElementById("werewolves_icon_"+ choice.wolfName).innerText = choice.choseTarget
+                    })
+                })
+                
+                //Final target
+                otherSocket.on('ReceiveTheFinalTarget', data => {
+                    this.setState({
+                        renderFinalTarget: <div><p>Final Target is: <strong>{data}</strong></p></div>
                     })
                 })
             })
@@ -144,74 +206,29 @@ class Werewolves extends Component{
             })
 
             /* <-----------------------------------------------> */
-
-            //Handle other werewolves choices && confirmation that the kill target is saved into database && final target
-            const otherSocket = socketIOClient(serverUrl + 'werewolves')
-
-            //Join room for the werewolves namespace
-            otherSocket.on('connect', () => {
-                otherSocket.emit('JoinRoom', this.props.roomid)
-            })
-
-            //Request to get other werewolves in this specific socket
-            otherSocket.emit('RequestToGetOtherWerewolves', this.props.roomid)
-
-            otherSocket.on('GetOtherWerewolves', data => {
-                data.forEach((player) => {
-                    if(document.getElementById("werewolves_target_bttn_" + player)){
-                        let wolfNode = document.getElementById("werewolves_target_bttn_" + player)
-                        wolfNode.innerText += " (Wolf)"
-                        wolfNode.classList.remove("grayder-background")
-                        wolfNode.classList.add("grayder-background")
-                        wolfNode.disabled = true
-
-                    }
-                })
-            })
-
-            //others choices
-            otherSocket.on('OtherChoices', (data) => {
-                //to advoid duplication
-
-                let isContainWolfName = false
-
-                otherWolves.forEach((wolf, index) => {
-                    if(wolf.wolfName === data.wolfName){
-                        wolf.choseTarget = data.choseTarget
-                        isContainWolfName = true
-                    }
-                })
-
-                if(!isContainWolfName){
-                    otherWolves.push(data)
-                }
-
-                otherWolves.forEach((choice) => {
-                    document.getElementById("werewolves_icon_"+ choice.wolfName).innerText = choice.choseTarget
-                })
-            })
-
+            
             //confirmation
-            otherSocket.on('ConfirmKillRespond', data => {
+            ownChoiceConfirmKill.on('ConfirmKillRespond', data => {
                 if(data === "ok"){
-                    alert("Confirm kill!")
-                }
+                    document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
+                    document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
+                    document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
+                    document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
 
-                else{
-                    alert("Kill is not confirmed!")
-                }
+                    document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
+                    document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
 
-                this.setState({
-                    endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                })
+                    document.getElementById("agree-on-kill-button").disabled = true
+                    document.getElementById("agree-on-kill-button").classList.remove("grayder-background")
+                    document.getElementById("agree-on-kill-button").classList.add("grayder-background")
+                    
+                    this.setState({
+                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                    })
+                }
             })
 
-            //Final target
-            otherSocket.on('ReceiveTheFinalTarget', data => {
-                this.setState({
-                    renderFinalTarget: <div><p>Final Target is: <strong>{data}</strong></p></div>
-                })
-            })
+            
         }
     }
 
@@ -237,18 +254,11 @@ class Werewolves extends Component{
             </div>
 
             <div className="in-game-cupid-layer2-container in-game-cupid-layer-container-invisible" id="cupid-layer2">
-                {this.state.renderTargetConnection}
+                {this.state.renderOwnTarget}
+                {this.state.renderFinalTarget}
                 {this.state.endTurnConfirm}
             </div> 
-                {this.state.choseTarget}
-
-                <br></br>
-
-                <button onClick={this.AgreeOnKill}>Agree on Kill</button>
-            
-                <br></br>
-
-                {this.state.renderFinalTarget}
+                <button className="agree-on-kill-button" onClick={this.AgreeOnKill} id="agree-on-kill-button">Agree on Kill</button>
             </>
         )
     }
