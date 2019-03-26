@@ -58,6 +58,7 @@ class ThePiedPiper extends Component{
         }
 
         socket.emit('RequestToGetNextTurn', sendingData)
+        this.setState({endTurnConfirm: null})
     }  
 
     componentDidMount(){

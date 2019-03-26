@@ -167,6 +167,7 @@ class Werewolves extends Component{
                             this.setState({
                                 renderUI: <>
                                         <p>Who do you want to kill?</p>
+                                        <button className="agree-on-kill-button" onClick={this.AgreeOnKill} id="agree-on-kill-button">Agree on Kill</button>
                                 </>
                             })
                             return false
@@ -194,6 +195,7 @@ class Werewolves extends Component{
                             this.setState({
                                 renderUI: <>
                                         <p>Who do you want to kill?</p>
+                                        <button className="agree-on-kill-button" onClick={this.AgreeOnKill} id="agree-on-kill-button">Agree on Kill</button>
                                 </>
                             })
                             return false
@@ -221,7 +223,7 @@ class Werewolves extends Component{
                     document.getElementById("agree-on-kill-button").disabled = true
                     document.getElementById("agree-on-kill-button").classList.remove("grayder-background")
                     document.getElementById("agree-on-kill-button").classList.add("grayder-background")
-                    
+
                     this.setState({
                         endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
                     })
@@ -258,7 +260,6 @@ class Werewolves extends Component{
                 {this.state.renderFinalTarget}
                 {this.state.endTurnConfirm}
             </div> 
-                <button className="agree-on-kill-button" onClick={this.AgreeOnKill} id="agree-on-kill-button">Agree on Kill</button>
             </>
         )
     }

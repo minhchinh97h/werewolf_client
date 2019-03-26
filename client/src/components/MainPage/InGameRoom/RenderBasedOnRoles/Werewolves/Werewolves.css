@@ -35,12 +35,12 @@
 
 .agree-on-kill-button{
     border-radius: 10px;
-    height: 50px;
-    width: 200px;
+    height: 40px;
+    width: 130px;
     -webkit-appearance: none;
     font-size: 14px;
     color: #0084ff;
     border-color: #bf00ff;
     background-color:white;
-    margin-top: 50px;
+    margin-left: 10px;
 }
