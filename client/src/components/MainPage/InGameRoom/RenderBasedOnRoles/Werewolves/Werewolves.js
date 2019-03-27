@@ -62,7 +62,8 @@ class Werewolves extends Component{
         
         let sendingData = {
             roomid: this.props.roomid,
-            role: 'Werewolves'
+            role: 'Werewolves',
+            player: this.props.username
         }
 
         socket.emit('RequestToGetNextTurn', sendingData)
