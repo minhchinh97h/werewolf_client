@@ -50,12 +50,13 @@ class InGameRoom extends Component{
     }
 
     startBttn = () => {
+        console.log("start")
         const socket = socketIOClient(serverUrl + 'in-game')
 
         socket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
 
         this.setState({
-            startBttnClicked: true
+            renderStartBttn: null
         })
     }
 
@@ -337,12 +338,11 @@ class InGameRoom extends Component{
             roundEndsSocket.on('connect', () => {
                 roundEndsSocket.emit('JoinRoom', this.props.match.params.roomid)
             })
-            
+
             roundEndsSocket.on('RoundEnds', data => {
-                
                 if(data.dead instanceof Array)
                     data.dead.forEach((death, i) => {
-                        if(this.props.username === death){
+                        if(this.props.match.params.username === death){
                             this.setState({isDead: true})
                         }
                     })
@@ -366,10 +366,12 @@ class InGameRoom extends Component{
     }
 
     componentDidUpdate(prevProps, prevState){
-        if(this.state.startBttnClicked !== prevState.startBttnClicked){
-            this.setState({
-                renderStartBttn: null
-            })
+        if(this.state.roundEnds !== prevState.roundEnds){
+            console.log(this.state.roundEnds)
+        }
+
+        if(this.state.isDead !== prevState.isDead){
+            console.log(this.state.isDead)
         }
     }
 

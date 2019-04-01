@@ -17,14 +17,15 @@ export default class RoundEnd extends Component{
         renderUI: null,
         renderPlayers: null,
         renderChosenExecutedPlayer: null,
-        renderFinalExecutedPlayer: null
+        renderFinalExecutedPlayer: null,
     }
 
     VotePlayer = () => {
         if(window.confirm("Hang " + chosenPlayer + "?")){
             let sendingData = {
                 chosenPlayer: chosenPlayer,
-                roomid: this.props.roomid
+                roomid: this.props.roomid,
+                player: this.props.username
             }
 
             ownChoiceHangedPlayer.emit("RequestToHangPlayer", sendingData)
@@ -73,12 +74,18 @@ export default class RoundEnd extends Component{
                     })
                 })
             })
-
+            
             let passedTime = new Date().getTime() - this.props.startTime
+            let actualTime = setUpTime - passedTime
 
             timer = setInterval(() => {
-                let actualTime = setUpTime - passedTime
-                this.setState({renderUI: <p>{actualTime/1000}</p>})
+                if(actualTime === 0){
+
+                }
+                else{
+                    actualTime -= 1000
+                    this.setState({renderUI: <p>{Math.floor(actualTime/1000)}</p>})
+                }
             }, 1000)
 
             const roundEndSocket = socketIOClient(serverUrl + 'round-end')
@@ -93,9 +100,13 @@ export default class RoundEnd extends Component{
                 })
             })
 
-            roundEndSocket.on('GetFinalExecutedPlayer', data => {
+            roundEndSocket.on('BroadcastREDeadPlayers', data => {
                 this.setState({
-                    renderFinalExecutedPlayer: <div><p>Final Executed: <strong>{data}</strong></p></div>
+                    renderFinalExecutedPlayer: data.map((player) => {
+                        return(
+                            <div><p>Final Executed: <strong>{data}</strong></p></div>
+                        )
+                    })
                 })
             })
 
@@ -136,13 +147,14 @@ export default class RoundEnd extends Component{
                 </div>
                 
                 <div className="in-game-render-players-container">
-                    {this.state.renderChosenExecutedPlayer}
-                    {this.state.renderFinalExecutedPlayer}
+                    {this.state.renderPlayers}
                 </div>
 
             </div>
 
             <div className="in-game-cupid-layer2-container in-game-cupid-layer-container-invisible" id="cupid-layer2">
+                {this.state.renderChosenExecutedPlayer}
+                {this.state.renderFinalExecutedPlayer}
                 {this.state.renderExecutedPlayer}
             </div> 
             </>

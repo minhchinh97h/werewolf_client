@@ -31,6 +31,10 @@ class WaitingRoom extends Component{
         socket.on('connect', () => {
             socket.emit('start', this.props.match.params.roomid)
         })
+
+        this.setState({
+            renderStartButtonIfAdmin: null
+        })
     }
 
     componentDidMount(){

@@ -44,6 +44,7 @@ class Login extends Component{
                         hypnotized: 0,
                         changed: 0
                     },
+                    killedByWerewolves: false,
                     role: ''
                 }
             })
