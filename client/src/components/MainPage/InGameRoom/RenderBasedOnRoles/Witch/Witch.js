@@ -2,10 +2,12 @@ import React, { Component } from 'react'
 import socketIOClient from 'socket.io-client'
 
 import GetPlayers from '../../GetPlayers/GetPlayers'
-
+import "./Witch.css"
 const serverUrl = 'http://localhost:3001/'
 
-let target = ''
+let target = '',
+    protectId_buttons = [],
+    killId_buttons = []
 
 const witchSocket = socketIOClient(serverUrl + 'witch')
 
@@ -68,6 +70,9 @@ class Witch extends Component{
         this._isMounted = true
         
         if(this._isMounted){
+            protectId_buttons.length = 0
+            killId_buttons.length = 0
+            
             // to display all the players that are from the room (every character must have)
             const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
@@ -76,26 +81,35 @@ class Witch extends Component{
             })
 
             getPlayerSocket.on('GetPlayers', data => {
-                this.setState({
-                    renderPlayers: data.map((player, index) => {
-                        if(player !== this.props.username){
-                            let id = "witch_target_bttn_" + index,
-                                killId = "witch_kill_bttn_" + index,
-                                protectId = "witch_protect_bttn" + index
-    
-                            return(
-                                <div key = {player}>
-                                    <p id={id}>{player}</p>
-                                    <div>
-                                        <button id={killId} onClick={this.KillPlayerBttn.bind(this, player)}>Kill</button>
-                                        <button id={protectId} onClick={this.ProtectPlayerBttn.bind(this, player)}>Protect</button>
+                const retrieveLeftAbilitiesSocket = socketIOClient(serverUrl + 'witch')
+
+                retrieveLeftAbilitiesSocket.on('connect', () => {
+                    retrieveLeftAbilitiesSocket.emit('RequestToRetrieveLeftAbilities', this.props.roomid)
+                })
+
+                retrieveLeftAbilitiesSocket.on('LeftAbilities', leftAbilities => {
+                    this.setState({
+                        renderPlayers: data.map((player, index) => {
+                            if(player !== this.props.username){
+                                let id = "witch_target_bttn_" + index,
+                                    killId = "witch_kill_bttn_" + index,
+                                    protectId = "witch_protect_bttn" + index
+                                protectId_buttons.push(protectId)
+                                killId_buttons.push(killId)
+                                
+                                return(
+                                    <div key = {player}>
+                                        <p id={id}>{player}</p>
+                                        <div>
+                                            {!leftAbilities.useKill ? <button id={killId} onClick={this.KillPlayerBttn.bind(this, player)}>Kill</button>: null}
+                                            {!leftAbilities.useHeal ? <button id={protectId} onClick={this.ProtectPlayerBttn.bind(this, player)}>Protect</button> : null}
+                                        </div>
                                     </div>
-                                </div>
-                            )
-                        }
+                                )
+                            }
+                        })
                     })
                 })
-                
             })
 
             /* <-----------------------------------------------> */
@@ -113,6 +127,7 @@ class Witch extends Component{
                     this.setState({
                         renderUI: <>
                                 <p>Choose your target to kill and to protect?</p>
+                                <button className="end-turn-witch-button" onClick={this.endTurnBttn}>End turn</button>
                         </>
                     })
                 }
@@ -132,6 +147,7 @@ class Witch extends Component{
                     this.setState({
                         renderUI: <>
                             <p>Choose your target to kill and to protect?</p>
+                            <button className="end-turn-witch-button" onClick={this.endTurnBttn}>End turn</button>
                         </>
                     })
                 }
@@ -190,6 +206,8 @@ class Witch extends Component{
 
     componentWillUnmount(){
         this._isMounted = false
+        protectId_buttons.length = 0
+        killId_buttons.length = 0
     }
 
     render(){

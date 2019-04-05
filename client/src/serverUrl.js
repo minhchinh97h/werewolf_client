@@ -1,3 +1,3 @@
-const serverUrl = "http://10.0.0.4:3001/"
+const serverUrl = "http://10.0.0.6:3001/"
 
 export default serverUrl 

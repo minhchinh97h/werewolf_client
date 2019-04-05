@@ -31,6 +31,8 @@ export default class RoundEnd extends Component{
             ownChoiceHangedPlayer.emit("RequestToHangPlayer", sendingData)
 
             this.setState({renderChosenExecutedPlayer: <p>Your Choice: <b>{chosenPlayer}</b></p>})
+
+            document.getElementById("vote-hanged-button").style.display = "none"
         }
     }
 
@@ -63,8 +65,8 @@ export default class RoundEnd extends Component{
                 this.setState({
                     renderPlayers: data.map((player, index) => {
                         let id = "round_end_target_bttn_" + player,
-                            roundEndPlayerId = "round_end_" + player
-                        
+                        roundEndPlayerId = "round_end_" + player
+                    
                         return(
                             <div key = {player} className="in-game-render-players-container-werewolve">
                                 <button  id={id} type="button" onClick={this.ChoosePlayer.bind(this, player)}>{player}</button>
@@ -84,7 +86,12 @@ export default class RoundEnd extends Component{
                 }
                 else{
                     actualTime -= 1000
-                    this.setState({renderUI: <p>{Math.floor(actualTime/1000)}</p>})
+                    this.setState({renderUI: 
+                        <>
+                        <p>Timer: {Math.floor(actualTime/1000)}</p>
+                        <button id="vote-hanged-button" className="vote-hanged-button" onClick={this.VotePlayer}>Vote</button>
+                        </>
+                    })
                 }
             }, 1000)
 
@@ -95,36 +102,55 @@ export default class RoundEnd extends Component{
             })
 
             roundEndSocket.on('GetOtherChoices', data => {
-                data.forEach((choice) => {
-                    document.getElementById("round_end_"+ choice.player).innerText = choice.chosenPlayer
-                })
+                document.getElementById("round_end_"+ data.player).innerText = data.chosenPlayer
+                
             })
 
             roundEndSocket.on('BroadcastREDeadPlayers', data => {
+                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
+                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
+
+                document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
+                document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
+
+                document.getElementById("agree-on-kill-button").disabled = true
+                document.getElementById("agree-on-kill-button").classList.remove("grayder-background")
+                document.getElementById("agree-on-kill-button").classList.add("grayder-background")
+
                 this.setState({
                     renderFinalExecutedPlayer: data.map((player) => {
                         return(
-                            <div><p>Final Executed: <strong>{data}</strong></p></div>
+                            <div key={"final_executed_" + player}><p>Final Executed: <strong>{data}</strong></p></div>
                         )
                     })
                 })
             })
 
-            ownChoiceHangedPlayer.on('ConfirmHangedPlayer', data => {
-                if(data === 'ok'){
-                    document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
-                    document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
-                    document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
-                    document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
+            // ownChoiceHangedPlayer.on('ConfirmHangedPlayer', data => {
+            //     if(data === 'ok'){
+            //         document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
+            //         document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
+            //         document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
+            //         document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
 
-                    document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
-                    document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
+            //         document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
+            //         document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
 
-                    document.getElementById("agree-on-kill-button").disabled = true
-                    document.getElementById("agree-on-kill-button").classList.remove("grayder-background")
-                    document.getElementById("agree-on-kill-button").classList.add("grayder-background")
-                }
-            })
+            //         document.getElementById("agree-on-kill-button").disabled = true
+            //         document.getElementById("agree-on-kill-button").classList.remove("grayder-background")
+            //         document.getElementById("agree-on-kill-button").classList.add("grayder-background")
+            //     }
+            // })
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState){
+        if(this.state.renderPlayers !== prevState.renderPlayers){
+            document.getElementById("round_end_target_bttn_" + this.props.username).disabled = true
+            document.getElementById("round_end_target_bttn_" + this.props.username).classList.remove("grayder-background")
+            document.getElementById("round_end_target_bttn_" + this.props.username).classList.add("grayder-background")
         }
     }
 
@@ -141,9 +167,6 @@ export default class RoundEnd extends Component{
                     
                 <div className="in-game-render-ui-container">
                     {this.state.renderUI}
-                    <button onClick={this.VotePlayer}>
-
-                    </button>
                 </div>
                 
                 <div className="in-game-render-players-container">

@@ -1,3 +1,15 @@
+.vote-hanged-button{
+    border-radius: 10px;
+    height: 40px;
+    width: 130px;
+    -webkit-appearance: none;
+    font-size: 14px;
+    color: #0084ff;
+    border-color: #bf00ff;
+    background-color:white;
+    margin-left: 10px;
+}
+
 .grayder-background{
     filter: grayscale(70%) !important;
     background-color: rgb(185, 185, 185);
