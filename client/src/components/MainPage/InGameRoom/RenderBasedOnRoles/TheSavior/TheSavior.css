@@ -1,0 +1,4 @@
+.grayder-background{
+    filter: grayscale(70%) !important;
+    background-color: rgb(185, 185, 185);
+}

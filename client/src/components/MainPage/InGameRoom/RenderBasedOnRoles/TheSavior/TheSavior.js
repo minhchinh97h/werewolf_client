@@ -65,7 +65,7 @@ class TheSavior extends Component{
                 this.setState({
                     renderPlayers: data.map((player, index) => {
                         players.push(player)
-                        let id = "savior_target_bttn_" + index
+                        let id = "savior_target_bttn_" + player
 
                         return(
                             <button key = {player} id={id} type="button" onClick={this.ProtectPlayer.bind(this, player)}>{player}</button>
@@ -112,6 +112,18 @@ class TheSavior extends Component{
                                 <p>Who do you want to protect?</p>
                         </>
                     })
+                }
+            })
+
+            saviorSocket.emit('RequestToGetLastProtectedPlayer', this.props.roomid)
+
+            saviorSocket.on('LastProtectedPlayer', data => {
+                console.log(data)
+
+                if(data.length > 0){
+                    document.getElementById("savior_target_bttn_" + data).disabled = true
+                    document.getElementById("savior_target_bttn_" + data).classList.remove("grayder-background")
+                    document.getElementById("savior_target_bttn_" + data).classList.add("grayder-background")
                 }
             })
 

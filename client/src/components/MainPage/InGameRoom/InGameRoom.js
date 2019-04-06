@@ -50,7 +50,6 @@ class InGameRoom extends Component{
     }
 
     startBttn = () => {
-        console.log("start")
         const socket = socketIOClient(serverUrl + 'in-game')
 
         socket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
@@ -367,11 +366,9 @@ class InGameRoom extends Component{
 
     componentDidUpdate(prevProps, prevState){
         if(this.state.roundEnds !== prevState.roundEnds){
-            console.log(this.state.roundEnds)
         }
 
         if(this.state.isDead !== prevState.isDead){
-            console.log(this.state.isDead)
         }
     }
 

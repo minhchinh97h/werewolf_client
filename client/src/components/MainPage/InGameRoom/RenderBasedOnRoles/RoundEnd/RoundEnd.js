@@ -18,6 +18,7 @@ export default class RoundEnd extends Component{
         renderPlayers: null,
         renderChosenExecutedPlayer: null,
         renderFinalExecutedPlayer: null,
+        timerEnds: false
     }
 
     VotePlayer = () => {
@@ -50,6 +51,10 @@ export default class RoundEnd extends Component{
         socket.emit("BroadCastMyChoice", sendingData)
     }
 
+    EndRound = () => {
+
+    }
+
     componentDidMount(){
         this._isMounted = true
 
@@ -80,9 +85,16 @@ export default class RoundEnd extends Component{
             let passedTime = new Date().getTime() - this.props.startTime
             let actualTime = setUpTime - passedTime
 
-            timer = setInterval(() => {
-                if(actualTime === 0){
+            const roundEndSocket = socketIOClient(serverUrl + 'round-end')
 
+            roundEndSocket.on('connect', () => {
+                roundEndSocket.emit('JoinRoom', this.props.roomid)
+            })
+
+            timer = setInterval(() => {
+                if(actualTime < 1){
+                    this.setState({timerEnds: true})
+                    clearInterval(timer)
                 }
                 else{
                     actualTime -= 1000
@@ -95,18 +107,13 @@ export default class RoundEnd extends Component{
                 }
             }, 1000)
 
-            const roundEndSocket = socketIOClient(serverUrl + 'round-end')
-
-            roundEndSocket.on('connect', () => {
-                roundEndSocket.emit('JoinRoom', this.props.roomid)
-            })
-
             roundEndSocket.on('GetOtherChoices', data => {
                 document.getElementById("round_end_"+ data.player).innerText = data.chosenPlayer
                 
             })
 
             roundEndSocket.on('BroadcastREDeadPlayers', data => {
+                console.log(data)
                 document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
                 document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
                 document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
@@ -115,16 +122,13 @@ export default class RoundEnd extends Component{
                 document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
                 document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
 
-                document.getElementById("agree-on-kill-button").disabled = true
-                document.getElementById("agree-on-kill-button").classList.remove("grayder-background")
-                document.getElementById("agree-on-kill-button").classList.add("grayder-background")
+                let playersGetHang = ""
+
+                data.forEach((player) => playersGetHang += player + "")
 
                 this.setState({
-                    renderFinalExecutedPlayer: data.map((player) => {
-                        return(
-                            <div key={"final_executed_" + player}><p>Final Executed: <strong>{data}</strong></p></div>
-                        )
-                    })
+                    renderFinalExecutedPlayer: <div><p>Final Executed: <strong>{playersGetHang}</strong></p></div>,
+                    endRoundConfirm: <button className="end-round-confirm-button" onClick={this.EndRound}>End Round</button>
                 })
             })
 
@@ -137,10 +141,6 @@ export default class RoundEnd extends Component{
 
             //         document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
             //         document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
-
-            //         document.getElementById("agree-on-kill-button").disabled = true
-            //         document.getElementById("agree-on-kill-button").classList.remove("grayder-background")
-            //         document.getElementById("agree-on-kill-button").classList.add("grayder-background")
             //     }
             // })
         }
@@ -151,6 +151,16 @@ export default class RoundEnd extends Component{
             document.getElementById("round_end_target_bttn_" + this.props.username).disabled = true
             document.getElementById("round_end_target_bttn_" + this.props.username).classList.remove("grayder-background")
             document.getElementById("round_end_target_bttn_" + this.props.username).classList.add("grayder-background")
+        }
+
+        if(this.state.timerEnds !== prevState.timerEnds && this.state.timerEnds){
+            let sendingData = {
+                chosenPlayer: this.props.username,
+                roomid: this.props.roomid,
+                player: this.props.username
+            }
+
+            ownChoiceHangedPlayer.emit("RequestToHangPlayer", sendingData)
         }
     }
 
@@ -178,7 +188,7 @@ export default class RoundEnd extends Component{
             <div className="in-game-cupid-layer2-container in-game-cupid-layer-container-invisible" id="cupid-layer2">
                 {this.state.renderChosenExecutedPlayer}
                 {this.state.renderFinalExecutedPlayer}
-                {this.state.renderExecutedPlayer}
+                {this.state.endRoundConfirm}
             </div> 
             </>
         )
