@@ -33,8 +33,6 @@ let socket
 class InGameRoom extends Component{
     _isMounted = false
 
-    
-
     state = {
         renderPlayerRole: null,
         timer: null,
@@ -46,7 +44,9 @@ class InGameRoom extends Component{
         renderCharmedPlayers: null,
         admin: '',
         isDead: false,
-        roundEnds: false
+        roundEnds: false,
+        gameEnds: false,
+        sideWon: null
     }
 
     startBttn = () => {
@@ -57,6 +57,10 @@ class InGameRoom extends Component{
         this.setState({
             renderStartBttn: null
         })
+    }
+
+    CloseTheGame = () => {
+        
     }
 
     componentDidMount(){
@@ -357,6 +361,30 @@ class InGameRoom extends Component{
                 //2nd: Use the similar UI layout for implementing the voting stage
                 //3rd: after player confirms another player to execute, add a cancel button to re-choose (or not, just one confirmation button and an alert as Cupid's)
             })
+
+            /* <-----------------------------------------------> */
+
+            //Handle the end of the game (every character must have)
+            const gameEndSocket = socketIOClient(serverUrl + 'in-game')
+
+            gameEndSocket.on('connect', () => {
+                gameEndSocket.emit('JoinRoom', this.props.match.params.roomid)
+            })
+
+            gameEndSocket.on('GameEnds', data => {
+                this.setState({gameEnds: true})
+                if(data === "Human won"){
+                    this.setState({sideWon: 'Human'})
+                }
+                else if(data === "Werewolves won"){
+                    this.setState({sideWon: 'Werewolves'})
+                }
+                else if(data === "Piper won"){
+                    this.setState({sideWon: 'Piper'})
+                }
+                else if(data === "Lovers won")
+                    this.setState({sideWon: 'Piper'})
+            })
         }
     }
 
@@ -455,27 +483,35 @@ class InGameRoom extends Component{
                         <h4>{this.state.renderPlayerRole}</h4>
                     </div>
 
-                    {!this.state.roundEnds ? 
+                    {this.state.gameEnds ? 
                         <div className="in-game-role-tab-main">
-                            {this.state.renderRoleUI}
-                        </div >
-                    :
+                            <p>{this.state.sideWon} Won!</p>
+                            <button onClick={this.CloseTheGame}>Close</button>
+                        </div>
+                        :
                         <>
-                        {this.state.isDead ?
+                        {!this.state.roundEnds ? 
                             <div className="in-game-role-tab-main">
-                                <p>You are dead</p>
-                            </div>
-
-                            :
-
-                            <div className="in-game-role-tab-main">
-                                <RoundEnd roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} startTime = {new Date().getTime()}/>
-                            </div>
+                                {this.state.renderRoleUI}
+                            </div >
+                        :
+                            <>
+                            {this.state.isDead ?
+                                <div className="in-game-role-tab-main">
+                                    <p>You are dead</p>
+                                </div>
+    
+                                :
+    
+                                <div className="in-game-role-tab-main">
+                                    <RoundEnd roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} startTime = {new Date().getTime()}/>
+                                </div>
+                            }
+                            </>
                         }
                         </>
                     }
                     
-
                     <div className="in-game-role-tab-start-end-button-container">
                         {this.state.renderStartBttn}
                     </div>

@@ -52,7 +52,14 @@ export default class RoundEnd extends Component{
     }
 
     EndRound = () => {
+        const socket = socketIOClient(serverUrl + 'round-end')
 
+        let sendingData = {
+            roomid: this.props.roomid,
+            player: this.props.player
+        }
+
+        socket.emit('RequestToEndRound', sendingData)
     }
 
     componentDidMount(){

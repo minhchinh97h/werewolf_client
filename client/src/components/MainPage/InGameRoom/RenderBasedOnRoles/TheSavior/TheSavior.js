@@ -118,8 +118,6 @@ class TheSavior extends Component{
             saviorSocket.emit('RequestToGetLastProtectedPlayer', this.props.roomid)
 
             saviorSocket.on('LastProtectedPlayer', data => {
-                console.log(data)
-
                 if(data.length > 0){
                     document.getElementById("savior_target_bttn_" + data).disabled = true
                     document.getElementById("savior_target_bttn_" + data).classList.remove("grayder-background")
