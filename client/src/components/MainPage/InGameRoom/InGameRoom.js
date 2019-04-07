@@ -66,7 +66,6 @@ class InGameRoom extends Component{
     componentDidMount(){
         this._isMounted = true
 
-        if(this._isMounted){
             //Get game info
             socket = socketIOClient(serverUrl + 'in-game')
 
@@ -426,7 +425,6 @@ class InGameRoom extends Component{
                     gameEnds: true
                 })
             })
-        }
     }
 
     componentWillUnmount(){

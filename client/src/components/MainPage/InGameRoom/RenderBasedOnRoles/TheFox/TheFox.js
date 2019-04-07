@@ -65,6 +65,7 @@ class TheFox extends Component{
         this._isMounted = true
 
         if(this._isMounted){
+            the_fox_target_bttn_ids.length = 0
             // to display all the players that are from the room (every character must have)
             const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
@@ -154,6 +155,7 @@ class TheFox extends Component{
 
     componentWillUnmount(){
         this._isMounted = false
+        the_fox_target_bttn_ids.length = 0
     }
 
     render(){

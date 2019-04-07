@@ -4,12 +4,13 @@ import socketIOClient from 'socket.io-client'
 import serverUrl from '../../../../../serverUrl'
 import "./RoundEnd.css"
 
-let setUpTime = 30000, //30s,
+let setUpTime = 120000, //120s,
     chosenPlayer = "",
     timer
 
 const ownChoiceHangedPlayer = socketIOClient(serverUrl + 'round-end')
 
+const endRoundSocket = socketIOClient(serverUrl + 'round-end')
 export default class RoundEnd extends Component{
     _isMounted = false
 
@@ -53,14 +54,13 @@ export default class RoundEnd extends Component{
     }
 
     EndRound = () => {
-        const socket = socketIOClient(serverUrl + 'round-end')
 
         let sendingData = {
             roomid: this.props.roomid,
             player: this.props.username
         }
 
-        socket.emit('RequestToEndRound', sendingData)
+        endRoundSocket.emit('RequestToEndRound', sendingData)
 
         this.setState({endRoundConfirm: null})
     }
@@ -118,7 +118,8 @@ export default class RoundEnd extends Component{
             }, 1000)
 
             roundEndSocket.on('GetOtherChoices', data => {
-                document.getElementById("round_end_"+ data.player).innerText = data.chosenPlayer
+                if(document.getElementById("round_end_"+ data.player))
+                    document.getElementById("round_end_"+ data.player).innerText = data.chosenPlayer
                 
             })
 
@@ -160,9 +161,9 @@ export default class RoundEnd extends Component{
 
     componentDidUpdate(prevProps, prevState){
         if(this.state.renderPlayers !== prevState.renderPlayers){
-            document.getElementById("round_end_target_bttn_" + this.props.username).disabled = true
-            document.getElementById("round_end_target_bttn_" + this.props.username).classList.remove("grayder-background")
-            document.getElementById("round_end_target_bttn_" + this.props.username).classList.add("grayder-background")
+            // document.getElementById("round_end_target_bttn_" + this.props.username).disabled = true
+            // document.getElementById("round_end_target_bttn_" + this.props.username).classList.remove("grayder-background")
+            // document.getElementById("round_end_target_bttn_" + this.props.username).classList.add("grayder-background")
         }
 
         if(this.state.timerEnds !== prevState.timerEnds && this.state.timerEnds){
