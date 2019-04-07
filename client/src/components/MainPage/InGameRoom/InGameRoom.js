@@ -335,7 +335,7 @@ class InGameRoom extends Component{
 
             /* <-----------------------------------------------> */
 
-            //Handle the end of a round (every character must have)
+            //Handle the end of a round meaning the night (every character must have) 
             const roundEndsSocket = socketIOClient(serverUrl + 'retrieve-round-ends')
             
             roundEndsSocket.on('connect', () => {
@@ -366,7 +366,7 @@ class InGameRoom extends Component{
 
             /* <-----------------------------------------------> */
 
-            //Handle the end of a voting turn (every character must have)
+            //Handle the end of a voting turn meaning the morning (every character must have)
             const votingRoundSocket = socketIOClient(serverUrl + 'in-game')
 
             votingRoundSocket.on('connect', () => {
@@ -378,11 +378,26 @@ class InGameRoom extends Component{
                     this.setState({
                         roundEnds: false
                     })
-                    
                     const socket = socketIOClient(serverUrl + 'in-game')
-
                     socket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
                 }
+            })
+
+            //Get hanged player
+            const votedHangedPlayerSocket = socketIOClient(serverUrl + 'round-end')
+
+            votedHangedPlayerSocket.on('connect', () => {
+                votedHangedPlayerSocket.emit('JoinRoom', this.props.match.params.roomid)
+            })
+
+            votedHangedPlayerSocket.on('BroadcastREDeadPlayers', data => {
+                data.every((player) => {
+                    if(this.props.match.params.username === player){
+                        this.setState({isDead: true})
+                        return false
+                    }
+                    return true
+                })
             })
 
             /* <-----------------------------------------------> */
@@ -516,10 +531,18 @@ class InGameRoom extends Component{
                         </div>
                         :
                         <>
-                        {!this.state.roundEnds ? 
-                            <div className="in-game-role-tab-main">
-                                {this.state.renderRoleUI}
-                            </div >
+                        {!this.state.roundEnds ?
+                            <>
+                            {this.state.isDead ?
+                                <div className="in-game-role-tab-main">
+                                    <p>You are dead</p>
+                                </div>
+                                :
+                                <div className="in-game-role-tab-main">
+                                    {this.state.renderRoleUI}
+                                </div >
+                            }
+                            </>
                         :
                             <>
                             {this.state.isDead ?

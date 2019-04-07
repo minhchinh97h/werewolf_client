@@ -120,7 +120,6 @@ export default class RoundEnd extends Component{
             })
 
             roundEndSocket.on('BroadcastREDeadPlayers', data => {
-                console.log(data)
                 document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
                 document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
                 document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
