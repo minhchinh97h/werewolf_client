@@ -187,6 +187,7 @@ class Witch extends Component{
                 document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
                 document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
 
+                console.log(data)
                 if(data === 'ok'){
                     this.setState({
                         renderWitchAction: <p><b>{this.state.target}</b> Saved!</p>,

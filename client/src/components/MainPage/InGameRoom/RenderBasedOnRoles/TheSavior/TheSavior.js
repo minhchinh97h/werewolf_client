@@ -119,9 +119,11 @@ class TheSavior extends Component{
 
             saviorSocket.on('LastProtectedPlayer', data => {
                 if(data.length > 0){
-                    document.getElementById("savior_target_bttn_" + data).disabled = true
-                    document.getElementById("savior_target_bttn_" + data).classList.remove("grayder-background")
-                    document.getElementById("savior_target_bttn_" + data).classList.add("grayder-background")
+                    if(document.getElementById("savior_target_bttn_" + data)){
+                        document.getElementById("savior_target_bttn_" + data).disabled = true
+                        document.getElementById("savior_target_bttn_" + data).classList.remove("grayder-background")
+                        document.getElementById("savior_target_bttn_" + data).classList.add("grayder-background")
+                    }
                 }
             })
 

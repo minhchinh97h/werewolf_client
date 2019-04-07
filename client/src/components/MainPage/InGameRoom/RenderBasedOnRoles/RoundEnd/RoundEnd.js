@@ -4,7 +4,7 @@ import socketIOClient from 'socket.io-client'
 import serverUrl from '../../../../../serverUrl'
 import "./RoundEnd.css"
 
-let setUpTime = 10000, //10s,
+let setUpTime = 30000, //30s,
     chosenPlayer = "",
     timer
 
@@ -18,6 +18,7 @@ export default class RoundEnd extends Component{
         renderPlayers: null,
         renderChosenExecutedPlayer: null,
         renderFinalExecutedPlayer: null,
+        endRoundConfirm: null,
         timerEnds: false
     }
 
@@ -60,6 +61,8 @@ export default class RoundEnd extends Component{
         }
 
         socket.emit('RequestToEndRound', sendingData)
+
+        this.setState({endRoundConfirm: null})
     }
 
     componentDidMount(){
@@ -120,22 +123,25 @@ export default class RoundEnd extends Component{
             })
 
             roundEndSocket.on('BroadcastREDeadPlayers', data => {
-                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
-                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
-                document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
-                document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
+                clearInterval(timer)
+                if(document.getElementById("cupid-layer1") && document.getElementById("cupid-layer2")){
+                    document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
+                    document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
+                    document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
+                    document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
 
-                document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
-                document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
+                    document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
+                    document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
 
-                let playersGetHang = ""
+                    let playersGetHang = ""
 
-                data.forEach((player) => playersGetHang += player + "")
+                    data.forEach((player) => playersGetHang += player + "")
 
-                this.setState({
-                    renderFinalExecutedPlayer: <div><p>Final Executed: <strong>{playersGetHang}</strong></p></div>,
-                    endRoundConfirm: <button className="end-round-confirm-button" onClick={this.EndRound}>End Round</button>
-                })
+                    this.setState({
+                        renderFinalExecutedPlayer: <div><p>Final Executed: <strong>{playersGetHang}</strong></p></div>,
+                        endRoundConfirm: <button className="end-round-confirm-button" onClick={this.EndRound}>End Round</button>
+                    })
+                }
             })
 
             // ownChoiceHangedPlayer.on('ConfirmHangedPlayer', data => {
