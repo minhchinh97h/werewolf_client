@@ -56,7 +56,7 @@ export default class RoundEnd extends Component{
 
         let sendingData = {
             roomid: this.props.roomid,
-            player: this.props.player
+            player: this.props.username
         }
 
         socket.emit('RequestToEndRound', sendingData)

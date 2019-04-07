@@ -60,7 +60,7 @@ class InGameRoom extends Component{
     }
 
     CloseTheGame = () => {
-        
+
     }
 
     componentDidMount(){
@@ -350,7 +350,9 @@ class InGameRoom extends Component{
                         }
                     })
                 
-                this.setState({roundEnds: true})
+                this.setState({
+                    roundEnds: true,
+                })
                 // if(data.silence === this.props.username)
                 //     this.setState((prevState) => ({
                 //         isSilence: !prevState.isSilence
@@ -364,6 +366,27 @@ class InGameRoom extends Component{
 
             /* <-----------------------------------------------> */
 
+            //Handle the end of a voting turn (every character must have)
+            const votingRoundSocket = socketIOClient(serverUrl + 'in-game')
+
+            votingRoundSocket.on('connect', () => {
+                votingRoundSocket.emit('JoinRoom', this.props.match.params.roomid)
+            })
+
+            votingRoundSocket.on('StartNewRound', data => {
+                if(data === "Start new round"){
+                    this.setState({
+                        roundEnds: false
+                    })
+                    
+                    const socket = socketIOClient(serverUrl + 'in-game')
+
+                    socket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
+                }
+            })
+
+            /* <-----------------------------------------------> */
+
             //Handle the end of the game (every character must have)
             const gameEndSocket = socketIOClient(serverUrl + 'in-game')
 
@@ -372,7 +395,6 @@ class InGameRoom extends Component{
             })
 
             gameEndSocket.on('GameEnds', data => {
-                this.setState({gameEnds: true})
                 if(data === "Human won"){
                     this.setState({sideWon: 'Human'})
                 }
@@ -384,6 +406,10 @@ class InGameRoom extends Component{
                 }
                 else if(data === "Lovers won")
                     this.setState({sideWon: 'Piper'})
+
+                this.setState({
+                    gameEnds: true
+                })
             })
         }
     }
