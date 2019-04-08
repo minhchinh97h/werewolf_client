@@ -10,7 +10,7 @@ let setUpTime = 120000, //120s,
 
 const ownChoiceHangedPlayer = socketIOClient(serverUrl + 'round-end')
 
-const endRoundSocket = socketIOClient(serverUrl + 'round-end')
+
 export default class RoundEnd extends Component{
     _isMounted = false
 
@@ -54,6 +54,7 @@ export default class RoundEnd extends Component{
     }
 
     EndRound = () => {
+        const endRoundSocket = socketIOClient(serverUrl + 'round-end')
 
         let sendingData = {
             roomid: this.props.roomid,
@@ -63,6 +64,8 @@ export default class RoundEnd extends Component{
         endRoundSocket.emit('RequestToEndRound', sendingData)
 
         this.setState({endRoundConfirm: null})
+
+        endRoundSocket.close()
     }
 
     componentDidMount(){
