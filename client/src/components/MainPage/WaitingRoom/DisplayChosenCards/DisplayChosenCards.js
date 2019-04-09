@@ -6,6 +6,8 @@ import serverUrl from '../../../../serverUrl'
 
 import './DisplayChosenCards.css'
 
+let GetCurrentRolesSocket
+
 class DisplayChosenCards extends Component{
     _isMounted = false
 
@@ -17,13 +19,13 @@ class DisplayChosenCards extends Component{
         this._isMounted = true
 
         if(this._isMounted){
-            const socket = socketIOClient(serverUrl + 'get-current-roles')
+            GetCurrentRolesSocket = socketIOClient(serverUrl + 'get-current-roles')
         
-            socket.on('connect', () => {
-                socket.emit('JoinRoom', this.props.roomid)
+            GetCurrentRolesSocket.on('connect', () => {
+                GetCurrentRolesSocket.emit('JoinRoom', this.props.roomid)
             })
 
-            socket.on('GetSelectedCards', data => {
+            GetCurrentRolesSocket.on('GetSelectedCards', data => {
                 if(data !== null){
                     let cards = []
 
@@ -44,10 +46,8 @@ class DisplayChosenCards extends Component{
                         })
                     })
                 }
-                
             })
         }
-        
     }
 
     componentWillUnmount(){
@@ -66,4 +66,4 @@ class DisplayChosenCards extends Component{
     }
 }
 
-export default DisplayChosenCards
+export {DisplayChosenCards, GetCurrentRolesSocket}

@@ -4,7 +4,9 @@ import recommendedRoles from '../../../../validation/recommendedRoles/recommende
 
 import serverUrl from '../../../../serverUrl'
 
-class DisplayRecommendedRoles extends Component{
+let UpdateRolesLimitSocket
+
+class UpdateRecommendedRoles extends Component{
     _isMounted = false
 
     state = {
@@ -93,12 +95,12 @@ class DisplayRecommendedRoles extends Component{
                 rolesLimit: recommendedRoles
             }
     
-            const socket = socketIOClient(serverUrl + 'update-roles-limit')
-            socket.on('connect', () => {
-                socket.emit('JoinRoom', sentData)
+            UpdateRolesLimitSocket = socketIOClient(serverUrl + 'update-roles-limit')
+            UpdateRolesLimitSocket.on('connect', () => {
+                UpdateRolesLimitSocket.emit('JoinRoom', sentData)
             })
     
-            socket.on('UpdateRolesLimitAt', data => {
+            UpdateRolesLimitSocket.on('UpdateRolesLimitAt', data => {
                 if(this._isMounted){
                     let roles = []
                     for(var key in data.recommendedRoles){
@@ -119,4 +121,4 @@ class DisplayRecommendedRoles extends Component{
     }
 }
 
-export default DisplayRecommendedRoles
+export {UpdateRecommendedRoles, UpdateRolesLimitSocket}

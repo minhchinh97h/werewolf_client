@@ -191,6 +191,7 @@ class Witch extends Component{
 
     componentDidUpdate(prevProps, prevState){
         if(this.state.receiveTurn && this.state.receiveTurn !== prevState.receiveTurn){
+            console.log(true)
             protectId_buttons.length = 0
             killId_buttons.length = 0
             

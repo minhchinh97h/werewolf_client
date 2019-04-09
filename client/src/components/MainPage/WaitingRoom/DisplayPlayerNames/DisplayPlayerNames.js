@@ -4,6 +4,8 @@ import serverUrl from '../../../../serverUrl'
 
 import "./DisplayPlayerNames.css"
 
+let DisplayPlayerNamesSocket
+
 class DisplayPlayerNames extends Component{
     _isMounted = false
 
@@ -14,12 +16,12 @@ class DisplayPlayerNames extends Component{
     componentDidMount(){
         this._isMounted = true
 
-        const socket = socketIOClient(serverUrl + 'main-page')
-        socket.on('connect', () => {
-            socket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
+        DisplayPlayerNamesSocket = socketIOClient(serverUrl + 'main-page')
+        DisplayPlayerNamesSocket.on('connect', () => {
+            DisplayPlayerNamesSocket.emit('RequestToGetPlayersAndJoinRoom', this.props.roomid)
         })
 
-        socket.on('GetBroadCastPlayers', data => 
+        DisplayPlayerNamesSocket.on('GetBroadCastPlayers', data => 
         {
             if(this._isMounted)
                 this.setState({renderPlayerNames: data.map(player => {return(<div key = {player} className="player-name-holder"><p>{player}</p></div>)})})
@@ -40,4 +42,4 @@ class DisplayPlayerNames extends Component{
 }
 
 
-export default DisplayPlayerNames
+export {DisplayPlayerNames, DisplayPlayerNamesSocket}

@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 
-import DisplayPlayerNames from './DisplayPlayerNames/DisplayPlayerNames'
+import {DisplayPlayerNames, DisplayPlayerNamesSocket} from './DisplayPlayerNames/DisplayPlayerNames'
 import DisplayCards from './DisplayCards/DisplayCards'
-import DisplayChosenCards from './DisplayChosenCards/DisplayChosenCards'
-import UpdateRecommendedRoles from './UpdateRecommendedRoles/UpdateRecommendedRoles'
+import {DisplayChosenCards, GetCurrentRolesSocket} from './DisplayChosenCards/DisplayChosenCards'
+import {UpdateRecommendedRoles, UpdateRolesLimitSocket} from './UpdateRecommendedRoles/UpdateRecommendedRoles'
 import NavBar from './NavBar/NavBar'
 
 import Header from '../../Header/Header'
@@ -13,6 +13,9 @@ import socketIOClient from 'socket.io-client'
 import serverUrl from '../../../serverUrl'
 
 import "./WaitingRoom.css"
+
+let GetAdminSocket,
+    StartGameSocket
 
 class WaitingRoom extends Component{
     _isMounted = false
@@ -26,11 +29,7 @@ class WaitingRoom extends Component{
     }
 
     startGameBttn = (e) => {
-        const socket = socketIOClient(serverUrl + 'start-game') 
-
-        socket.on('connect', () => {
-            socket.emit('start', this.props.match.params.roomid)
-        })
+        StartGameSocket.emit('start', this.props.match.params.roomid)
 
         this.setState({
             renderStartButtonIfAdmin: null
@@ -43,18 +42,19 @@ class WaitingRoom extends Component{
         if(this._isMounted){
             //Display header
             document.getElementById("header").classList.remove("hide-header")
+
             //Socket to get admin of the room
-            const socket = socketIOClient(serverUrl + 'get-admin', {
+            GetAdminSocket = socketIOClient(serverUrl + 'get-admin', {
                 query: {
                     roomid: this.props.match.params.roomid
                 }
             })
 
-            socket.on('connect', () => {
-                socket.emit('JoinRoom', this.props.match.params.roomid)
+            GetAdminSocket.on('connect', () => {
+                GetAdminSocket.emit('JoinRoom', this.props.match.params.roomid)
             })
 
-            socket.on('GetAdmin', data => {
+            GetAdminSocket.on('GetAdmin', data => {
                 this.setState({
                     admin: data.admin,
                     numberOfPlayers: data.numberOfPlayers
@@ -86,13 +86,13 @@ class WaitingRoom extends Component{
                 }
             })
             
-            const startGameSocket = socketIOClient(serverUrl + 'start-game')
+            StartGameSocket = socketIOClient(serverUrl + 'start-game')
 
-            startGameSocket.on('connect', () => {
-                startGameSocket.emit('JoinRoom', this.props.match.params.roomid)
+            StartGameSocket.on('connect', () => {
+                StartGameSocket.emit('JoinRoom', this.props.match.params.roomid)
             })
             
-            startGameSocket.on('RedirectToGameRoom', data => {
+            StartGameSocket.on('RedirectToGameRoom', data => {
                 if(data === "ok")
                     this.props.history.push('/in-game-room/' + this.props.match.params.roomid + '/' + this.props.match.params.username)
             })
@@ -101,6 +101,12 @@ class WaitingRoom extends Component{
 
     componentWillUnmount(){
         this._isMounted = false
+        GetAdminSocket.disconnect()
+        StartGameSocket.disconnect()
+        DisplayPlayerNamesSocket.disconnect()
+        if(GetCurrentRolesSocket)
+            GetCurrentRolesSocket.disconnect()
+        UpdateRolesLimitSocket.disconnect()
     }
     
     componentDidUpdate(prevProps, prevState){
@@ -145,4 +151,4 @@ class WaitingRoom extends Component{
     }
 }
 
-export default WaitingRoom
+export {WaitingRoom, GetAdminSocket, StartGameSocket}

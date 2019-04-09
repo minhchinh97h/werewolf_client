@@ -5,7 +5,7 @@ import Welcome from './components/Welcome/Welcome'
 import Login from './components/Login/Login'
 import Header from './components/Header/Header'
 import Footer from './components/Footer/Footer'
-import WaitingRoom from './components/MainPage/WaitingRoom/WaitingRoom'
+import {WaitingRoom} from './components/MainPage/WaitingRoom/WaitingRoom'
 import InGameRoom from './components/MainPage/InGameRoom/InGameRoom'
 
 

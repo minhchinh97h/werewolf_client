@@ -26,11 +26,6 @@ import "./InGameRoom.css"
 
 import serverUrl from '../../../serverUrl'
 
-let socket
-
-let votedHangedPlayerSocket,
-    roundEndsSocket 
-
 class InGameRoom extends Component{
     _isMounted = false
 
@@ -64,18 +59,19 @@ class InGameRoom extends Component{
 
     }
 
+    componentWillMount(){
+        
+    }
+
     componentDidMount(){
         this._isMounted = true
 
         if(this._isMounted){
-            votedHangedPlayerSocket = socketIOClient(serverUrl + 'round-end')
-            roundEndsSocket = socketIOClient(serverUrl + 'retrieve-round-ends')
-        
             //Get game info
-            socket = socketIOClient(serverUrl + 'in-game')
+            const InGameSocket = socketIOClient(serverUrl + 'in-game')
 
-            socket.on('connect', () => {
-                socket.emit('GetGameInfo', this.props.match.params.roomid)
+            InGameSocket.on('connect', () => {
+                InGameSocket.emit('GetGameInfo', this.props.match.params.roomid)
             })
 
             //Get admin to broadcast the request to join the game when start button is pressed and to retrieve the game info
@@ -104,7 +100,7 @@ class InGameRoom extends Component{
 
             //when the start button is pressed (state is changed), get the game info (this is socket.io's event so that every listener
             //in the room channel will receive the data whenever the event is triggered)
-            socket.on('RetrieveGameInfo', data => {
+            InGameSocket.on('RetrieveGameInfo', data => {
                 data.forEach((row) => {
                     if(!row.special){
                         row.player.forEach(name => {
@@ -341,6 +337,7 @@ class InGameRoom extends Component{
 
             
             //Handle the end of a round meaning the night (every character must have) 
+            const roundEndsSocket = socketIOClient(serverUrl + 'retrieve-round-ends')
             roundEndsSocket.on('connect', () => {
                 roundEndsSocket.emit('JoinRoom', this.props.match.params.roomid)
             })
@@ -388,6 +385,7 @@ class InGameRoom extends Component{
             })
 
             //Get hanged player
+            const votedHangedPlayerSocket = socketIOClient(serverUrl + 'round-end')
             votedHangedPlayerSocket.on('connect', () => {
                 votedHangedPlayerSocket.emit('JoinRoom', this.props.match.params.roomid)
             })
