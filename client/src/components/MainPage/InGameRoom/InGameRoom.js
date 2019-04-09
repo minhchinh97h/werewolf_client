@@ -377,8 +377,9 @@ class InGameRoom extends Component{
                     this.setState({
                         roundEnds: false
                     })
-                    const socket = socketIOClient(serverUrl + 'in-game')
-                    socket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
+
+                    if(this.state.isAdmin)
+                        InGameSocket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
                 }
             })
 

@@ -37,7 +37,7 @@ class ThePiedPiper extends Component{
             document.getElementById(bttnId).classList.remove("piper-choose-player-button-disable")
             document.getElementById(bttnId).classList.add("piper-choose-player-button-disable")
 
-            if(players.length > 2){
+            if(players.length >= 2){
                 if(playersToCharm.length === 2){
                     this.setState({
                         playersToCharm: playersToCharm.map(player => {
