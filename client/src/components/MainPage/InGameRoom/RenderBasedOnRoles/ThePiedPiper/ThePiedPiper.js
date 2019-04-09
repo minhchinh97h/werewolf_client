@@ -12,7 +12,8 @@ let piper_target_bttn_ids = [],
     getNextTurnSocket,
     calledTurnSocket,
     getCharmedSocket,
-    getPlayerSocket
+    getPlayerSocket,
+    players = []
 
 
 class ThePiedPiper extends Component{
@@ -36,7 +37,26 @@ class ThePiedPiper extends Component{
             document.getElementById(bttnId).classList.remove("piper-choose-player-button-disable")
             document.getElementById(bttnId).classList.add("piper-choose-player-button-disable")
 
-            if(playersToCharm.length === 2){
+            if(players.length > 2){
+                if(playersToCharm.length === 2){
+                    this.setState({
+                        playersToCharm: playersToCharm.map(player => {
+                            return player
+                        })
+                    })
+    
+                    let sendingData = {
+                        roomid: this.props.roomid,
+                        playersToCharm: playersToCharm
+                    }
+    
+                    piperSocket.emit('RequestToCharmPlayers', sendingData)
+    
+                    playersToCharm.length = 0
+                }
+            }
+
+            else{
                 this.setState({
                     playersToCharm: playersToCharm.map(player => {
                         return player
@@ -71,8 +91,9 @@ class ThePiedPiper extends Component{
         this._isMounted = true
 
         if(this._isMounted){
-            piper_target_bttn_ids.length = 0
             playersToCharm.length = 0
+            piper_target_bttn_ids.length = 0
+            players.length = 0
             
             piperSocket = socketIOClient(serverUrl + 'piper')
             getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
@@ -160,6 +181,8 @@ class ThePiedPiper extends Component{
         this._isMounted = false
 
         playersToCharm.length = 0
+        piper_target_bttn_ids.length = 0
+        players.length = 0
 
         piperSocket.disconnect()
         firstRoundSocket.disconnect()
@@ -173,6 +196,7 @@ class ThePiedPiper extends Component{
         if(this.state.receiveTurn && this.state.receiveTurn !== prevState.receiveTurn){
             piper_target_bttn_ids.length = 0
             playersToCharm.length = 0
+            players.length = 0
 
             // to display all the players that are from the room (every character must have)
             getPlayerSocket = socketIOClient(serverUrl + 'main-page')
@@ -188,6 +212,7 @@ class ThePiedPiper extends Component{
                             let id = "piper_target_bttn_" + player
     
                             piper_target_bttn_ids.push(id)
+                            players.push(player)
     
                             return(
                                 <button key = {player} id={id} type="button" onClick={this.PlayersToCharm.bind(this, player, index, id)}>{player}</button>
