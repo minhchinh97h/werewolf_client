@@ -5,8 +5,8 @@ import GetPlayers from '../../GetPlayers/GetPlayers'
 
 const serverUrl = 'http://localhost:3001/'
 
-let players = [],
-    protectTarget = ''
+let protectTarget = '',
+    lastProtectedPlayer = ''
 
 const saviorSocket = socketIOClient(serverUrl + 'savior')
 
@@ -19,7 +19,8 @@ class TheSavior extends Component{
         renderPlayers: null,
         renderUI: null,
         renderSaviorAction: null,
-        protectTarget: ''
+        protectTarget: '',
+        receiveTurn: false
     }
 
     ProtectPlayer = (name, e) => {
@@ -54,26 +55,7 @@ class TheSavior extends Component{
         this._isMounted = true
 
         if(this._isMounted){
-            // to display all the players that are from the room (every character must have)
-            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
-
-            getPlayerSocket.on('connect', () => {
-                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
-            })
-
-            getPlayerSocket.on('GetPlayers', data => {
-                this.setState({
-                    renderPlayers: data.map((player, index) => {
-                        players.push(player)
-                        let id = "savior_target_bttn_" + player
-
-                        return(
-                            <button key = {player} id={id} type="button" onClick={this.ProtectPlayer.bind(this, player)}>{player}</button>
-                        )
-                    })
-                })
-                
-            })
+            
 
             /* <-----------------------------------------------> */
 
@@ -87,10 +69,17 @@ class TheSavior extends Component{
             //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
             firstRoundSocket.on('Retrieve1stTurn', data => {
                 if(data === this.props.username){
-                    this.setState({
-                        renderUI: <>
-                                <p>Who do you want to protect?</p>
-                        </>
+                    saviorSocket.emit('RequestToGetLastProtectedPlayer', this.props.roomid)
+
+                    saviorSocket.on('LastProtectedPlayer', data => {
+                        lastProtectedPlayer = data
+
+                        this.setState({
+                            renderUI: <>
+                                    <p>Who do you want to protect?</p>
+                            </>,
+                            receiveTurn: true
+                        })
                     })
                 }
             })
@@ -106,26 +95,22 @@ class TheSavior extends Component{
 
             calledTurnSocket.on('getNextTurn', data => {
                 if(data === this.props.username){
-                    //render UI
-                    this.setState({
-                        renderUI: <>
-                                <p>Who do you want to protect?</p>
-                        </>
+                    saviorSocket.emit('RequestToGetLastProtectedPlayer', this.props.roomid)
+
+                    saviorSocket.on('LastProtectedPlayer', data => {
+                        lastProtectedPlayer = data
+
+                        this.setState({
+                            renderUI: <>
+                                    <p>Who do you want to protect?</p>
+                            </>,
+                            receiveTurn: true
+                        })
                     })
                 }
             })
 
-            saviorSocket.emit('RequestToGetLastProtectedPlayer', this.props.roomid)
-
-            saviorSocket.on('LastProtectedPlayer', data => {
-                if(data.length > 0){
-                    if(document.getElementById("savior_target_bttn_" + data)){
-                        document.getElementById("savior_target_bttn_" + data).disabled = true
-                        document.getElementById("savior_target_bttn_" + data).classList.remove("grayder-background")
-                        document.getElementById("savior_target_bttn_" + data).classList.add("grayder-background")
-                    }
-                }
-            })
+            
 
             //Savior's action
             saviorSocket.on('ProtectedPlayer', (data) => {
@@ -156,11 +141,32 @@ class TheSavior extends Component{
     }
 
     componentDidUpdate(prevProps, prevState){
-        if(this.state.isDead && this.state.isDead !== prevState.isDead){
-            //To do when the player is dead
-            //disable all buttons
-            //display all the roles
-            //faden the screen's color to gray
+        if(this.state.receiveTurn && this.state.receiveTurn !== prevState.receiveTurn){
+            // to display all the players that are from the room (every character must have)
+            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+
+            getPlayerSocket.on('connect', () => {
+                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
+            })
+
+            getPlayerSocket.on('GetPlayers', data => {
+                this.setState({
+                    renderPlayers: data.map((player, index) => {
+                        let id = "savior_target_bttn_" + player
+
+                        if(player === lastProtectedPlayer)
+                            return(
+                                <button key = {player} id={id} type="button" className="grayder-background" onClick={this.ProtectPlayer.bind(this, player)} disabled>{player}</button>
+                            )
+
+                        else
+                            return(
+                                <button key = {player} id={id} type="button" onClick={this.ProtectPlayer.bind(this, player)}>{player}</button>
+                            )
+                    })
+                })
+                
+            })
         }
     }
 

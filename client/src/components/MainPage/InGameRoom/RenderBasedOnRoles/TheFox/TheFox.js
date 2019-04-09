@@ -18,7 +18,8 @@ class TheFox extends Component{
         renderTargetRole: null,
         endTurnConfirm: null,
         renderLovers: null,
-        renderCharmedPlayers: null
+        renderCharmedPlayers: null,
+        receiveTurn: false
     }
 
     playersToRevealBttn = (name, index, e) => {
@@ -66,33 +67,7 @@ class TheFox extends Component{
 
         if(this._isMounted){
             the_fox_target_bttn_ids.length = 0
-            // to display all the players that are from the room (every character must have)
-            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
-
-            getPlayerSocket.on('connect', () => {
-                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
-            })
-
-            getPlayerSocket.on('GetPlayers', data => {
-                players = []
-
-                this.setState({
-                    renderPlayers: data.map((player, index) => {
-                        if(player !== this.props.username){
-                            players.push(player)
-                            let id = "the_fox_target_bttn_" + index
-    
-                            the_fox_target_bttn_ids.push(id)
-    
-                            return(
-                                <button key = {player} id={id} type="button" onClick={this.playersToRevealBttn.bind(this, player, index)}>{player}</button>
-                            )
-                        }
-                    })
-                })
-            })
-
-
+            
             /* <-----------------------------------------------> */
 
             //Handle the first round (every character must have)
@@ -109,7 +84,8 @@ class TheFox extends Component{
                     this.setState({
                         renderUI: <>
                             <p>Who do you want to scent?</p>
-                        </>
+                        </>,
+                        receiveTurn: true
                     })
                 }
             })
@@ -130,7 +106,8 @@ class TheFox extends Component{
                     this.setState({
                         renderUI: <>
                             <p>Who do you want to scent?</p>
-                        </>
+                        </>,
+                        receiveTurn: true
                     })
                 }
             })
@@ -156,6 +133,38 @@ class TheFox extends Component{
     componentWillUnmount(){
         this._isMounted = false
         the_fox_target_bttn_ids.length = 0
+    }
+
+    componentDidUpdate(prevProps, prevState){
+        if(this.state.receiveTurn && this.state.receiveTurn !== prevState.receiveTurn){
+            the_fox_target_bttn_ids.length = 0
+
+            // to display all the players that are from the room (every character must have)
+            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+
+            getPlayerSocket.on('connect', () => {
+                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
+            })
+
+            getPlayerSocket.on('GetPlayers', data => {
+                players = []
+
+                this.setState({
+                    renderPlayers: data.map((player, index) => {
+                        if(player !== this.props.username){
+                            players.push(player)
+                            let id = "the_fox_target_bttn_" + index
+    
+                            the_fox_target_bttn_ids.push(id)
+    
+                            return(
+                                <button key = {player} id={id} type="button" onClick={this.playersToRevealBttn.bind(this, player, index)}>{player}</button>
+                            )
+                        }
+                    })
+                })
+            })
+        }
     }
 
     render(){

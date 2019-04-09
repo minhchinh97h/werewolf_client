@@ -18,7 +18,8 @@ class BearLeader extends Component{
         renderScentTargetNeighbor: null,
         renderLovers: null,
         renderCharmedPlayers: null,
-        scentTarget: null
+        scentTarget: null,
+        receiveTurn: false
     }
 
     PlayerToScent = (name, index, e) => {
@@ -65,30 +66,7 @@ class BearLeader extends Component{
         this._isMounted = true
 
         if(this._isMounted){
-            // to display all the players that are from the room (every character must have)
-            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
-
-            getPlayerSocket.on('connect', () => {
-                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
-            })
-
-            getPlayerSocket.on('GetPlayers', data => {
-                players = data.filter((player) => {return player !== this.props.username})
-
-                this.setState({
-                    renderPlayers: players.map((player, index) => {
-                        if(player !== this.props.username){
-                            let id = "bear_target_bttn_" + index
-    
-                            bear_target_bttn_ids.push(id)
-    
-                            return(
-                                <button key = {player} id={id} type="button" onClick={this.PlayerToScent.bind(this, player, index)}>{player}</button>
-                            )
-                        }
-                    })
-                })
-            })
+            bear_target_bttn_ids.length = 0
 
             /* <-----------------------------------------------> */
 
@@ -105,7 +83,8 @@ class BearLeader extends Component{
                     this.setState({
                         renderUI: <>
                             <p>Who do you want to scent its neighbor?</p>
-                        </>
+                        </>,
+                        receiveTurn: true
                     })
                 }
             })
@@ -122,7 +101,8 @@ class BearLeader extends Component{
                     this.setState({
                         renderUI: <>
                             <p>Who do you want to scent its neighbor?</p>
-                        </>
+                        </>,
+                        receiveTurn: true
                     })
                 }
             })
@@ -149,6 +129,38 @@ class BearLeader extends Component{
         this._isMounted = false
         
         players.length = 0
+        bear_target_bttn_ids.length = 0
+    }
+
+    componentDidUpdate(prevProps, prevState){
+        if(this.state.receiveTurn && this.state.receiveTurn !== prevState.receiveTurn){
+            bear_target_bttn_ids.length = 0
+            players.length = 0
+
+            // to display all the players that are from the room (every character must have)
+            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+
+            getPlayerSocket.on('connect', () => {
+                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
+            })
+
+            getPlayerSocket.on('GetPlayers', data => {
+
+                this.setState({
+                    renderPlayers: data.map((player, index) => {
+                        players.push(player)
+
+                        let id = "bear_target_bttn_" + index
+
+                        bear_target_bttn_ids.push(id)
+
+                        return(
+                            <button key = {player} id={id} type="button" onClick={this.PlayerToScent.bind(this, player, index)}>{player}</button>
+                        )
+                    })
+                })
+            })
+        }
     }
 
     render(){

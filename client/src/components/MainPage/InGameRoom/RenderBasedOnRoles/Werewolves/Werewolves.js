@@ -27,7 +27,8 @@ class Werewolves extends Component{
         choseTarget: null,
         renderCharmedPlayers: null,
         renderFinalTarget: null,
-        renderOwnTarget: null
+        renderOwnTarget: null,
+        receiveTurn: false
     }
 
     chooseTargetBttn = (name, e) => {
@@ -69,6 +70,8 @@ class Werewolves extends Component{
         socket.emit('RequestToGetNextTurn', sendingData)
 
         this.setState({endTurnConfirm: null})
+
+        this.setState({receiveTurn: false})
     }  
 
     componentDidMount(){
@@ -76,6 +79,104 @@ class Werewolves extends Component{
 
         if(this._isMounted){
 
+            
+
+            /* <-----------------------------------------------> */
+
+            //Handle the first round (every character must have)
+            const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
+
+            firstRoundSocket.on('connect', () => {
+                firstRoundSocket.emit('JoinRoom', this.props.roomid)
+            })
+
+            //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
+            firstRoundSocket.on('Retrieve1stTurn', data => {
+                
+                if(data instanceof Array){
+                    data.every(player => {
+                        if(player === this.props.username){
+                            this.setState({receiveTurn: true})
+                            //render UI
+                            this.setState({
+                                renderUI: <>
+                                        <p>Who do you want to kill?</p>
+                                        <button className="agree-on-kill-button" onClick={this.AgreeOnKill} id="agree-on-kill-button">Agree on Kill</button>
+                                </>
+                            })
+                            return false
+                        }
+
+                        return true
+                    })
+                }
+            })
+
+            /* <-----------------------------------------------> */
+
+            //Handle the called turn (every character must have)
+            const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+
+            calledTurnSocket.on('connect', () => {
+                calledTurnSocket.emit('JoinRoom', this.props.roomid)
+            })
+
+            calledTurnSocket.on('getNextTurn', data => {
+                if(data instanceof Array){
+                    data.every(player => {
+                        if(player === this.props.username){
+                            this.setState({receiveTurn: true})
+                            //render UI
+                            this.setState({
+                                renderUI: <>
+                                        <p>Who do you want to kill?</p>
+                                        <button className="agree-on-kill-button" onClick={this.AgreeOnKill} id="agree-on-kill-button">Agree on Kill</button>
+                                </>
+                            })
+                            return false
+                        }
+
+                        return true
+                    })
+                }
+                
+            })
+
+            /* <-----------------------------------------------> */
+            
+            //confirmation
+            ownChoiceConfirmKill.on('ConfirmKillRespond', data => {
+                if(data === "ok"){
+                    document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
+                    document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
+                    document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
+                    document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
+
+                    document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
+                    document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
+
+                    document.getElementById("agree-on-kill-button").disabled = true
+                    document.getElementById("agree-on-kill-button").classList.remove("grayder-background")
+                    document.getElementById("agree-on-kill-button").classList.add("grayder-background")
+
+                    this.setState({
+                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                    })
+                }
+            })
+
+            
+        }
+    }
+
+    componentWillUnmount(){
+        this._isMounted = false
+
+        
+    }
+
+    componentDidUpdate(prevProps, prevState){
+        if(this.state.receiveTurn !== prevState.receiveTurn && this.state.receiveTurn){
             // to display all the players that are from the room (every character must have)
             const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
@@ -138,6 +239,7 @@ class Werewolves extends Component{
                     }
 
                     otherWolves.forEach((choice) => {
+                        if(document.getElementById("werewolves_icon_"+ choice.wolfName))
                         document.getElementById("werewolves_icon_"+ choice.wolfName).innerText = choice.choseTarget
                     })
                 })
@@ -149,96 +251,7 @@ class Werewolves extends Component{
                     })
                 })
             })
-
-            /* <-----------------------------------------------> */
-
-            //Handle the first round (every character must have)
-            const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
-
-            firstRoundSocket.on('connect', () => {
-                firstRoundSocket.emit('JoinRoom', this.props.roomid)
-            })
-
-            //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
-            firstRoundSocket.on('Retrieve1stTurn', data => {
-                if(data instanceof Array){
-                    data.every(player => {
-                        if(player === this.props.username){
-                            //render UI
-                            this.setState({
-                                renderUI: <>
-                                        <p>Who do you want to kill?</p>
-                                        <button className="agree-on-kill-button" onClick={this.AgreeOnKill} id="agree-on-kill-button">Agree on Kill</button>
-                                </>
-                            })
-                            return false
-                        }
-
-                        return true
-                    })
-                }
-            })
-
-            /* <-----------------------------------------------> */
-
-            //Handle the called turn (every character must have)
-            const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
-
-            calledTurnSocket.on('connect', () => {
-                calledTurnSocket.emit('JoinRoom', this.props.roomid)
-            })
-
-            calledTurnSocket.on('getNextTurn', data => {
-                if(data instanceof Array){
-                    data.every(player => {
-                        if(player === this.props.username){
-                            //render UI
-                            this.setState({
-                                renderUI: <>
-                                        <p>Who do you want to kill?</p>
-                                        <button className="agree-on-kill-button" onClick={this.AgreeOnKill} id="agree-on-kill-button">Agree on Kill</button>
-                                </>
-                            })
-                            return false
-                        }
-
-                        return true
-                    })
-                }
-                
-            })
-
-            /* <-----------------------------------------------> */
-            
-            //confirmation
-            ownChoiceConfirmKill.on('ConfirmKillRespond', data => {
-                if(data === "ok"){
-                    document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
-                    document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
-                    document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
-                    document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
-
-                    document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
-                    document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
-
-                    document.getElementById("agree-on-kill-button").disabled = true
-                    document.getElementById("agree-on-kill-button").classList.remove("grayder-background")
-                    document.getElementById("agree-on-kill-button").classList.add("grayder-background")
-
-                    this.setState({
-                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
-                    })
-                }
-            })
-
-            
         }
-    }
-
-    componentWillUnmount(){
-        this._isMounted = false
-
-        
     }
 
     render(){

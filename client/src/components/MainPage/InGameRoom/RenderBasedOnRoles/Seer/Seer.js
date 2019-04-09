@@ -18,7 +18,8 @@ class Seer extends Component{
         renderTargetRole: null,
         endTurnConfirm: null,
         renderLovers: null,
-        renderCharmedPlayers: null
+        renderCharmedPlayers: null,
+        receiveTurn: false
     }
 
     playerToRevealBttn = (name, bttnId, e) => {
@@ -52,31 +53,10 @@ class Seer extends Component{
 
     componentDidMount(){
         this._isMounted = true
+        
 
         if(this._isMounted){
-            // to display all the players that are from the room (every character must have)
-            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
-
-            getPlayerSocket.on('connect', () => {
-                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
-            })
-
-            getPlayerSocket.on('GetPlayers', data => {
-                this.setState({
-                    renderPlayers: data.map((player, index) => {
-                        if(player !== this.props.username){
-                            let id = "seer_target_bttn_" + index
-    
-                            seer_target_bttn_ids.push(id)
-    
-                            return(
-                                <button key = {player} id={id} type="button" onClick={this.playerToRevealBttn.bind(this, player, id)}>{player}</button>
-                            )
-                        }
-                    })
-                })
-            })
-
+            seer_target_bttn_ids.length = 0
 
             /* <-----------------------------------------------> */
 
@@ -94,7 +74,8 @@ class Seer extends Component{
                     this.setState({
                         renderUI: <>
                                 <p>Who do you want to reveal?</p>
-                        </>
+                        </>,
+                        receiveTurn: true
                     })
                 }
             })
@@ -115,7 +96,8 @@ class Seer extends Component{
                     this.setState({
                         renderUI: <>
                                 <p>Who do you want to reveal?</p>
-                        </>
+                        </>,
+                        receiveTurn: true
                     })
                 }
             })
@@ -140,8 +122,38 @@ class Seer extends Component{
 
     componentWillUnmount(){
         this._isMounted = false
+        seer_target_bttn_ids.length = 0
     }
 
+    componentDidUpdate(prevProps, prevState){
+        if(this.state.receiveTurn && this.state.receiveTurn !== prevState.receiveTurn){
+            seer_target_bttn_ids.length = 0
+
+            // to display all the players that are from the room (every character must have)
+            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+
+            getPlayerSocket.on('connect', () => {
+                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
+            })
+
+            getPlayerSocket.on('GetPlayers', data => {
+                this.setState({
+                    renderPlayers: data.map((player, index) => {
+                        if(player !== this.props.username){
+                            let id = "seer_target_bttn_" + index
+    
+                            seer_target_bttn_ids.push(id)
+    
+                            return(
+                                <button key = {player} id={id} type="button" onClick={this.playerToRevealBttn.bind(this, player, id)}>{player}</button>
+                            )
+                        }
+                    })
+                })
+            })
+        }
+    }
+    
     render(){
         return(
             <>

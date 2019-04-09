@@ -19,7 +19,8 @@ class ThePiedPiper extends Component{
         endTurnConfirm: null,
         renderLovers: null,
         renderCharmedPlayers: null,
-        playersToCharm: []
+        playersToCharm: [],
+        receiveTurn: false
     }
 
     PlayersToCharm = (name, index, bttnId, e) => {
@@ -65,29 +66,9 @@ class ThePiedPiper extends Component{
         this._isMounted = true
 
         if(this._isMounted){
-            // to display all the players that are from the room (every character must have)
-            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
-
-            getPlayerSocket.on('connect', () => {
-                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
-            })
-
-            getPlayerSocket.on('GetPlayers', data => {
-                this.setState({
-                    renderPlayers: data.map((player, index) => {
-                        if(player !== this.props.username){
-                            let id = "piper_target_bttn_" + player
-    
-                            piper_target_bttn_ids.push(id)
-    
-                            return(
-                                <button key = {player} id={id} type="button" onClick={this.PlayersToCharm.bind(this, player, index, id)}>{player}</button>
-                            )
-                        }
-                    })
-                })
-                
-            })
+            piper_target_bttn_ids.length = 0
+            playersToCharm.length = 0
+            
 
              /* <-----------------------------------------------> */
 
@@ -104,7 +85,8 @@ class ThePiedPiper extends Component{
                     this.setState({
                         renderUI: <>
                             <p>Please charm 2 people</p>
-                        </>
+                        </>,
+                        receiveTurn: true
                     })
                 }
             })
@@ -123,7 +105,8 @@ class ThePiedPiper extends Component{
                     this.setState({
                         renderUI: <>
                             <p>Please charm 2 people</p>
-                        </>
+                        </>,
+                        receiveTurn: true
                     })
                 }
             })
@@ -170,6 +153,37 @@ class ThePiedPiper extends Component{
         this._isMounted = false
 
         playersToCharm.length = 0
+    }
+
+    componentDidUpdate(prevProps, prevState){
+        if(this.state.receiveTurn && this.state.receiveTurn !== prevState.receiveTurn){
+            piper_target_bttn_ids.length = 0
+            playersToCharm.length = 0
+
+            // to display all the players that are from the room (every character must have)
+            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+
+            getPlayerSocket.on('connect', () => {
+                getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
+            })
+
+            getPlayerSocket.on('GetPlayers', data => {
+                this.setState({
+                    renderPlayers: data.map((player, index) => {
+                        if(player !== this.props.username){
+                            let id = "piper_target_bttn_" + player
+    
+                            piper_target_bttn_ids.push(id)
+    
+                            return(
+                                <button key = {player} id={id} type="button" onClick={this.PlayersToCharm.bind(this, player, index, id)}>{player}</button>
+                            )
+                        }
+                    })
+                })
+                
+            })
+        }
     }
 
     render(){

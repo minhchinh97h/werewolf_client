@@ -28,7 +28,8 @@ import serverUrl from '../../../serverUrl'
 
 let socket
 
-
+let votedHangedPlayerSocket,
+    roundEndsSocket 
 
 class InGameRoom extends Component{
     _isMounted = false
@@ -66,6 +67,10 @@ class InGameRoom extends Component{
     componentDidMount(){
         this._isMounted = true
 
+        if(this._isMounted){
+            votedHangedPlayerSocket = socketIOClient(serverUrl + 'round-end')
+            roundEndsSocket = socketIOClient(serverUrl + 'retrieve-round-ends')
+        
             //Get game info
             socket = socketIOClient(serverUrl + 'in-game')
 
@@ -334,14 +339,14 @@ class InGameRoom extends Component{
 
             /* <-----------------------------------------------> */
 
-            //Handle the end of a round meaning the night (every character must have) 
-            const roundEndsSocket = socketIOClient(serverUrl + 'retrieve-round-ends')
             
+            //Handle the end of a round meaning the night (every character must have) 
             roundEndsSocket.on('connect', () => {
                 roundEndsSocket.emit('JoinRoom', this.props.match.params.roomid)
             })
 
             roundEndsSocket.on('RoundEnds', data => {
+                console.log(roundEndsSocket)
                 if(data.dead instanceof Array)
                     data.dead.forEach((death, i) => {
                         if(this.props.match.params.username === death){
@@ -383,14 +388,11 @@ class InGameRoom extends Component{
             })
 
             //Get hanged player
-            const votedHangedPlayerSocket = socketIOClient(serverUrl + 'round-end')
-
             votedHangedPlayerSocket.on('connect', () => {
                 votedHangedPlayerSocket.emit('JoinRoom', this.props.match.params.roomid)
             })
 
             votedHangedPlayerSocket.on('BroadcastREDeadPlayers', data => {
-                console.log(data)
                 data.every((player) => {
                     if(this.props.match.params.username === player){
                         this.setState({isDead: true})
@@ -426,6 +428,7 @@ class InGameRoom extends Component{
                     gameEnds: true
                 })
             })
+        }
     }
 
     componentWillUnmount(){

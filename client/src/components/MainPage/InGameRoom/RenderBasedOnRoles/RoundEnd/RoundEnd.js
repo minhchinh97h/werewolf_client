@@ -8,8 +8,9 @@ let setUpTime = 120000, //120s,
     chosenPlayer = "",
     timer
 
-const ownChoiceHangedPlayer = socketIOClient(serverUrl + 'round-end')
-
+let ownChoiceHangedPlayer,
+    endRoundSocket,
+    roundEndSocket 
 
 export default class RoundEnd extends Component{
     _isMounted = false
@@ -54,7 +55,6 @@ export default class RoundEnd extends Component{
     }
 
     EndRound = () => {
-        const endRoundSocket = socketIOClient(serverUrl + 'round-end')
 
         let sendingData = {
             roomid: this.props.roomid,
@@ -72,6 +72,10 @@ export default class RoundEnd extends Component{
 
         if(this._isMounted){
             // to display all the players that are from the room (every character must have)
+            ownChoiceHangedPlayer = socketIOClient(serverUrl + 'round-end')
+            endRoundSocket = socketIOClient(serverUrl + 'round-end')
+            roundEndSocket = socketIOClient(serverUrl + 'round-end')
+
             const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
@@ -97,7 +101,6 @@ export default class RoundEnd extends Component{
             let passedTime = new Date().getTime() - this.props.startTime
             let actualTime = setUpTime - passedTime
 
-            const roundEndSocket = socketIOClient(serverUrl + 'round-end')
 
             roundEndSocket.on('connect', () => {
                 roundEndSocket.emit('JoinRoom', this.props.roomid)
@@ -139,7 +142,7 @@ export default class RoundEnd extends Component{
 
                     let playersGetHang = ""
 
-                    data.forEach((player) => playersGetHang += player + "")
+                    data.forEach((player) => playersGetHang += player + " ")
 
                     this.setState({
                         renderFinalExecutedPlayer: <div><p>Final Executed: <strong>{playersGetHang}</strong></p></div>,
@@ -147,18 +150,6 @@ export default class RoundEnd extends Component{
                     })
                 }
             })
-
-            // ownChoiceHangedPlayer.on('ConfirmHangedPlayer', data => {
-            //     if(data === 'ok'){
-            //         document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
-            //         document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
-            //         document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
-            //         document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
-
-            //         document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
-            //         document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
-            //     }
-            // })
         }
     }
 
@@ -182,6 +173,10 @@ export default class RoundEnd extends Component{
 
     componentWillUnmount(){
         this._isMounted = false
+        
+        // ownChoiceHangedPlayer.disconnect()
+        // roundEndSocket.disconnect()
+        // endRoundSocket.disconnect()
 
         clearInterval(timer)
     }

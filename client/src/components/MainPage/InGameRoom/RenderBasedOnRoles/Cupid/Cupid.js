@@ -29,6 +29,8 @@ class Cupid extends Component{
             playersToConnect.push(name)
 
             document.getElementById(bttnId).disabled = true
+            document.getElementById(bttnId).classList.remove("grayder-background")
+            document.getElementById(bttnId).classList.add("grayder-background")
 
             if(playersToConnect.length === 2){
                 // const socket = socketIOClient(serverUrl + 'cupid')
