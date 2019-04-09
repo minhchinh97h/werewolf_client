@@ -5,10 +5,13 @@ import serverUrl from '../../../../../serverUrl'
 
 let the_fox_target_bttn_ids = [],
     players = [],
-    target 
-
-const foxSocket = socketIOClient(serverUrl + 'the-fox')
-        
+    target,
+    foxSocket,
+    getNextTurnSocket,
+    firstRoundSocket,
+    calledTurnSocket,
+    getPlayerSocket
+  
 class TheFox extends Component{
     _isMounted = false
 
@@ -51,14 +54,12 @@ class TheFox extends Component{
     }
 
     endTurnBttn = () => {
-        const socket = socketIOClient(serverUrl + 'retrieve-next-turn')
-        
         let sendingData = {
             roomid: this.props.roomid,
             role: 'The fox'
         }
 
-        socket.emit('RequestToGetNextTurn', sendingData)
+        getNextTurnSocket.emit('RequestToGetNextTurn', sendingData)
         this.setState({endTurnConfirm: null})
     }   
 
@@ -68,10 +69,13 @@ class TheFox extends Component{
         if(this._isMounted){
             the_fox_target_bttn_ids.length = 0
             
+            foxSocket = socketIOClient(serverUrl + 'the-fox')
+            getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+
             /* <-----------------------------------------------> */
 
             //Handle the first round (every character must have)
-            const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
+            firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
             firstRoundSocket.on('connect', () => {
                 firstRoundSocket.emit('JoinRoom', this.props.roomid)
@@ -94,7 +98,7 @@ class TheFox extends Component{
             /* <-----------------------------------------------> */
 
             //Handle the called turn (every character must have)
-            const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+            calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
             calledTurnSocket.on('connect', () => {
                 calledTurnSocket.emit('JoinRoom', this.props.roomid)
@@ -133,6 +137,12 @@ class TheFox extends Component{
     componentWillUnmount(){
         this._isMounted = false
         the_fox_target_bttn_ids.length = 0
+
+        foxSocket.disconnect()
+        getNextTurnSocket.disconnect()
+        firstRoundSocket.disconnect()
+        calledTurnSocket.disconnect()
+        getPlayerSocket.disconnect()
     }
 
     componentDidUpdate(prevProps, prevState){
@@ -140,7 +150,7 @@ class TheFox extends Component{
             the_fox_target_bttn_ids.length = 0
 
             // to display all the players that are from the room (every character must have)
-            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+            getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
                 getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)

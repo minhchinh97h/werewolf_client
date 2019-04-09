@@ -6,11 +6,12 @@ import serverUrl from '../../../../../serverUrl'
 import "./Cupid.css"
 
 let cupid_target_bttn_ids = [],
-    playersToConnect = []
-
-//need to set up the socket first, because the when making direct socket to server, server will only response to the received socket
-//meaning socket in an onclick function will get response it that scope, the response will not be received in the socket in componentDidMount
-const cupidSocket = socketIOClient(serverUrl + 'cupid')
+    playersToConnect = [],
+    firstRoundSocket,
+    cupidSocket,
+    calledTurnSocket,
+    getNextTurnSocket,
+    getPlayerSocket
 
 class Cupid extends Component{
     _isMounted = false
@@ -48,27 +49,29 @@ class Cupid extends Component{
     }
 
     endTurnBttn = () => {
-        const socket = socketIOClient(serverUrl + 'retrieve-next-turn')
-        
         let sendingData = {
             roomid: this.props.roomid,
             role: 'Cupid'
         }
 
-        socket.emit('RequestToGetNextTurn', sendingData)
+        getNextTurnSocket.emit('RequestToGetNextTurn', sendingData)
         this.setState({endTurnConfirm: null})
     }  
 
     componentDidMount(){
         this._isMounted = true
 
-        if(this._isMounted){
-            
+        if(this._isMounted) {
+            //need to set up the socket first, because the when making direct socket to server, server will only response to the received socket
+            //meaning socket in an onclick function will get response it that scope, the response will not be received in the socket in componentDidMount
+            cupidSocket = socketIOClient(serverUrl + 'cupid')
+
+            getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
             /* <-----------------------------------------------> */
 
             //Handle the first round (every character must have)
-            const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
+            firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
             firstRoundSocket.on('connect', () => {
                 firstRoundSocket.emit('JoinRoom', this.props.roomid)
@@ -84,7 +87,7 @@ class Cupid extends Component{
             /* <-----------------------------------------------> */
 
             //Handle the called turn (every character must have)
-            const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+            calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
             calledTurnSocket.on('connect', () => {
                 calledTurnSocket.emit('JoinRoom', this.props.roomid)
@@ -106,7 +109,7 @@ class Cupid extends Component{
                     })
 
                     // to display all the players that are from the room (every character must have)
-                    const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+                    getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
                     getPlayerSocket.on('connect', () => {
                         getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
@@ -167,6 +170,11 @@ class Cupid extends Component{
     componentWillUnmount(){
         this._isMounted = false
         playersToConnect.length = 0
+
+        firstRoundSocket.disconnect()
+        cupidSocket.disconnect()
+        calledTurnSocket.disconnect()
+        getPlayerSocket.disconnect()
     }
 
     render(){

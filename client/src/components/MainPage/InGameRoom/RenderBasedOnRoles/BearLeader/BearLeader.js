@@ -4,9 +4,12 @@ import socketIOClient from 'socket.io-client'
 import serverUrl from '../../../../../serverUrl'
 
 let bear_target_bttn_ids = [],
-    players = []
-
-const bearSocket = socketIOClient(serverUrl + 'bear')
+    players = [],
+    firstRoundSocket,
+    bearSocket,
+    calledTurnSocket,
+    getPlayerSocket,
+    getNextTurnSocket
 
 class BearLeader extends Component{
     _isMounted = false
@@ -51,14 +54,12 @@ class BearLeader extends Component{
     }
 
     endTurnBttn = () => {
-        const socket = socketIOClient(serverUrl + 'retrieve-next-turn')
-        
         let sendingData = {
             roomid: this.props.roomid,
             role: 'The bear leader'
         }
 
-        socket.emit('RequestToGetNextTurn', sendingData)
+        getNextTurnSocket.emit('RequestToGetNextTurn', sendingData)
         this.setState({endTurnConfirm: null})
     }  
 
@@ -68,10 +69,14 @@ class BearLeader extends Component{
         if(this._isMounted){
             bear_target_bttn_ids.length = 0
 
+            bearSocket = socketIOClient(serverUrl + 'bear')
+
+            getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+
             /* <-----------------------------------------------> */
 
             //Handle the first round (every character must have)
-            const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
+            firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
             firstRoundSocket.on('connect', () => {
                 firstRoundSocket.emit('JoinRoom', this.props.roomid)
@@ -90,7 +95,7 @@ class BearLeader extends Component{
             })
 
             //Handle the called turn (every character must have)
-            const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+            calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
             calledTurnSocket.on('connect', () => {
                 calledTurnSocket.emit('JoinRoom', this.props.roomid)
@@ -130,6 +135,12 @@ class BearLeader extends Component{
         
         players.length = 0
         bear_target_bttn_ids.length = 0
+
+        firstRoundSocket.disconnect()
+        bearSocket.disconnect()
+        calledTurnSocket.disconnect()
+        getPlayerSocket.disconnect()
+        getNextTurnSocket.disconnect()
     }
 
     componentDidUpdate(prevProps, prevState){
@@ -138,7 +149,7 @@ class BearLeader extends Component{
             players.length = 0
 
             // to display all the players that are from the room (every character must have)
-            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+            getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
                 getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)

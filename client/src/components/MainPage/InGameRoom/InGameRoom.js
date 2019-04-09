@@ -26,6 +26,13 @@ import "./InGameRoom.css"
 
 import serverUrl from '../../../serverUrl'
 
+let votingRoundSocket,
+    votedHangedPlayerSocket,
+    InGameSocket,
+    adminSocket,
+    firstRoundSocket,
+    roundEndsSocket
+
 class InGameRoom extends Component{
     _isMounted = false
 
@@ -46,9 +53,8 @@ class InGameRoom extends Component{
     }
 
     startBttn = () => {
-        const socket = socketIOClient(serverUrl + 'in-game')
 
-        socket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
+        InGameSocket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
 
         this.setState({
             renderStartBttn: null
@@ -60,7 +66,7 @@ class InGameRoom extends Component{
     }
 
     componentWillMount(){
-        
+
     }
 
     componentDidMount(){
@@ -68,17 +74,18 @@ class InGameRoom extends Component{
 
         if(this._isMounted){
             //Get game info
-            const InGameSocket = socketIOClient(serverUrl + 'in-game')
+            InGameSocket = socketIOClient(serverUrl + 'in-game')
 
             InGameSocket.on('connect', () => {
                 InGameSocket.emit('GetGameInfo', this.props.match.params.roomid)
+                InGameSocket.emit('JoinRoom', this.props.match.params.roomid)
             })
 
             //Get admin to broadcast the request to join the game when start button is pressed and to retrieve the game info
             //We need to shrink the number of times that all the players make requests to only one (only admin) so that
             //the server does not need to receive so many redundant incoming requests
 
-            const adminSocket = socketIOClient(serverUrl + 'get-admin', {
+            adminSocket = socketIOClient(serverUrl + 'get-admin', {
                 query: {
                     roomid: this.props.match.params.roomid
                 }
@@ -249,7 +256,7 @@ class InGameRoom extends Component{
             })
 
             //Handle the first round
-            const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
+            firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
             firstRoundSocket.on('connect', () => {
                 firstRoundSocket.emit('JoinRoom', this.props.match.params.roomid)
@@ -275,15 +282,11 @@ class InGameRoom extends Component{
             /* <-----------------------------------------------> */
 
             //Handle lover (every character must have)
-            const loverSocket = socketIOClient(serverUrl + 'in-game')
 
             //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
             //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
-            loverSocket.on('connect', () => {
-                loverSocket.emit('JoinRoom', this.props.match.params.roomid)
-            })
             
-            loverSocket.on('RevealLovers', (data) => {
+            InGameSocket.on('RevealLovers', (data) => {
                 data.forEach((info, index) => {
                     if(info.player === this.props.match.params.username){
                         if(index === 0)
@@ -303,17 +306,12 @@ class InGameRoom extends Component{
             /* <-----------------------------------------------> */
 
             //Handle changes of the total charmed players via a socket event (every character must have)
-            const getCharmedSocket = socketIOClient(serverUrl + 'in-game')
-
             //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
             //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
-            getCharmedSocket.on('connect', () => {
-                getCharmedSocket.emit('JoinRoom', this.props.match.params.roomid)
-            })
             
-            getCharmedSocket.emit('RequestToRetrieveCharmPlayers', this.props.match.params.roomid)
+            InGameSocket.emit('RequestToRetrieveCharmPlayers', this.props.match.params.roomid)
 
-            getCharmedSocket.on('GetListOfCharmed', (data) => {
+            InGameSocket.on('GetListOfCharmed', (data) => {
                 data.every((player) => {
                     if(this.props.match.params.username === player){
                         this.setState({
@@ -337,13 +335,13 @@ class InGameRoom extends Component{
 
             
             //Handle the end of a round meaning the night (every character must have) 
-            const roundEndsSocket = socketIOClient(serverUrl + 'retrieve-round-ends')
+            roundEndsSocket = socketIOClient(serverUrl + 'retrieve-round-ends')
             roundEndsSocket.on('connect', () => {
                 roundEndsSocket.emit('JoinRoom', this.props.match.params.roomid)
             })
 
             roundEndsSocket.on('RoundEnds', data => {
-                console.log(roundEndsSocket)
+                console.log(data)
                 if(data.dead instanceof Array)
                     data.dead.forEach((death, i) => {
                         if(this.props.match.params.username === death){
@@ -368,7 +366,7 @@ class InGameRoom extends Component{
             /* <-----------------------------------------------> */
 
             //Handle the end of a voting turn meaning the morning (every character must have)
-            const votingRoundSocket = socketIOClient(serverUrl + 'in-game')
+            votingRoundSocket = socketIOClient(serverUrl + 'in-game')
 
             votingRoundSocket.on('connect', () => {
                 votingRoundSocket.emit('JoinRoom', this.props.match.params.roomid)
@@ -385,7 +383,7 @@ class InGameRoom extends Component{
             })
 
             //Get hanged player
-            const votedHangedPlayerSocket = socketIOClient(serverUrl + 'round-end')
+            votedHangedPlayerSocket = socketIOClient(serverUrl + 'round-end')
             votedHangedPlayerSocket.on('connect', () => {
                 votedHangedPlayerSocket.emit('JoinRoom', this.props.match.params.roomid)
             })
@@ -403,13 +401,7 @@ class InGameRoom extends Component{
             /* <-----------------------------------------------> */
 
             //Handle the end of the game (every character must have)
-            const gameEndSocket = socketIOClient(serverUrl + 'in-game')
-
-            gameEndSocket.on('connect', () => {
-                gameEndSocket.emit('JoinRoom', this.props.match.params.roomid)
-            })
-
-            gameEndSocket.on('GameEnds', data => {
+            InGameSocket.on('GameEnds', data => {
                 if(data === "Human won"){
                     this.setState({sideWon: 'Human'})
                 }
@@ -431,6 +423,7 @@ class InGameRoom extends Component{
 
     componentWillUnmount(){
         this._isMounted = false
+        console.log("ingameroom unmount")
     }
 
     componentDidUpdate(prevProps, prevState){

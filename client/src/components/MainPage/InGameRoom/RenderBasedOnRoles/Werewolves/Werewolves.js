@@ -9,11 +9,12 @@ let otherWolves = [],
     targetChoice = '',
     werewolvesIconId_arr = []
 
-let otherSocket
-
-const ownChoiceConfirmKill = socketIOClient(serverUrl + 'werewolves')
-        
-
+let otherSocket,
+    getPlayerSocket,
+    firstRoundSocket,
+    calledTurnSocket,
+    ownChoiceConfirmKill, //werewolves namespace
+    getNextTurnSocket
 
 class Werewolves extends Component{
     _isMounted = false
@@ -33,7 +34,6 @@ class Werewolves extends Component{
 
     chooseTargetBttn = (name, e) => {
         targetChoice = name
-        const socket = socketIOClient(serverUrl + 'werewolves')
 
         let sendingData = {
             choseTarget: name,
@@ -41,7 +41,7 @@ class Werewolves extends Component{
             roomid: this.props.roomid
         }
 
-        socket.emit("RequestMyChoice", sendingData)
+        ownChoiceConfirmKill.emit("RequestMyChoice", sendingData)
 
         this.setState({choseTarget: <p>{targetChoice}</p>})
     }
@@ -59,15 +59,13 @@ class Werewolves extends Component{
     }
 
     endTurnBttn = () => {
-        const socket = socketIOClient(serverUrl + 'retrieve-next-turn')
-        
         let sendingData = {
             roomid: this.props.roomid,
             role: 'Werewolves',
             player: this.props.username
         }
 
-        socket.emit('RequestToGetNextTurn', sendingData)
+        getNextTurnSocket.emit('RequestToGetNextTurn', sendingData)
 
         this.setState({endTurnConfirm: null})
 
@@ -78,13 +76,12 @@ class Werewolves extends Component{
         this._isMounted = true
 
         if(this._isMounted){
-
-            
+            getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
             /* <-----------------------------------------------> */
 
             //Handle the first round (every character must have)
-            const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
+            firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
             firstRoundSocket.on('connect', () => {
                 firstRoundSocket.emit('JoinRoom', this.props.roomid)
@@ -115,7 +112,7 @@ class Werewolves extends Component{
             /* <-----------------------------------------------> */
 
             //Handle the called turn (every character must have)
-            const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+            calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
             calledTurnSocket.on('connect', () => {
                 calledTurnSocket.emit('JoinRoom', this.props.roomid)
@@ -143,7 +140,8 @@ class Werewolves extends Component{
             })
 
             /* <-----------------------------------------------> */
-            
+            ownChoiceConfirmKill = socketIOClient(serverUrl + 'werewolves')
+
             //confirmation
             ownChoiceConfirmKill.on('ConfirmKillRespond', data => {
                 if(data === "ok"){
@@ -172,13 +170,18 @@ class Werewolves extends Component{
     componentWillUnmount(){
         this._isMounted = false
 
-        
+        otherSocket.disconnect()
+        getPlayerSocket.disconnect()
+        firstRoundSocket.disconnect()
+        calledTurnSocket.disconnect()
+        ownChoiceConfirmKill.disconnect()
+        getNextTurnSocket.disconnect()
     }
 
     componentDidUpdate(prevProps, prevState){
         if(this.state.receiveTurn !== prevState.receiveTurn && this.state.receiveTurn){
             // to display all the players that are from the room (every character must have)
-            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+            getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
                 getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)

@@ -6,10 +6,15 @@ import "./ThePiedPiper.css"
 import serverUrl from '../../../../../serverUrl'
 
 let piper_target_bttn_ids = [],
-    playersToCharm = []
+    playersToCharm = [],
+    piperSocket,
+    firstRoundSocket,
+    getNextTurnSocket,
+    calledTurnSocket,
+    getCharmedSocket,
+    getPlayerSocket
 
-const piperSocket = socketIOClient(serverUrl + 'piper')
-        
+
 class ThePiedPiper extends Component{
     _isMounted = false
 
@@ -51,14 +56,14 @@ class ThePiedPiper extends Component{
     }
 
     endTurnBttn = () => {
-        const socket = socketIOClient(serverUrl + 'retrieve-next-turn')
+        
         
         let sendingData = {
             roomid: this.props.roomid,
             role: 'The pied piper'
         }
 
-        socket.emit('RequestToGetNextTurn', sendingData)
+        getNextTurnSocket.emit('RequestToGetNextTurn', sendingData)
         this.setState({endTurnConfirm: null})
     }  
 
@@ -69,11 +74,13 @@ class ThePiedPiper extends Component{
             piper_target_bttn_ids.length = 0
             playersToCharm.length = 0
             
+            piperSocket = socketIOClient(serverUrl + 'piper')
+            getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
-             /* <-----------------------------------------------> */
+            /* <-----------------------------------------------> */
 
             //Handle the first round (every character must have)
-            const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
+            firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
             firstRoundSocket.on('connect', () => {
                 firstRoundSocket.emit('JoinRoom', this.props.roomid)
@@ -94,7 +101,7 @@ class ThePiedPiper extends Component{
             /* <-----------------------------------------------> */
 
             //Handle the called turn (every character must have)
-            const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+            calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
             calledTurnSocket.on('connect', () => {
                 calledTurnSocket.emit('JoinRoom', this.props.roomid)
@@ -127,7 +134,7 @@ class ThePiedPiper extends Component{
             })
 
             //Handle changes of the total charmed players via a socket event (every character must have)
-            const getCharmedSocket = socketIOClient(serverUrl + 'in-game')
+            getCharmedSocket = socketIOClient(serverUrl + 'in-game')
 
             //Every socket is unique, meaning if a socket joined a room doesnt mean other sockets existing in the same page will join that room
             //Thus, we need to make every 'JoinRoom' emit event explicitly if we want that socket get response from a broadcast.
@@ -153,6 +160,13 @@ class ThePiedPiper extends Component{
         this._isMounted = false
 
         playersToCharm.length = 0
+
+        piperSocket.disconnect()
+        firstRoundSocket.disconnect()
+        getNextTurnSocket.disconnect()
+        calledTurnSocket.disconnect()
+        getCharmedSocket.disconnect()
+        getPlayerSocket.disconnect()
     }
 
     componentDidUpdate(prevProps, prevState){
@@ -161,7 +175,7 @@ class ThePiedPiper extends Component{
             playersToCharm.length = 0
 
             // to display all the players that are from the room (every character must have)
-            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+            getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
                 getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)

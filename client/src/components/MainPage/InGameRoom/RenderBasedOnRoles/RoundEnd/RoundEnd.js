@@ -8,9 +8,10 @@ let setUpTime = 120000, //120s,
     chosenPlayer = "",
     timer
 
-let ownChoiceHangedPlayer,
+let ownChoiceHangedPlayer, //round-end namespace
     endRoundSocket,
-    roundEndSocket 
+    roundEndSocket,
+    getPlayerSocket 
 
 export default class RoundEnd extends Component{
     _isMounted = false
@@ -32,7 +33,7 @@ export default class RoundEnd extends Component{
                 player: this.props.username
             }
 
-            ownChoiceHangedPlayer.emit("RequestToHangPlayer", sendingData)
+            roundEndSocket.emit("RequestToHangPlayer", sendingData)
 
             this.setState({renderChosenExecutedPlayer: <p>Your Choice: <b>{chosenPlayer}</b></p>})
 
@@ -43,15 +44,13 @@ export default class RoundEnd extends Component{
     ChoosePlayer = (name, e) => {
         chosenPlayer = name
 
-        const socket = socketIOClient(serverUrl + 'round-end')
-
         let sendingData = {
             chosenPlayer: chosenPlayer,
             player: this.props.username,
             roomid: this.props.roomid
         }
 
-        socket.emit("BroadCastMyChoice", sendingData)
+        roundEndSocket.emit("BroadCastMyChoice", sendingData)
     }
 
     EndRound = () => {
@@ -61,7 +60,7 @@ export default class RoundEnd extends Component{
             player: this.props.username
         }
 
-        endRoundSocket.emit('RequestToEndRound', sendingData)
+        roundEndSocket.emit('RequestToEndRound', sendingData)
 
         this.setState({endRoundConfirm: null})
 
@@ -72,11 +71,11 @@ export default class RoundEnd extends Component{
 
         if(this._isMounted){
             // to display all the players that are from the room (every character must have)
-            ownChoiceHangedPlayer = socketIOClient(serverUrl + 'round-end')
-            endRoundSocket = socketIOClient(serverUrl + 'round-end')
+            // ownChoiceHangedPlayer = socketIOClient(serverUrl + 'round-end')
+            // endRoundSocket = socketIOClient(serverUrl + 'round-end')
             roundEndSocket = socketIOClient(serverUrl + 'round-end')
 
-            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+            getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
                 getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
@@ -167,7 +166,7 @@ export default class RoundEnd extends Component{
                 player: this.props.username
             }
 
-            ownChoiceHangedPlayer.emit("RequestToHangPlayer", sendingData)
+            roundEndSocket.emit("RequestToHangPlayer", sendingData)
         }
     }
 
@@ -175,8 +174,11 @@ export default class RoundEnd extends Component{
         this._isMounted = false
         
         // ownChoiceHangedPlayer.disconnect()
-        // roundEndSocket.disconnect()
+        roundEndSocket.disconnect()
         // endRoundSocket.disconnect()
+        getPlayerSocket.disconnect()
+
+        console.log("round end unmount")
 
         clearInterval(timer)
     }

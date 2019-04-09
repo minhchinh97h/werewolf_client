@@ -6,9 +6,13 @@ import GetPlayers from '../../GetPlayers/GetPlayers'
 const serverUrl = 'http://localhost:3001/'
 
 let protectTarget = '',
-    lastProtectedPlayer = ''
+    lastProtectedPlayer = '',
+    firstRoundSocket,
+    saviorSocket,
+    calledTurnSocket,
+    getNextTurnSocket,
+    getPlayerSocket
 
-const saviorSocket = socketIOClient(serverUrl + 'savior')
 
 class TheSavior extends Component{
     _isMounted = false
@@ -40,14 +44,12 @@ class TheSavior extends Component{
     }
 
     endTurnBttn = () => {
-        const socket = socketIOClient(serverUrl + 'retrieve-next-turn')
-        
         let sendingData = {
             roomid: this.props.roomid,
             role: 'The savior'
         }
 
-        socket.emit('RequestToGetNextTurn', sendingData)
+        getNextTurnSocket.emit('RequestToGetNextTurn', sendingData)
         this.setState({endTurnConfirm: null})
     }  
 
@@ -55,12 +57,13 @@ class TheSavior extends Component{
         this._isMounted = true
 
         if(this._isMounted){
-            
+            saviorSocket = socketIOClient(serverUrl + 'savior')
+            getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
             /* <-----------------------------------------------> */
 
             //Handle the first round (every character must have)
-            const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
+            firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
             firstRoundSocket.on('connect', () => {
                 firstRoundSocket.emit('JoinRoom', this.props.roomid)
@@ -87,7 +90,7 @@ class TheSavior extends Component{
             /* <-----------------------------------------------> */
 
             //Handle the called turn (every character must have)
-            const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+            calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
             calledTurnSocket.on('connect', () => {
                 calledTurnSocket.emit('JoinRoom', this.props.roomid)
@@ -138,12 +141,18 @@ class TheSavior extends Component{
 
     componentWillUnmount(){
         this._isMounted = false
+
+        firstRoundSocket.disconnect()
+        saviorSocket.disconnect()
+        calledTurnSocket.disconnect()
+        getNextTurnSocket.disconnect()
+        getPlayerSocket.disconnect()
     }
 
     componentDidUpdate(prevProps, prevState){
         if(this.state.receiveTurn && this.state.receiveTurn !== prevState.receiveTurn){
             // to display all the players that are from the room (every character must have)
-            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+            getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
                 getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)

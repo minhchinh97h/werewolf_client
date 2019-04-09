@@ -7,9 +7,13 @@ const serverUrl = 'http://localhost:3001/'
 
 let target = '',
     protectId_buttons = [],
-    killId_buttons = []
+    killId_buttons = [],
+    witchSocket,
+    firstRoundSocket,
+    calledTurnSocket,
+    getPlayerSocket,
+    getNextTurnSocket
 
-const witchSocket = socketIOClient(serverUrl + 'witch')
 
 class Witch extends Component{
     _isMounted = false
@@ -56,14 +60,13 @@ class Witch extends Component{
     }
 
     endTurnBttn = () => {
-        const socket = socketIOClient(serverUrl + 'retrieve-next-turn')
         
         let sendingData = {
             roomid: this.props.roomid,
             role: 'Witch'
         }
 
-        socket.emit('RequestToGetNextTurn', sendingData)
+        getNextTurnSocket.emit('RequestToGetNextTurn', sendingData)
         this.setState({endTurnConfirm: null})
 
     } 
@@ -86,12 +89,13 @@ class Witch extends Component{
             protectId_buttons.length = 0
             killId_buttons.length = 0
             
-            
+            witchSocket = socketIOClient(serverUrl + 'witch')
+            getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
             /* <-----------------------------------------------> */
 
             //Handle the first round (every character must have)
-            const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
+            firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
             firstRoundSocket.on('connect', () => {
                 firstRoundSocket.emit('JoinRoom', this.props.roomid)
@@ -113,7 +117,7 @@ class Witch extends Component{
             /* <-----------------------------------------------> */
 
             //Handle the called turn (every character must have)
-            const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+            calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
             calledTurnSocket.on('connect', () => {
                 calledTurnSocket.emit('JoinRoom', this.props.roomid)
@@ -165,7 +169,6 @@ class Witch extends Component{
                 document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
                 document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
 
-                console.log(data)
                 if(data === 'ok'){
                     this.setState({
                         renderWitchAction: <p><b>{this.state.target}</b> Saved!</p>,
@@ -187,16 +190,21 @@ class Witch extends Component{
         this._isMounted = false
         protectId_buttons.length = 0
         killId_buttons.length = 0
+
+        witchSocket.disconnect()
+        firstRoundSocket.disconnect()
+        calledTurnSocket.disconnect()
+        getPlayerSocket.disconnect()
+        getNextTurnSocket.disconnect()
     }
 
     componentDidUpdate(prevProps, prevState){
         if(this.state.receiveTurn && this.state.receiveTurn !== prevState.receiveTurn){
-            console.log(true)
             protectId_buttons.length = 0
             killId_buttons.length = 0
             
             // to display all the players that are from the room (every character must have)
-            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+            getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
                 getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)

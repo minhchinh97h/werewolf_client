@@ -5,9 +5,12 @@ import GetPlayers from '../../GetPlayers/GetPlayers'
 
 import serverUrl from '../../../../../serverUrl'
 
-let seer_target_bttn_ids = []
-
-const seerSocket = socketIOClient(serverUrl + 'seer')
+let seer_target_bttn_ids = [],
+    calledTurnSocket,
+    firstRoundSocket,
+    seerSocket,
+    getNextTurnSocket,
+    getPlayerSocket
 
 class Seer extends Component{
     _isMounted = false
@@ -39,14 +42,14 @@ class Seer extends Component{
     }
 
     endTurnBttn = () => {
-        const socket = socketIOClient(serverUrl + 'retrieve-next-turn')
+        
         
         let sendingData = {
             roomid: this.props.roomid,
             role: 'Seer/ Fortune Teller'
         }
 
-        socket.emit('RequestToGetNextTurn', sendingData)
+        getNextTurnSocket.emit('RequestToGetNextTurn', sendingData)
 
         this.setState({endTurnConfirm: null})
     }   
@@ -58,10 +61,12 @@ class Seer extends Component{
         if(this._isMounted){
             seer_target_bttn_ids.length = 0
 
+            getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+
             /* <-----------------------------------------------> */
 
             //Handle the first round (every character must have)
-            const firstRoundSocket = socketIOClient(serverUrl + 'in-game')
+            firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
             firstRoundSocket.on('connect', () => {
                 firstRoundSocket.emit('JoinRoom', this.props.roomid)
@@ -84,7 +89,7 @@ class Seer extends Component{
             /* <-----------------------------------------------> */
 
             //Handle the called turn (every character must have)
-            const calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
+            calledTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
             calledTurnSocket.on('connect', () => {
                 calledTurnSocket.emit('JoinRoom', this.props.roomid)
@@ -101,6 +106,8 @@ class Seer extends Component{
                     })
                 }
             })
+
+            seerSocket = socketIOClient(serverUrl + 'seer')
 
             //Seer's action
             seerSocket.on('RevealPlayer', (data) => {
@@ -123,6 +130,13 @@ class Seer extends Component{
     componentWillUnmount(){
         this._isMounted = false
         seer_target_bttn_ids.length = 0
+
+        calledTurnSocket.disconnect()
+        firstRoundSocket.disconnect()
+        seerSocket.disconnect()
+        getNextTurnSocket.disconnect()
+        getPlayerSocket.disconnect()
+        
     }
 
     componentDidUpdate(prevProps, prevState){
@@ -130,7 +144,7 @@ class Seer extends Component{
             seer_target_bttn_ids.length = 0
 
             // to display all the players that are from the room (every character must have)
-            const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
+            getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
                 getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
