@@ -76,29 +76,6 @@ class Cupid extends Component{
             firstRoundSocket.on('Retrieve1stTurn', data => {
                 if(data === this.props.username){
                     cupidSocket.emit('RequestToGetCupidAbility', this.props.roomid)
-
-                    // to display all the players that are from the room (every character must have)
-                    const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
-
-                    getPlayerSocket.on('connect', () => {
-                        getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
-                    })
-
-                    getPlayerSocket.on('GetPlayers', data => {
-                        this.setState({
-                            renderPlayers: data.map((player, index) => {
-                                if(player !== this.props.username){
-                                    let id = "cupid_target_bttn_" + index
-            
-                                    cupid_target_bttn_ids.push(id)
-            
-                                    return(
-                                        <button key = {player} id={id} type="button" onClick={this.playersToConnect.bind(this, player, index, id)}>{player}</button>
-                                    )
-                                }
-                            })
-                        })
-                    })
                 }
             })
 
@@ -114,6 +91,17 @@ class Cupid extends Component{
             calledTurnSocket.on('getNextTurn', data => {
                 if(data === this.props.username){
                     cupidSocket.emit('RequestToGetCupidAbility', this.props.roomid)
+                }
+            })
+
+            //Cupid's action
+            cupidSocket.on('CanUseAbility', canUse => {
+                if(canUse){
+                    this.setState({
+                        renderUI: <>
+                                <p>Who do you want to connect?</p>
+                        </>
+                    })
 
                     // to display all the players that are from the room (every character must have)
                     const getPlayerSocket = socketIOClient(serverUrl + 'main-page')
@@ -138,17 +126,6 @@ class Cupid extends Component{
                         })
                     })
                 }
-            })
-
-            //Cupid's action
-            cupidSocket.on('CanUseAbility', canUse => {
-                if(canUse){
-                    this.setState({
-                        renderUI: <>
-                                <p>Who do you want to connect?</p>
-                        </>
-                    })
-                }
 
                 else{
                     document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
@@ -160,7 +137,7 @@ class Cupid extends Component{
                     document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
 
                     this.setState({
-                        renderTargetConnection: <p>Your couple: <b>{playersToConnect[0].player}</b> - <b>{playersToConnect[1].player}</b>, press End Turn.</p>,
+                        renderTargetConnection: <p>You've finished your task, press End Turn.</p>,
                         endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
                     })
                 }

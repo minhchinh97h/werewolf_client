@@ -390,6 +390,7 @@ class InGameRoom extends Component{
             })
 
             votedHangedPlayerSocket.on('BroadcastREDeadPlayers', data => {
+                console.log(data)
                 data.every((player) => {
                     if(this.props.match.params.username === player){
                         this.setState({isDead: true})

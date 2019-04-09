@@ -65,7 +65,6 @@ export default class RoundEnd extends Component{
 
         this.setState({endRoundConfirm: null})
 
-        endRoundSocket.close()
     }
 
     componentDidMount(){
@@ -128,6 +127,7 @@ export default class RoundEnd extends Component{
 
             roundEndSocket.on('BroadcastREDeadPlayers', data => {
                 clearInterval(timer)
+                console.log(data)
                 if(document.getElementById("cupid-layer1") && document.getElementById("cupid-layer2")){
                     document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
                     document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")

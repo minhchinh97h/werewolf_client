@@ -31,7 +31,8 @@ class Seer extends Component{
             seerSocket.emit('Request', sendingData)
 
             seer_target_bttn_ids.forEach((bttnId, index) => {
-                document.getElementById(bttnId).disabled = true
+                if(document.getElementById(bttnId))
+                    document.getElementById(bttnId).disabled = true
             })
         }
     }
