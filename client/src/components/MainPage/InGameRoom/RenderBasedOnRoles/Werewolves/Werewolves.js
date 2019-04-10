@@ -7,7 +7,8 @@ import "./Werewolves.css"
 
 let otherWolves = [],
     targetChoice = '',
-    werewolvesIconId_arr = []
+    werewolvesIconId_arr = [],
+    falseRole_arr = []
 
 let otherSocket,
     getPlayerSocket,
@@ -29,7 +30,9 @@ class Werewolves extends Component{
         renderCharmedPlayers: null,
         renderFinalTarget: null,
         renderOwnTarget: null,
-        receiveTurn: false
+        receiveTurn: false,
+        renderFalsePickingPhase: null,
+        didChooseFalseRole: false
     }
 
     chooseTargetBttn = (name, e) => {
@@ -54,7 +57,25 @@ class Werewolves extends Component{
             }
 
             ownChoiceConfirmKill.emit("RequestToAgreeKill", sendingData)
-            this.setState({renderOwnTarget: <div><p>Your choice: <strong>{targetChoice}</strong></p></div>})
+            this.setState({renderOwnTarget: <span>Your choice: <strong>{targetChoice}</strong>, </span>})
+        }
+    }
+
+    chooseFalseRole = (falseRole, e) => {
+        if(window.confirm("choose false role: " + falseRole + "?")){
+            let sendingData = {
+                falseRole: falseRole,
+                wolfName: this.props.username,
+                roomid: this.props.roomid
+            }
+    
+            otherSocket.emit("RequestFalseRoleChoice", sendingData)
+
+            falseRole_arr.forEach((falseRole) => {
+                document.getElementById("false_role_bttn_" + falseRole).disabled = true
+                document.getElementById("false_role_bttn_" + falseRole).classList.remove("grayder-background")
+                document.getElementById("false_role_bttn_" + falseRole).classList.add("grayder-background")
+            })
         }
     }
 
@@ -145,6 +166,39 @@ class Werewolves extends Component{
             //confirmation
             ownChoiceConfirmKill.on('ConfirmKillRespond', data => {
                 if(data === "ok"){
+                    let sendingData = {
+                        roomid: this.props.roomid,
+                        numberOfWerewolves: otherWolves.length + 1
+                    }
+                    otherSocket.emit('GetFalseRoles', sendingData)
+
+                    otherSocket.on('FalseRoles', data => {
+                        falseRole_arr.length = 0
+
+                        this.setState({ 
+                            renderFalsePickingPhase: data.map((falseRole, index) => {
+                                let bttnId = "false_role_bttn_" + falseRole,
+                                    werewolvesId = "false_role_werewolf_" + falseRole
+
+                                falseRole_arr.push(falseRole)
+
+                                return(
+                                    <div key={falseRole} className="in-game-render-players-container-werewolve">
+                                        <button id={bttnId} onClick={this.chooseFalseRole.bind(this, falseRole)}>{falseRole}</button>
+                                        <div id={werewolvesId} className="in-game-render-players-container-werewolve-chosen"></div>
+                                    </div>
+                                )
+                            })
+                        })
+                    })
+
+                    otherSocket.on('FalseRoleChoice', data => {
+                        document.getElementById("false_role_bttn_" + data.falseRole).disabled = true
+                        document.getElementById("false_role_bttn_" + data.falseRole).classList.remove("grayder-background")
+                        document.getElementById("false_role_bttn_" + data.falseRole).classList.add("grayder-background")
+
+                        document.getElementById("false_role_werewolf_" + data.falseRole).innerText = data.wolfName
+                    })
                     document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
                     document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
                     document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
@@ -158,7 +212,7 @@ class Werewolves extends Component{
                     document.getElementById("agree-on-kill-button").classList.add("grayder-background")
 
                     this.setState({
-                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                        endTurnConfirm: <button className="werewolves-end-turn-button" type="button" onClick={this.endTurnBttn}>End turn</button>
                     })
                 }
             })
@@ -250,7 +304,7 @@ class Werewolves extends Component{
                 //Final target
                 otherSocket.on('ReceiveTheFinalTarget', data => {
                     this.setState({
-                        renderFinalTarget: <div><p>Final Target is: <strong>{data}</strong></p></div>
+                        renderFinalTarget: <span>Final Target is: <strong>{data}</strong> - </span>
                     })
                 })
             })
@@ -273,9 +327,15 @@ class Werewolves extends Component{
             </div>
 
             <div className="in-game-cupid-layer2-container in-game-cupid-layer-container-invisible" id="cupid-layer2">
-                {this.state.renderOwnTarget}
-                {this.state.renderFinalTarget}
-                {this.state.endTurnConfirm}
+                <div className="werewolves-announce-holder">
+                    {this.state.renderOwnTarget}
+                    {this.state.renderFinalTarget}
+                    {this.state.endTurnConfirm}
+                </div>
+                
+                <div className="werewolves-false-phase-holder">
+                    {this.state.renderFalsePickingPhase}
+                </div>
             </div> 
             </>
         )

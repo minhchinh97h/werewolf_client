@@ -84,12 +84,17 @@ export default class RoundEnd extends Component{
             getPlayerSocket.on('GetPlayers', data => {
                 this.setState({
                     renderPlayers: data.map((player, index) => {
+                        
                         let id = "round_end_target_bttn_" + player,
                         roundEndPlayerId = "round_end_" + player
-                    
+                        
                         return(
                             <div key = {player} className="in-game-render-players-container-werewolve">
-                                <button  id={id} type="button" onClick={this.ChoosePlayer.bind(this, player)}>{player}</button>
+                                {player === this.props.username ?
+                                    <button className="grayder-background" id={id} type="button" onClick={this.ChoosePlayer.bind(this, player)} disabled>{player}</button>
+                                    :
+                                    <button  id={id} type="button" onClick={this.ChoosePlayer.bind(this, player)}>{player}</button>
+                                }
                                 <div id={roundEndPlayerId} className="in-game-render-players-container-werewolve-chosen"></div>
                             </div>
                         )

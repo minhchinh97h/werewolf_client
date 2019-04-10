@@ -44,3 +44,33 @@
     background-color:white;
     margin-left: 10px;
 }
+
+.werewolves-announce-holder{
+    height: 20%;
+    width: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: #359bfa;
+}
+
+.werewolves-false-phase-holder{
+    height: 80%;
+    width: 80%;
+    font-size: 24px;
+    border-top: 1px solid #b6a0ff;
+    overflow: auto;
+}
+
+.werewolves-end-turn-button{
+    margin: 0px 10px;
+    border-radius: 10px;
+    height: 50px;
+    width: 200px;
+    -webkit-appearance: none;
+    font-size: 20px;
+    color: #0084ff;
+    border-color: #bf00ff;
+    background-color:white;
+}

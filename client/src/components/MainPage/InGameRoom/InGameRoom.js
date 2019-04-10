@@ -341,7 +341,6 @@ class InGameRoom extends Component{
             })
 
             roundEndsSocket.on('RoundEnds', data => {
-                console.log(data)
                 if(data.dead instanceof Array)
                     data.dead.forEach((death, i) => {
                         if(this.props.match.params.username === death){

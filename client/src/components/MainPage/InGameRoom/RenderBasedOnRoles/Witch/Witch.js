@@ -220,23 +220,22 @@ class Witch extends Component{
                 retrieveLeftAbilitiesSocket.on('LeftAbilities', leftAbilities => {
                     this.setState({
                         renderPlayers: data.map((player, index) => {
-                            if(player !== this.props.username){
-                                let id = "witch_target_bttn_" + index,
-                                    killId = "witch_kill_bttn_" + index,
-                                    protectId = "witch_protect_bttn" + index
-                                protectId_buttons.push(protectId)
-                                killId_buttons.push(killId)
-                                
-                                return(
-                                    <div key = {player}>
-                                        <p id={id}>{player}</p>
-                                        <div>
-                                            {!leftAbilities.useKill ? <button id={killId} onClick={this.KillPlayerBttn.bind(this, player)}>Kill</button>: null}
-                                            {!leftAbilities.useHeal ? <button id={protectId} onClick={this.ProtectPlayerBttn.bind(this, player)}>Protect</button> : null}
-                                        </div>
+                            let id = "witch_target_bttn_" + index,
+                                killId = "witch_kill_bttn_" + index,
+                                protectId = "witch_protect_bttn" + index
+                            protectId_buttons.push(protectId)
+                            killId_buttons.push(killId)
+                            
+                            return(
+                                <div key = {player}>
+                                    <p id={id}>{player}</p>
+                                    <div>
+                                        
+                                        {!leftAbilities.useKill && (player !== this.props.username) ? <button id={killId} onClick={this.KillPlayerBttn.bind(this, player)}>Kill</button>: null}
+                                        {!leftAbilities.useHeal ? <button id={protectId} onClick={this.ProtectPlayerBttn.bind(this, player)}>Protect</button> : null}
                                     </div>
-                                )
-                            }
+                                </div>
+                            )
                         })
                     })
                 })
