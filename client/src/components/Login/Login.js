@@ -5,7 +5,7 @@ import recommendedRoles from '../../validation/recommendedRoles/recommendedRoles
 import currentRoles from '../../validation/currentRoles/currentRoles'
 
 import serverUrl from '../../serverUrl'
-
+import socketIOClient from 'socket.io-client'
 import "./Login.css"
 
 const uniqid = require('uniqid')
@@ -14,9 +14,26 @@ const cookies = new Cookies()
 
 let insertedRoomid = "",
     generatedUsername = "",
-    roomid
+    roomid,
+    exitSocket
 
 class Login extends Component{
+    constructor(props){
+        super(props)
+    
+        // if(performance.navigation.type === 1){
+        //     console.log(true)
+
+        //     let sendingData = {
+        //         username: this.props.match.params.username
+        //     }
+
+        //     exitSocket = socketIOClient(serverUrl + 'main-page')
+        //     exitSocket.emit('Exit', sendingData)
+        //     window.location = "/"
+        // }
+    }
+
     state={
         username: "",
         roomid: "",
@@ -310,6 +327,10 @@ class Login extends Component{
 
             this.DisplayApproveIconForUsername()
         }
+    }
+
+    componentWillUnmount(){
+        // exitSocket.disconnect()
     }
 
     render(){

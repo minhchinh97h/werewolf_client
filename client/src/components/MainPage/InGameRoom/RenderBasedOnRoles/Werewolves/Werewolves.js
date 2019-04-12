@@ -204,6 +204,9 @@ class Werewolves extends Component{
                         otherSocket.on('OtherFalseRoles', data => {
                             otherFalseRoles_arr = data
 
+                            if(otherFalseRoles_arr.length === 0)
+                                
+
                             this.setState({ 
                                 renderFalsePickingPhase: falseRole_arr.map((falseRole, index) => {
                                     let bttnId = "false_role_bttn_" + falseRole,
@@ -275,6 +278,7 @@ class Werewolves extends Component{
             getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
+                getPlayerSocket.emit('JoinRoom', this.props.roomid)
                 getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
             })
 

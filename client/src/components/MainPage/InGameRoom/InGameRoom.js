@@ -26,15 +26,35 @@ import "./InGameRoom.css"
 
 import serverUrl from '../../../serverUrl'
 
+const axios = require('axios')
+
 let votingRoundSocket,
     votedHangedPlayerSocket,
     InGameSocket,
     adminSocket,
     firstRoundSocket,
-    roundEndsSocket
+    roundEndsSocket,
+    exitSocket
 
 class InGameRoom extends Component{
     _isMounted = false
+
+    constructor(props){
+        super(props)
+
+        // if(performance.navigation.type === 1){
+        //     console.log(true)
+        //     exitSocket = socketIOClient(serverUrl + 'main-page')
+
+        //     let sendingData = {
+        //         roomid: this.props.match.params.roomid,
+        //         username: this.props.match.params.username
+        //     }
+
+        //     exitSocket.emit('Exit', sendingData)
+        //     window.location = "/"
+        // }
+    }
 
     state = {
         renderPlayerRole: null,
@@ -108,11 +128,12 @@ class InGameRoom extends Component{
             //when the start button is pressed (state is changed), get the game info (this is socket.io's event so that every listener
             //in the room channel will receive the data whenever the event is triggered)
             InGameSocket.on('RetrieveGameInfo', data => {
-                data.forEach((row) => {
-                    if(!row.special){
-                        row.player.forEach(name => {
-                            if(name === this.props.match.params.username){
+                data.every((row) => {
+                    let found = false
 
+                    if(!row.special){
+                        row.player.every(name => {
+                            if(name === this.props.match.params.username){
                                 this.setState({
                                     renderPlayerRole: row.name
                                 })
@@ -120,12 +141,6 @@ class InGameRoom extends Component{
                                 if(row.name === "Werewolves"){
                                     this.setState({
                                         renderRoleUI: <Werewolves roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                                    })
-                                }
-
-                                else if(row.name === "Ordinary Townsfolk"){
-                                    this.setState({
-                                        renderRoleUI: <NoAbilityFolk roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                                     })
                                 }
 
@@ -248,8 +263,27 @@ class InGameRoom extends Component{
                                         renderRoleUI: <DogWolf roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                                     })
                                 }
+
+                                found = true
+
+                                return false
+                            }
+
+                            else{
+                                this.setState({
+                                    renderPlayerRole: "Ordinary Townsfolk"
+                                })
+                                return true
                             }
                         })
+                    }
+
+                    if(found){
+                        return false
+                    }
+
+                    else{
+                        return true
                     }
                 })
                 
@@ -423,7 +457,14 @@ class InGameRoom extends Component{
 
     componentWillUnmount(){
         this._isMounted = false
-        console.log("ingameroom unmount")
+
+        votingRoundSocket.disconnect()
+        votedHangedPlayerSocket.disconnect()
+        InGameSocket.disconnect()
+        adminSocket.disconnect()
+        firstRoundSocket.disconnect()
+        roundEndsSocket.disconnect()
+        // exitSocket.disconnect()
     }
 
     componentDidUpdate(prevProps, prevState){

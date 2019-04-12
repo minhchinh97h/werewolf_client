@@ -78,6 +78,7 @@ export default class RoundEnd extends Component{
             getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
+                getPlayerSocket.emit('JoinRoom', this.props.roomid)
                 getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
             })
 
@@ -134,7 +135,6 @@ export default class RoundEnd extends Component{
 
             roundEndSocket.on('BroadcastREDeadPlayers', data => {
                 clearInterval(timer)
-                console.log(data)
                 if(document.getElementById("cupid-layer1") && document.getElementById("cupid-layer2")){
                     document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
                     document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
@@ -182,8 +182,6 @@ export default class RoundEnd extends Component{
         roundEndSocket.disconnect()
         // endRoundSocket.disconnect()
         getPlayerSocket.disconnect()
-
-        console.log("round end unmount")
 
         clearInterval(timer)
     }

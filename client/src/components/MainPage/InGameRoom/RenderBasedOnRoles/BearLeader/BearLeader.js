@@ -152,6 +152,7 @@ class BearLeader extends Component{
             getPlayerSocket = socketIOClient(serverUrl + 'main-page')
 
             getPlayerSocket.on('connect', () => {
+                getPlayerSocket.emit('JoinRoom', this.props.roomid)
                 getPlayerSocket.emit('RequestToGetPlayers', this.props.roomid)
             })
 

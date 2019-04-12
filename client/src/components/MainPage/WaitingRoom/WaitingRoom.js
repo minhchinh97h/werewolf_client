@@ -4,21 +4,39 @@ import {DisplayPlayerNames, DisplayPlayerNamesSocket} from './DisplayPlayerNames
 import DisplayCards from './DisplayCards/DisplayCards'
 import {DisplayChosenCards, GetCurrentRolesSocket} from './DisplayChosenCards/DisplayChosenCards'
 import {UpdateRecommendedRoles, UpdateRolesLimitSocket} from './UpdateRecommendedRoles/UpdateRecommendedRoles'
-import NavBar from './NavBar/NavBar'
 
 import Header from '../../Header/Header'
-
 import socketIOClient from 'socket.io-client'
-
 import serverUrl from '../../../serverUrl'
-
 import "./WaitingRoom.css"
 
+const axios = require('axios')
+
+
 let GetAdminSocket,
-    StartGameSocket
+    StartGameSocket,
+    exitSocket
 
 class WaitingRoom extends Component{
     _isMounted = false
+
+    constructor(props){
+        super(props)
+        
+        // if(performance.navigation.type === 1){
+        //     console.log(true)
+        //     exitSocket = socketIOClient(serverUrl + 'main-page')
+
+        //     let sendingData = {
+        //         roomid: this.props.match.params.roomid,
+        //         username: this.props.match.params.username
+        //     }
+
+        //     exitSocket.emit('Exit', sendingData)
+        //     window.location = "/"
+
+        // }
+    }
 
     state = {
         admin: "",
@@ -40,6 +58,11 @@ class WaitingRoom extends Component{
         this._isMounted = true
 
         if(this._isMounted){
+            // exitSocket = socketIOClient(serverUrl)
+            // exitSocket.on('PlayerExit', data => {
+            //     console.log(data)
+            // })
+
             //Display header
             document.getElementById("header").classList.remove("hide-header")
 
@@ -107,6 +130,7 @@ class WaitingRoom extends Component{
         if(GetCurrentRolesSocket)
             GetCurrentRolesSocket.disconnect()
         UpdateRolesLimitSocket.disconnect()
+        // exitSocket.disconnect()
     }
     
     componentDidUpdate(prevProps, prevState){

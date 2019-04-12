@@ -2,17 +2,27 @@ import React, { Component } from 'react'
 import socketIOClient from 'socket.io-client'
 
 import GetPlayers from '../../GetPlayers/GetPlayers'
+import serverUrl from '../../../../../serverUrl'
 
-const serverUrl = 'http://localhost:3001/'
+import "./NoAbilityFolk.css"
 
 class NoAbilityFolk extends Component{
+    _isMounted = false
 
     state = {
         
     }
 
     componentDidMount(){
+        this._isMounted = true
 
+        if(this._isMounted){
+
+        }
+    }
+
+    componentWillUnmount(){
+        this._isMounted = false
     }
 
     render(){
