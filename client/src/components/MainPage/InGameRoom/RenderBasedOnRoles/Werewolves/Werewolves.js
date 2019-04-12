@@ -7,10 +7,12 @@ import "./Werewolves.css"
 
 let otherWolves = [],
     targetChoice = '',
-    werewolvesIconId_arr = [],
-    falseRole_arr = []
+    falseRole_arr = [],
+    target_button_id_arr = [],
+    false_role_button_id_arr = [], //holding false role button id of werewolves who have chosen
+    false_role_werewolf_id_arr = [] //holding false role werewolf id of werewolves who have chosen
 
-let otherSocket,
+let otherSocket, //werewolves namespace
     getPlayerSocket,
     firstRoundSocket,
     calledTurnSocket,
@@ -32,7 +34,10 @@ class Werewolves extends Component{
         renderOwnTarget: null,
         receiveTurn: false,
         renderFalsePickingPhase: null,
-        didChooseFalseRole: false
+        didChooseFalseRole: false,
+        false_role_button_id_arr: [],
+        false_role_werewolf_id_arr: [],
+
     }
 
     chooseTargetBttn = (name, e) => {
@@ -44,7 +49,7 @@ class Werewolves extends Component{
             roomid: this.props.roomid
         }
 
-        ownChoiceConfirmKill.emit("RequestMyChoice", sendingData)
+        otherSocket.emit("RequestMyChoice", sendingData)
 
         this.setState({choseTarget: <p>{targetChoice}</p>})
     }
@@ -53,11 +58,22 @@ class Werewolves extends Component{
         if(window.confirm("Kill " + targetChoice + "?")){
             let sendingData = {
                 choseTarget: targetChoice,
-                roomid: this.props.roomid
+                roomid: this.props.roomid,
+                werewolf: this.props.username
             }
 
-            ownChoiceConfirmKill.emit("RequestToAgreeKill", sendingData)
-            this.setState({renderOwnTarget: <span>Your choice: <strong>{targetChoice}</strong>, </span>})
+            otherSocket.emit("RequestToAgreeKill", sendingData)
+            otherSocket.emit("RequestToNotifyOther", sendingData)
+
+            this.setState({
+                renderOwnTarget: <span>Your choice: <strong>{targetChoice}</strong>, </span>,
+                renderUI: <span>Waiting for other players ...</span>
+            })
+
+            
+            target_button_id_arr.forEach((id) => {
+                document.getElementById(id).disabled = true
+            })
         }
     }
 
@@ -161,11 +177,18 @@ class Werewolves extends Component{
             })
 
             /* <-----------------------------------------------> */
-            ownChoiceConfirmKill = socketIOClient(serverUrl + 'werewolves')
+            //Handle other werewolves choices && confirmation that the kill target is saved into database && final target
+            otherSocket = socketIOClient(serverUrl + 'werewolves')
+
+            //Join room for the werewolves namespace
+            otherSocket.on('connect', () => {
+                otherSocket.emit('JoinRoom', this.props.roomid)
+            })
 
             //confirmation
-            ownChoiceConfirmKill.on('ConfirmKillRespond', data => {
-                if(data === "ok"){
+            otherSocket.on('ConfirmKillRespond', data => {
+                if(data === "all werewolves voted"){
+
                     let sendingData = {
                         roomid: this.props.roomid,
                         numberOfWerewolves: otherWolves.length + 1
@@ -185,6 +208,7 @@ class Werewolves extends Component{
                                 return(
                                     <div key={falseRole} className="in-game-render-players-container-werewolve">
                                         <button id={bttnId} onClick={this.chooseFalseRole.bind(this, falseRole)}>{falseRole}</button>
+
                                         <div id={werewolvesId} className="in-game-render-players-container-werewolve-chosen"></div>
                                     </div>
                                 )
@@ -192,7 +216,22 @@ class Werewolves extends Component{
                         })
                     })
 
+                    otherSocket.emit('RequestToGetOtherFalseRoles', this.props.roomid)
+
+                    otherSocket.on('OtherFalseRoles', data => {
+                        data.forEach((d) => {
+                            if(document.getElementById("false_role_bttn_" + data.falseRole) && document.getElementById("false_role_werewolf_" + data.falseRole)){
+                                document.getElementById("false_role_bttn_" + data.falseRole).disabled = true
+                                document.getElementById("false_role_bttn_" + data.falseRole).classList.remove("grayder-background")
+                                document.getElementById("false_role_bttn_" + data.falseRole).classList.add("grayder-background")
+
+                                document.getElementById("false_role_werewolf_" + data.falseRole).innerText = data.wolfName
+                            }
+                        })
+                    })
+
                     otherSocket.on('FalseRoleChoice', data => {
+
                         document.getElementById("false_role_bttn_" + data.falseRole).disabled = true
                         document.getElementById("false_role_bttn_" + data.falseRole).classList.remove("grayder-background")
                         document.getElementById("false_role_bttn_" + data.falseRole).classList.add("grayder-background")
@@ -206,10 +245,6 @@ class Werewolves extends Component{
 
                     document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
                     document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
-
-                    document.getElementById("agree-on-kill-button").disabled = true
-                    document.getElementById("agree-on-kill-button").classList.remove("grayder-background")
-                    document.getElementById("agree-on-kill-button").classList.add("grayder-background")
 
                     this.setState({
                         endTurnConfirm: <button className="werewolves-end-turn-button" type="button" onClick={this.endTurnBttn}>End turn</button>
@@ -228,7 +263,6 @@ class Werewolves extends Component{
         getPlayerSocket.disconnect()
         firstRoundSocket.disconnect()
         calledTurnSocket.disconnect()
-        ownChoiceConfirmKill.disconnect()
         getNextTurnSocket.disconnect()
     }
 
@@ -242,13 +276,18 @@ class Werewolves extends Component{
             })
 
             getPlayerSocket.on('GetPlayers', data => {
+                target_button_id_arr.length = 0
+
                 this.setState({
                     renderPlayers: data.map((player, index) => {
                         let id = "werewolves_target_bttn_" + player,
-                            werewolvesIconId = "werewolves_icon_" + player
+                            werewolvesIconId = "werewolves_icon_" + player,
+                            playerHolderId = "player_holder_" + player
                         
+                        target_button_id_arr.push(id)
+
                         return(
-                            <div key = {player} className="in-game-render-players-container-werewolve">
+                            <div key = {player} className="in-game-render-players-container-werewolve" id={playerHolderId}>
                                 <button  id={id} type="button" onClick={this.chooseTargetBttn.bind(this, player)}>{player}</button>
                                 <div id={werewolvesIconId} className="in-game-render-players-container-werewolve-chosen"></div>
                             </div>
@@ -256,13 +295,8 @@ class Werewolves extends Component{
                     })
                 })
 
-                //Handle other werewolves choices && confirmation that the kill target is saved into database && final target
-                otherSocket = socketIOClient(serverUrl + 'werewolves')
-
-                //Join room for the werewolves namespace
-                otherSocket.on('connect', () => {
-                    otherSocket.emit('JoinRoom', this.props.roomid)
-                })
+                
+                
 
                 //Request to get other werewolves in this specific socket
                 otherSocket.emit('RequestToGetOtherWerewolves', this.props.roomid)
@@ -301,6 +335,12 @@ class Werewolves extends Component{
                     })
                 })
                 
+                /* <-----------------------------------------------> */
+                otherSocket.on('OtherNotified', data => {
+                    document.getElementById("player_holder_" + data.werewolf).classList.remove("player-holder-grayer-background")
+                    document.getElementById("player_holder_" + data.werewolf).classList.add("player-holder-grayer-background")
+                })
+
                 //Final target
                 otherSocket.on('ReceiveTheFinalTarget', data => {
                     this.setState({

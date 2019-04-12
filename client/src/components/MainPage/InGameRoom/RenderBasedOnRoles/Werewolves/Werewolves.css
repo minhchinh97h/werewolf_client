@@ -74,3 +74,7 @@
     border-color: #bf00ff;
     background-color:white;
 }
+
+.player-holder-grayer-background{
+    background-color: rgb(199, 199, 199);
+}
