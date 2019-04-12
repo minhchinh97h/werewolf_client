@@ -196,37 +196,40 @@ class Werewolves extends Component{
                     otherSocket.emit('GetFalseRoles', sendingData)
 
                     otherSocket.on('FalseRoles', data => {
-                        falseRole_arr.length = 0
+                        falseRole_arr = data
+                        let otherFalseRoles_arr = []
 
-                        this.setState({ 
-                            renderFalsePickingPhase: data.map((falseRole, index) => {
-                                let bttnId = "false_role_bttn_" + falseRole,
-                                    werewolvesId = "false_role_werewolf_" + falseRole
+                        otherSocket.emit('RequestToGetOtherFalseRoles', this.props.roomid)
 
-                                falseRole_arr.push(falseRole)
+                        otherSocket.on('OtherFalseRoles', data => {
+                            otherFalseRoles_arr = data
 
-                                return(
-                                    <div key={falseRole} className="in-game-render-players-container-werewolve">
-                                        <button id={bttnId} onClick={this.chooseFalseRole.bind(this, falseRole)}>{falseRole}</button>
-
-                                        <div id={werewolvesId} className="in-game-render-players-container-werewolve-chosen"></div>
-                                    </div>
-                                )
+                            this.setState({ 
+                                renderFalsePickingPhase: falseRole_arr.map((falseRole, index) => {
+                                    let bttnId = "false_role_bttn_" + falseRole,
+                                        werewolvesId = "false_role_werewolf_" + falseRole
+    
+                                    let domButton = <button id={bttnId} onClick={this.chooseFalseRole.bind(this, falseRole)}>{falseRole}</button>,
+                                        domName = <div id={werewolvesId} className="in-game-render-players-container-werewolve-chosen"></div>
+                                            
+    
+                                    otherFalseRoles_arr.every((otherFalseRole) => {
+                                        if(otherFalseRole.falseRole === falseRole){
+                                            domButton = <button id={bttnId} className="grayder-background" disabled>{falseRole}</button>
+                                            domName = <div id={werewolvesId} className="in-game-render-players-container-werewolve-chosen">{otherFalseRole.wolfName}</div>
+                                            return false
+                                        }
+                                        return true
+                                    })
+    
+                                    return(
+                                        <div key={falseRole} className="in-game-render-players-container-werewolve">
+                                            {domButton}
+                                            {domName}
+                                        </div>
+                                    )
+                                })
                             })
-                        })
-                    })
-
-                    otherSocket.emit('RequestToGetOtherFalseRoles', this.props.roomid)
-
-                    otherSocket.on('OtherFalseRoles', data => {
-                        data.forEach((d) => {
-                            if(document.getElementById("false_role_bttn_" + data.falseRole) && document.getElementById("false_role_werewolf_" + data.falseRole)){
-                                document.getElementById("false_role_bttn_" + data.falseRole).disabled = true
-                                document.getElementById("false_role_bttn_" + data.falseRole).classList.remove("grayder-background")
-                                document.getElementById("false_role_bttn_" + data.falseRole).classList.add("grayder-background")
-
-                                document.getElementById("false_role_werewolf_" + data.falseRole).innerText = data.wolfName
-                            }
                         })
                     })
 
