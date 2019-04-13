@@ -8,9 +8,7 @@ let setUpTime = 120000, //120s,
     chosenPlayer = "",
     timer
 
-let ownChoiceHangedPlayer, //round-end namespace
-    endRoundSocket,
-    roundEndSocket,
+let roundEndSocket, //round-end namespace
     getPlayerSocket 
 
 export default class RoundEnd extends Component{

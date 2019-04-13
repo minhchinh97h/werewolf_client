@@ -128,6 +128,8 @@ class Cupid extends Component{
                                         <button key = {player} id={id} type="button" onClick={this.playersToConnect.bind(this, player, index, id)}>{player}</button>
                                     )
                                 }
+
+                                return ''
                             })
                         })
                     })

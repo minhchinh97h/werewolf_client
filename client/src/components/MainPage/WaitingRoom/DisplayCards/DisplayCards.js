@@ -40,7 +40,7 @@ class DisplayCards extends Component {
             }
         }
         
-        name_array.map((name, index) => {
+        name_array.forEach((name, index) => {
             let quantityId = name + "-quantity"
             
             if(value_array[index] === 0)
@@ -72,7 +72,7 @@ class DisplayCards extends Component {
             }
         }
         
-        name_array.map((name, index) => {
+        name_array.forEach((name, index) => {
             let quantityId = name + "-quantity"
 
             document.getElementById(quantityId).innerText = "x" + value_array[index]
@@ -140,18 +140,18 @@ class DisplayCards extends Component {
                         let name_array = [],
                         value_array = []
 
-                        for(var key in currentRoles){
-                            if(currentRoles.hasOwnProperty(key))
+                        for(var k in currentRoles){
+                            if(currentRoles.hasOwnProperty(k))
                             {
-                                if(currentRoles[key] > 0){
-                                    name_array.push(key)
-                                    value_array.push(currentRoles[key])
+                                if(currentRoles[k] > 0){
+                                    name_array.push(k)
+                                    value_array.push(currentRoles[k])
                                 }
                                     
                             }
                         }
                         
-                        name_array.map((name, index) => {
+                        name_array.forEach((name, index) => {
                             let quantityId = name + "-quantity"
                 
                             document.getElementById(quantityId).innerText = "x" + value_array[index]

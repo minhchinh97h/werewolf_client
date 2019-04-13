@@ -8,15 +8,12 @@ import "./Werewolves.css"
 let otherWolves = [],
     targetChoice = '',
     falseRole_arr = [],
-    target_button_id_arr = [],
-    false_role_button_id_arr = [], //holding false role button id of werewolves who have chosen
-    false_role_werewolf_id_arr = [] //holding false role werewolf id of werewolves who have chosen
+    target_button_id_arr = []
 
 let otherSocket, //werewolves namespace
     getPlayerSocket,
     firstRoundSocket,
     calledTurnSocket,
-    ownChoiceConfirmKill, //werewolves namespace
     getNextTurnSocket
 
 class Werewolves extends Component{
@@ -203,9 +200,6 @@ class Werewolves extends Component{
 
                         otherSocket.on('OtherFalseRoles', data => {
                             otherFalseRoles_arr = data
-
-                            if(otherFalseRoles_arr.length === 0)
-                                
 
                             this.setState({ 
                                 renderFalsePickingPhase: falseRole_arr.map((falseRole, index) => {

@@ -3,9 +3,11 @@ import socketIOClient from 'socket.io-client'
 
 import serverUrl from '../../../../../serverUrl'
 
+import './TheFox.css'
+
 let the_fox_target_bttn_ids = [],
     players = [],
-    target,
+    playersToReveal_arr = [],
     foxSocket,
     getNextTurnSocket,
     firstRoundSocket,
@@ -26,30 +28,27 @@ class TheFox extends Component{
     }
 
     playersToRevealBttn = (name, index, e) => {
-        target = name
-        let chosenPlayers = []
+        if(window.confirm("Do you want to scent " + name + "?")){
+            playersToReveal_arr.push(name)
 
-        chosenPlayers.push(name)
+            if(playersToReveal_arr.length === 3){
+                let sendingData = {
+                    roomid: this.props.roomid,
+                    players: playersToReveal_arr
+                }
 
-        if(index -1 >= 0){
-            chosenPlayers.push(players[index - 1])
-        }
+                foxSocket.emit('RequestToScent', sendingData)
 
-        if(index + 1 < players.length){
-            chosenPlayers.push(players[index + 1])
-        }
+                the_fox_target_bttn_ids.forEach((bttnId, index) => {
+                    document.getElementById(bttnId).disabled = true
+                })
+            }
+           
+            if(document.getElementById("the_fox_target_bttn_" + name)){
+                document.getElementById("the_fox_target_bttn_" + name).classList.remove("grayder-background")
+                document.getElementById("the_fox_target_bttn_" + name).classList.add("grayder-background")
+            }
 
-        let sendingData = {
-            roomid: this.props.roomid,
-            players: chosenPlayers
-        }
-
-        if(window.confirm("Do you want to scent " + name + " and the two adjacent neighbors?")){
-            foxSocket.emit('RequestToScent', sendingData)
-
-            the_fox_target_bttn_ids.forEach((bttnId, index) => {
-                document.getElementById(bttnId).disabled = true
-            })
         }
     }
 
@@ -68,7 +67,8 @@ class TheFox extends Component{
 
         if(this._isMounted){
             the_fox_target_bttn_ids.length = 0
-            
+            playersToReveal_arr.length = 0
+
             foxSocket = socketIOClient(serverUrl + 'the-fox')
             getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 
@@ -87,7 +87,7 @@ class TheFox extends Component{
                     //render UI
                     this.setState({
                         renderUI: <>
-                            <p>Who do you want to scent?</p>
+                            <p>Choose 3 players to scent?</p>
                         </>,
                         receiveTurn: true
                     })
@@ -109,7 +109,7 @@ class TheFox extends Component{
                     //render UI
                     this.setState({
                         renderUI: <>
-                            <p>Who do you want to scent?</p>
+                            <p>Choose 3 players to scent?</p>
                         </>,
                         receiveTurn: true
                     })
@@ -117,6 +117,26 @@ class TheFox extends Component{
             })
 
             //The Fox's action
+            foxSocket.emit('GetCanUseAbility', this.props.roomid)
+
+            foxSocket.on('CanUseAbility', data => {
+                //if the fox loses the ability
+                if(!data){
+                    document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
+                    document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
+                    document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
+                    document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-visible")
+
+                    document.getElementById("cupid-layer1").classList.add("in-game-cupid-layer-container-invisible")
+                    document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
+
+                    this.setState({
+                        renderTargetRole: <p>You lost your ability!</p>,
+                        endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
+                    })
+                }
+            })
+
             foxSocket.on('GetScentPlayers', (data) => {
                 document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
                 document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
@@ -127,7 +147,7 @@ class TheFox extends Component{
                 document.getElementById("cupid-layer2").classList.add("in-game-cupid-layer-container-visible")
 
                 this.setState({
-                    renderTargetRole: <p>Is there any werewolves near <b>{target}</b>? <b>{data ? "YES" : "NO"}</b></p>,
+                    renderTargetRole: <p>Werewolves among <b>{playersToReveal_arr[0]}</b>, <b>{playersToReveal_arr[1]}</b>, <b>{playersToReveal_arr[2]}</b>? <b>{data ? "YES" : "NO"}</b></p>,
                     endTurnConfirm: <button type="button" onClick={this.endTurnBttn}>End turn</button>
                 })
             })
@@ -137,6 +157,7 @@ class TheFox extends Component{
     componentWillUnmount(){
         this._isMounted = false
         the_fox_target_bttn_ids.length = 0
+        playersToReveal_arr.length = 0
 
         foxSocket.disconnect()
         getNextTurnSocket.disconnect()
@@ -164,7 +185,7 @@ class TheFox extends Component{
                     renderPlayers: data.map((player, index) => {
                         if(player !== this.props.username){
                             players.push(player)
-                            let id = "the_fox_target_bttn_" + index
+                            let id = "the_fox_target_bttn_" + player
     
                             the_fox_target_bttn_ids.push(id)
     
@@ -172,6 +193,8 @@ class TheFox extends Component{
                                 <button key = {player} id={id} type="button" onClick={this.playersToRevealBttn.bind(this, player, index)}>{player}</button>
                             )
                         }
+
+                        return ''
                     })
                 })
             })

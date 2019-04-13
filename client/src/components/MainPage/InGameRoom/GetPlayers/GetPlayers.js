@@ -28,6 +28,8 @@ class GetPlayers extends Component{
                         </div>
                     )
                 }
+
+                return <></>
             })
         })})
     }

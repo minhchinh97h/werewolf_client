@@ -26,35 +26,16 @@ import "./InGameRoom.css"
 
 import serverUrl from '../../../serverUrl'
 
-const axios = require('axios')
 
 let votingRoundSocket,
     votedHangedPlayerSocket,
     InGameSocket,
     adminSocket,
     firstRoundSocket,
-    roundEndsSocket,
-    exitSocket
+    roundEndsSocket
 
 class InGameRoom extends Component{
     _isMounted = false
-
-    constructor(props){
-        super(props)
-
-        // if(performance.navigation.type === 1){
-        //     console.log(true)
-        //     exitSocket = socketIOClient(serverUrl + 'main-page')
-
-        //     let sendingData = {
-        //         roomid: this.props.match.params.roomid,
-        //         username: this.props.match.params.username
-        //     }
-
-        //     exitSocket.emit('Exit', sendingData)
-        //     window.location = "/"
-        // }
-    }
 
     state = {
         renderPlayerRole: null,
@@ -464,7 +445,6 @@ class InGameRoom extends Component{
         adminSocket.disconnect()
         firstRoundSocket.disconnect()
         roundEndsSocket.disconnect()
-        // exitSocket.disconnect()
     }
 
     componentDidUpdate(prevProps, prevState){

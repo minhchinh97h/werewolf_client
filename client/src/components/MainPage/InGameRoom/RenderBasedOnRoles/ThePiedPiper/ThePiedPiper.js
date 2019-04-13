@@ -219,6 +219,8 @@ class ThePiedPiper extends Component{
                                 <button key = {player} id={id} type="button" onClick={this.PlayersToCharm.bind(this, player, index, id)}>{player}</button>
                             )
                         }
+
+                        return ''
                     })
                 })
                 

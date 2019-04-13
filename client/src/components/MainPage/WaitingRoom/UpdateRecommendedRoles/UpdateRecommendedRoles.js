@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import socketIOClient from 'socket.io-client'
 import recommendedRoles from '../../../../validation/recommendedRoles/recommendedRoles'
 
@@ -6,7 +6,7 @@ import serverUrl from '../../../../serverUrl'
 
 let UpdateRolesLimitSocket
 
-class UpdateRecommendedRoles extends Component{
+class UpdateRecommendedRoles extends React.Component{
     _isMounted = false
 
     state = {
@@ -25,7 +25,7 @@ class UpdateRecommendedRoles extends Component{
 
     componentDidUpdate(prevProps, prevState){
         //to confirm that the room gets more player in order to re-render the roles limit
-        if(this.props.numberOfPlayers != prevProps.numberOfPlayers){
+        if(this.props.numberOfPlayers !== prevProps.numberOfPlayers){
             
             recommendedRoles['totalCards'] = this.props.numberOfPlayers + 3
             //the limit of roles depend on the number of players, so whenever a player connects to the room, run socketIOClient to update the relevant info 

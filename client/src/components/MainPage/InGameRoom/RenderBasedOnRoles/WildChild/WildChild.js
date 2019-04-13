@@ -1,9 +1,6 @@
 import React, { Component } from 'react'
-import socketIOClient from 'socket.io-client'
 
 import GetPlayers from '../../GetPlayers/GetPlayers'
-
-const serverUrl = 'http://localhost:3001/'
 
 class WildChild extends Component{
 

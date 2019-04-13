@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
-import socketIOClient from 'socket.io-client'
 
 import GetPlayers from '../../GetPlayers/GetPlayers'
-import serverUrl from '../../../../../serverUrl'
 
 import "./NoAbilityFolk.css"
 

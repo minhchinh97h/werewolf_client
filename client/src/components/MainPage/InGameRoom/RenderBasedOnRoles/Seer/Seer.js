@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import socketIOClient from 'socket.io-client'
 
-import GetPlayers from '../../GetPlayers/GetPlayers'
-
 import serverUrl from '../../../../../serverUrl'
 
 let seer_target_bttn_ids = [],
@@ -42,7 +40,6 @@ class Seer extends Component{
     }
 
     endTurnBttn = () => {
-        
         
         let sendingData = {
             roomid: this.props.roomid,
@@ -163,6 +160,8 @@ class Seer extends Component{
                                 <button key = {player} id={id} type="button" onClick={this.playerToRevealBttn.bind(this, player, id)}>{player}</button>
                             )
                         }
+
+                        return ''
                     })
                 })
             })
