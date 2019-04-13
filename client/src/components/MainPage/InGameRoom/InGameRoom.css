@@ -52,6 +52,12 @@
     text-shadow: 1px 0px #b6a0ff
 }
 
+@media only screen and (max-width: 767px){
+    .in-game-title{
+        font-size: 22px;
+    }
+}
+
 .in-game-title > h2{
     margin-top: 50px;
 }
@@ -84,6 +90,12 @@
     align-items: center;
 }
 
+@media only screen and(max-width: 767px){
+    .in-game-role-tab-title{
+        height: 30%;
+    }
+}
+
 .in-game-role-tab-title > h4 {
     color: #106fc7;
     font-size: 24px;
@@ -91,7 +103,7 @@
 
 .in-game-role-tab-main{
     position: relative;
-    height: 60%;
+    height: 80%;
     width: 90%;
     border-top: 1px solid #168eff;
     border-bottom: 1px solid #168eff;
@@ -105,6 +117,7 @@
     font-weight: 500;
 }
 
+
 .in-game-role-tab-main > button {
     border-radius: 10px;
     height: 40px;
@@ -117,6 +130,12 @@
     margin-left: 10px;
 }
 
+@media only screen and (min-width: 768px){
+    .in-game-role-tab-main > button {
+        font-size: 16px;
+    }
+}
+
 .in-game-render-ui-container{
     height: 20%;
     width: 80%;
@@ -126,6 +145,13 @@
     font-size: 24px;
     color: #359bfa;
     margin: auto auto;
+}
+
+@media only screen and (max-width: 767px){
+    .in-game-render-ui-container{
+        font-size: 18px;
+        width: 100%;
+    }
 }
 
 .in-game-render-players-container{
@@ -143,13 +169,19 @@
     height: 50px;
     width: 200px;
     -webkit-appearance: none;
-    font-size: 14px;
-    color: #0084ff;
+    font-size: 16px;
+    color: #006cd1;
     border-color: #bf00ff;
     background-color:white;
+    font-weight: 700;
 }
 
-
+@media only screen and (max-width: 767px){
+    .in-game-render-players-container > button {
+        height: 40px;
+        font-size: 14px;
+    }
+}
 
 .in-game-render-players-container > button > i {
     margin-left: 5px;
@@ -157,18 +189,36 @@
 
 .in-game-render-players-container > div {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     width: 80%;
     height: 50px;
     margin: 30px auto;
     border-bottom:  1px solid #dd80fc;
+    overflow-x: hidden;
+}
+
+@media only screen and (max-width: 767px){
+    .in-game-render-players-container > div {
+        width: 100%;
+        margin: 20px 0;
+        height: 100px;
+    }
 }
 
 .in-game-render-players-container > div > p {
     color: #359bfa;
     width: 50%;
     height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+@media only screen and (max-width: 767px){
+    .in-game-render-players-container > div > p {
+        font-size: 16px;
+        width: unset;
+    }
 }
 
 .in-game-render-players-container > div > div {
@@ -179,17 +229,33 @@
     align-items: center;
 }
 
+@media only screen and (max-width: 767px){
+    .in-game-render-players-container > div > div {
+        width: unset;
+        flex-direction: column;
+    }
+}
+
 .in-game-render-players-container > div > div > button {
     display: block;
     border-radius: 10px;
     margin-left: 20px;
-    height: 30px;
-    width: 80px;
+    height: 40px;
+    width: 130px;
     -webkit-appearance: none;
-    font-size: 14px;
+    font-size: 16px;
     color: #0084ff;
     border-color: #bf00ff;
     background-color:white;
+}
+
+@media only screen and (max-width: 767px){
+    .in-game-render-players-container > div > div > button {
+        margin: auto;
+        height: 35px;
+        width: 80px;
+        font-size: 14px;
+    }
 }
 
 .in-game-render-target-connection-container{
@@ -248,8 +314,14 @@
     align-items: center;
     justify-content: space-evenly;
     color: #106fc7;
-    font-weight: 100;
+    font-weight: 500;
     font-size: 16px;
+}
+
+@media only screen and (min-width: 768px){
+    .in-game-room-info-container{
+        font-size: 22px;
+    }
 }
 
 .in-game-room-history-container{
@@ -342,6 +414,10 @@
     font-size: 30px;
 }
 
+ 
+
+
+
 .in-game-cupid-layer2-container > button{
     margin: 20px auto;
     border-radius: 10px;
@@ -352,7 +428,25 @@
     color: #0084ff;
     border-color: #bf00ff;
     background-color:white;
+    font-weight: 500;
 }
+
+@media only screen and (max-width: 767px){
+    .in-game-cupid-layer2-container p {
+        font-size: 18px;
+    }
+
+    .in-game-cupid-layer2-container b {
+        font-size: 20px;
+    }
+
+    .in-game-cupid-layer2-container > button{
+        width: 120px;
+        height: 40px;
+        font-size: 17px;
+        font-weight: 550;
+    }
+}  
 
 .in-game-cupid-layer-container-visible{
     transform: all 1s ease;

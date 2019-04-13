@@ -3,9 +3,16 @@
     height: 40px;
     width: 130px;
     -webkit-appearance: none;
-    font-size: 14px;
+    font-size: 20px;
     color: #0084ff;
     border-color: #bf00ff;
     background-color:white;
     margin-left: 10px;
+}
+
+@media only screen and (max-width: 767px){
+    .end-turn-witch-button{
+        font-size: 14px;
+        width: 120px;
+    }
 }

@@ -3,11 +3,18 @@
     height: 40px;
     width: 130px;
     -webkit-appearance: none;
-    font-size: 14px;
+    font-size: 18px;
     color: #0084ff;
     border-color: #bf00ff;
     background-color:white;
     margin-left: 10px;
+}
+
+@media only screen and (max-width: 767px){
+    .vote-hanged-button{
+        font-size: 16px;
+        width: 80px;
+    }
 }
 
 .end-round-confirm-button{
@@ -15,11 +22,18 @@
     height: 40px;
     width: 130px;
     -webkit-appearance: none;
-    font-size: 14px;
+    font-size: 18px;
     color: #0084ff;
     border-color: #bf00ff;
     background-color:white;
     margin-left: 10px;
+}
+
+@media only screen and (max-width: 767px){
+    .end-round-confirm-button{
+        width: 80px;
+        font-size: 16px;
+    }
 }
 
 .grayder-background{
@@ -41,10 +55,17 @@
     height: 50px;
     width: 200px;
     -webkit-appearance: none;
-    font-size: 14px;
+    font-size: 16px !important;
     color: #0084ff;
     border-color: #bf00ff;
     background-color:white;
+}
+
+@media only screen and (max-width: 767px){
+    .in-game-render-players-container-werewolve button{
+        font-size: 14px !important;
+        height: 40px !important;
+    }
 }
 
 .in-game-render-players-container-werewolve-chosen{
@@ -59,12 +80,20 @@
 
 .agree-on-kill-button{
     border-radius: 10px;
-    height: 40px;
+    height: 50px;
     width: 130px;
     -webkit-appearance: none;
-    font-size: 14px;
+    font-size: 16px !important;
     color: #0084ff;
     border-color: #bf00ff;
     background-color:white;
     margin-left: 10px;
+}
+
+@media only screen and (max-width: 767px){
+    .agree-on-kill-button{
+        height: 40px !important;
+        font-size: 14px !important;
+        width: 120px !important;
+    }
 }

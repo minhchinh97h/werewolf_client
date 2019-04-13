@@ -63,7 +63,7 @@ class Werewolves extends Component{
             otherSocket.emit("RequestToNotifyOther", sendingData)
 
             this.setState({
-                renderOwnTarget: <span>Your choice: <strong>{targetChoice}</strong>, </span>,
+                renderOwnTarget: <p>Choice: <strong>{targetChoice}</strong></p>,
                 renderUI: <span>Waiting for other players ...</span>
             })
 
@@ -345,7 +345,7 @@ class Werewolves extends Component{
                 //Final target
                 otherSocket.on('ReceiveTheFinalTarget', data => {
                     this.setState({
-                        renderFinalTarget: <span>Final Target is: <strong>{data}</strong> - </span>
+                        renderFinalTarget: <p>Killed: <strong>{data}</strong></p>
                     })
                 })
             })
@@ -369,8 +369,10 @@ class Werewolves extends Component{
 
             <div className="in-game-cupid-layer2-container in-game-cupid-layer-container-invisible" id="cupid-layer2">
                 <div className="werewolves-announce-holder">
-                    {this.state.renderOwnTarget}
-                    {this.state.renderFinalTarget}
+                    <div className="werewolves-annouce-words">
+                        {this.state.renderOwnTarget}
+                        {this.state.renderFinalTarget}
+                    </div>
                     {this.state.endTurnConfirm}
                 </div>
                 

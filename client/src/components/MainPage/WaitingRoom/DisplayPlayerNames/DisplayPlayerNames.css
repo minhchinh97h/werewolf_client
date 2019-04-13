@@ -9,3 +9,8 @@
     color: #106fc7;
 }
 
+@media only screen and (min-width: 768px){
+    .player-name-holder{
+        width: 400px;
+    }
+}

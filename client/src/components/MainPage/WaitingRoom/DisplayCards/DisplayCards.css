@@ -4,7 +4,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-items: center;
+    justify-content: center;
     transform: translateX(0);
     transition: transform 1s ease;
 }
@@ -34,6 +34,12 @@
     color: #5825ff;
 }
 
+@media only screen and (min-width: 768px){
+    .card-item{
+        width: 300px;
+    }
+}
+
 .card-button{
     border-radius: 10px;
     height: 40px;
@@ -44,6 +50,14 @@
     border-color: #bf00ff;
     background-color:white;
     touch-action: manipulation;
+}
+
+@media only screen and (min-width: 768px){
+    .card-button{
+        height: 50px;
+        font-size: 15px;
+        width: 200px;
+    }
 }
 
 .card-button:focus{
@@ -75,6 +89,13 @@
     color: #0084ff;
     border-color: #bf00ff;
     background-color:white;
+}
+
+@media only screen and (min-width: 768px){
+    .submit-card-collection-button-holder>button{
+        width: 250px;
+        font-size: 22px;
+    }
 }
 
 .room-information-container{

@@ -3,7 +3,6 @@ import React, { Component } from 'react'
 import {DisplayPlayerNames, DisplayPlayerNamesSocket} from './DisplayPlayerNames/DisplayPlayerNames'
 import DisplayCards from './DisplayCards/DisplayCards'
 import {DisplayChosenCards, GetCurrentRolesSocket} from './DisplayChosenCards/DisplayChosenCards'
-import {UpdateRecommendedRoles, UpdateRolesLimitSocket} from './UpdateRecommendedRoles/UpdateRecommendedRoles'
 
 import Header from '../../Header/Header'
 import socketIOClient from 'socket.io-client'
@@ -105,7 +104,6 @@ class WaitingRoom extends Component{
         DisplayPlayerNamesSocket.disconnect()
         if(GetCurrentRolesSocket)
             GetCurrentRolesSocket.disconnect()
-        UpdateRolesLimitSocket.disconnect()
     }
     
     componentDidUpdate(prevProps, prevState){
@@ -125,9 +123,6 @@ class WaitingRoom extends Component{
                 <div className="waiting-room-main-data-container" >
                 
                     {this.state.renderDisplayCardTabWhetherPlayerIsAdmin}
-
-                    {/* below component will not render anything */}
-                    <UpdateRecommendedRoles numberOfPlayers = {this.state.numberOfPlayers} roomid = {this.props.match.params.roomid} />
 
                     <div className = "room-information-container" id="room-information-container">
                         <div className= "room-id-and-number-of-players-container">

@@ -26,13 +26,13 @@ import "./InGameRoom.css"
 
 import serverUrl from '../../../serverUrl'
 
-
 let votingRoundSocket,
     votedHangedPlayerSocket,
     InGameSocket,
     adminSocket,
     firstRoundSocket,
     roundEndsSocket
+
 
 class InGameRoom extends Component{
     _isMounted = false
@@ -63,7 +63,11 @@ class InGameRoom extends Component{
     }
 
     CloseTheGame = () => {
-
+        let sendingData = {
+            username: this.props.match.params.username,
+            roomid: this.props.match.params.roomid
+        }
+        InGameSocket.emit('RequestToCloseGame', sendingData)
     }
 
     componentWillMount(){
@@ -80,6 +84,12 @@ class InGameRoom extends Component{
             InGameSocket.on('connect', () => {
                 InGameSocket.emit('GetGameInfo', this.props.match.params.roomid)
                 InGameSocket.emit('JoinRoom', this.props.match.params.roomid)
+            })
+
+            InGameSocket.on('PlayerCloseGame', data => {
+                if(data === 'ok'){
+                    window.location = '/'
+                }
             })
 
             //Get admin to broadcast the request to join the game when start button is pressed and to retrieve the game info
@@ -100,7 +110,7 @@ class InGameRoom extends Component{
                 this.setState({admin: data.admin})
                 if(this.props.match.params.username === data.admin){
                     this.setState({
-                        renderStartBttn: <button type="button" onClick={this.startBttn}>Start the rounds</button>,
+                        renderStartBttn: <button type="button" onClick={this.startBttn}>Start the game</button>,
                         isAdmin: true
                     })
                 }
@@ -575,9 +585,7 @@ class InGameRoom extends Component{
                         </>
                     }
                     
-                    <div className="in-game-role-tab-start-end-button-container">
-                        {this.state.renderStartBttn}
-                    </div>
+                    
                 </div>
 
                 {/* User tab / left tab*/}
@@ -591,6 +599,10 @@ class InGameRoom extends Component{
                     {/* History log container */}
                     <div className= "in-game-room-history-container">
                         
+                    </div>
+
+                    <div className="in-game-role-tab-start-end-button-container">
+                        {this.state.renderStartBttn}
                     </div>
                 </div>
 

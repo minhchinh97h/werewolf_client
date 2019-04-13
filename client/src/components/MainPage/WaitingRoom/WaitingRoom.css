@@ -3,6 +3,10 @@
     height: 100%;
     width: 100%;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .waiting-room-title{
@@ -17,18 +21,26 @@
     text-shadow: 1px 0px #b6a0ff;
 }
 
+@media only screen and (max-width: 767px){
+    .waiting-room-title{
+        height: 15%;
+        font-size: 23px;
+    }
+}
+
 .waiting-room-title > h2 {
     margin-top: 50px;
 }
 
 .waiting-room-main-data-container{
     position: relative;
-    height: 80%;
+    height: 85%;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin-top: 20px;
 }
 
 .current-chosen-cards-title{
@@ -88,8 +100,15 @@
 
 .room-id-and-number-of-players-container > p{
     color: #106fc7;
-    font-weight: 100;
+    font-weight: 500;
     font-size: 16px;
+}
+
+@media only screen and (min-width: 768px){
+    .room-id-and-number-of-players-container > p{
+        font-weight: 350;
+        font-size: 22px;
+    }
 }
 
 .display-player-names-container{
@@ -120,4 +139,11 @@
     color: #0084ff;
     border-color: #bf00ff;
     background-color:white;
+}
+
+@media only screen and (min-width: 768px){
+    .start-button-container>button{
+        width: 250px;
+        font-size: 22px;
+    }
 }
