@@ -362,8 +362,8 @@ class Werewolves extends Component{
             otherSocket.on('GetOtherChoices', data => {
                 for(var key in data){
                     if(data.hasOwnProperty(key)){
-                        if(document.getElementById("werewolves_icon_" + key)){
-                            document.getElementById("werewolves_icon_"+ choice.wolfName).innerText = choice.choseTarget
+                        if(document.getElementById("werewolves_icon_" + key) && data[key].length > 0){
+                            document.getElementById("werewolves_icon_"+ key).innerText = data[key]
                         }
                     }
                 }
@@ -375,7 +375,7 @@ class Werewolves extends Component{
             otherSocket.on('OtherKillDecisions', data => {
                 for(var key in data){
                     if(data.hasOwnProperty(key)){
-                        if(document.getElementById("player_holder_" + key)){
+                        if(document.getElementById("player_holder_" + key) && data[key].length > 0){
                             document.getElementById("player_holder_" + key).classList.remove("player-holder-grayer-background")
                             document.getElementById("player_holder_" + key).classList.add("player-holder-grayer-background")
                         }

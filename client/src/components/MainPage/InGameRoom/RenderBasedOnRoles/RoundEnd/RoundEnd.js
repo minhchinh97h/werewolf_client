@@ -101,6 +101,8 @@ export default class RoundEnd extends Component{
                 })
             })
             
+            
+
             let passedTime = new Date().getTime() - this.props.startTime
             let actualTime = setUpTime - passedTime
 
@@ -124,6 +126,19 @@ export default class RoundEnd extends Component{
                     })
                 }
             }, 1000)
+
+            //For players who arrive later, they will catch up with current voting
+            roundEndSocket.emit('RequestToGetOtherChoices', this.props.roomid)
+
+            roundEndSocket.on('OtherKillDecisions', data => {
+                for(var key in data){
+                    if(data.hasOwnProperty(key)){
+                        if(document.getElementById("round_end_"+ key)){
+                            document.getElementById("round_end_"+ key).innerText = data[key]
+                        }
+                    }
+                }
+            })
 
             roundEndSocket.on('GetOtherChoices', data => {
                 if(document.getElementById("round_end_"+ data.player))
