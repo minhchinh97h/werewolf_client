@@ -71,7 +71,14 @@ class Witch extends Component{
     } 
 
     UIEndTurnBttn = (e) => {
-        this.setState({renderWitchAction: <p>You choose to end turn.</p>})
+        let sendingData = {
+            roomid: this.props.roomid,
+            role: 'Witch'
+        }
+        
+        getNextTurnSocket.emit('RequestToGetNextTurn', sendingData)
+
+        this.setState({renderWitchAction: <p>You chose to end turn.</p>})
         document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-invisible")
         document.getElementById("cupid-layer2").classList.remove("in-game-cupid-layer-container-invisible")
         document.getElementById("cupid-layer1").classList.remove("in-game-cupid-layer-container-visible")
@@ -127,7 +134,7 @@ class Witch extends Component{
                     this.setState({
                         renderUI: <>
                             <p>Choose your target to kill and to protect?</p>
-                            <button className="end-turn-witch-button" onClick={this.endTurnBttn}>End turn</button>
+                            <button className="end-turn-witch-button" onClick={this.UIEndTurnBttn}>End turn</button>
                         </>,
                         receiveTurn: true
                     })
