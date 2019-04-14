@@ -50,7 +50,13 @@ class InGameRoom extends Component{
         isDead: false,
         roundEnds: false,
         gameEnds: false,
-        sideWon: null
+        sideWon: null,
+        startNewRound: false,
+        finishedRenderUI: false
+    }
+
+    UpdateFinishedRenderUI = (finishedRenderUI) => {
+        this.setState({finishedRenderUI : finishedRenderUI})
     }
 
     startBttn = () => {
@@ -131,129 +137,52 @@ class InGameRoom extends Component{
 
                                 if(row.name === "Werewolves"){
                                     this.setState({
-                                        renderRoleUI: <Werewolves roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                                        renderRoleUI: <Werewolves roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
                                     })
                                 }
 
                                 else if(row.name === "Seer/ Fortune Teller"){
                                     this.setState({
-                                        renderRoleUI: <Seer roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                                    })
-                                }
-
-                                else if(row.name === "Hunter"){
-                                    this.setState({
-                                        renderRoleUI: <Hunter roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                                        renderRoleUI: <Seer roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
                                     })
                                 }
 
                                 else if(row.name === "Cupid"){
                                     this.setState({
-                                        renderRoleUI: <Cupid roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                                        renderRoleUI: <Cupid roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
                                     })
                                 }
 
                                 else if(row.name === "Witch"){
                                     this.setState({
-                                        renderRoleUI: <Witch roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
-                                    })
-                                }
-
-                                else if(row.name === "Little Girl"){
-                                    this.setState({
-                                        renderRoleUI: <LittleGirl roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
-                                    })
-                                }
-
-                                else if(row.name === "Thief"){
-                                    this.setState({
-                                        renderRoleUI: <Thief roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
-                                    })
-                                }
-
-                                else if(row.name === "The village Idiot"){
-                                    this.setState({
-                                        renderRoleUI: <NoAbilityFolk roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
-                                    })
-                                }
-
-                                else if(row.name === "The ancient"){
-                                    this.setState({
-                                        renderRoleUI: <NoAbilityFolk roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
-                                    })
-                                }
-
-                                else if(row.name === "The scapegoat"){
-                                    this.setState({
-                                        renderRoleUI: <TheScapegoat roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                                        renderRoleUI: <Witch roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
                                     })
                                 }
 
                                 else if(row.name === "The savior"){
                                     this.setState({
-                                        renderRoleUI: <TheSavior roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                                        renderRoleUI: <TheSavior roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
                                     })
                                 }
 
                                 else if(row.name === "The pied piper"){
                                     this.setState({
-                                        renderRoleUI: <ThePiedPiper roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                                    })
-                                }
-
-                                else if(row.name === "The villager villager"){
-                                    this.setState({
-                                        renderRoleUI: <NoAbilityFolk roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                                    })
-                                }
-
-                                else if(row.name === "The two sisters"){
-                                    this.setState({
-                                        renderRoleUI: <TheSibblings roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                                    })
-                                }
-
-                                else if(row.name === "The three brothers"){
-                                    this.setState({
-                                        renderRoleUI: <TheSibblings roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                                    })
-                                }
-
-                                else if(row.name === "The knight with the rusty sword"){
-                                    this.setState({
-                                        renderRoleUI: <TheKnight roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                                        renderRoleUI: <ThePiedPiper roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
                                     })
                                 }
 
                                 else if(row.name === "The fox"){
                                     this.setState({
-                                        renderRoleUI: <TheFox roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                                        renderRoleUI: <TheFox roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
                                     })
                                 }
 
                                 else if(row.name === "The bear leader"){
                                     this.setState({
-                                        renderRoleUI: <BearLeader roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
+                                        renderRoleUI: <BearLeader roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
                                     })
                                 }
 
-                                else if(row.name === "The devoted servant"){
-                                    this.setState({
-                                        renderRoleUI: <DevotedServant roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                                    })
-                                }
-
-                                else if(row.name === "The wild child"){
-                                    this.setState({
-                                        renderRoleUI: <WildChild roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                                    })
-                                }
-
-                                else if(row.name === "The dog wolf"){
-                                    this.setState({
-                                        renderRoleUI: <DogWolf roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
-                                    })
-                                }
 
                                 found = true
 
@@ -376,15 +305,6 @@ class InGameRoom extends Component{
                 this.setState({
                     roundEnds: true,
                 })
-                // if(data.silence === this.props.username)
-                //     this.setState((prevState) => ({
-                //         isSilence: !prevState.isSilence
-                //     }))
-                
-                //To do when the player is alive, use conditional statement in render method with this.state.isDead to update the UI if player is alive
-                //1st: create a timer 
-                //2nd: Use the similar UI layout for implementing the voting stage
-                //3rd: after player confirms another player to execute, add a cancel button to re-choose (or not, just one confirmation button and an alert as Cupid's)
             })
 
             /* <-----------------------------------------------> */
@@ -399,11 +319,13 @@ class InGameRoom extends Component{
             votingRoundSocket.on('StartNewRound', data => {
                 if(data === "Start new round"){
                     this.setState({
-                        roundEnds: false
+                        roundEnds: false,
+                        startNewRound: true
                     })
 
-                    if(this.state.isAdmin)
+                    if(this.state.isAdmin){
                         InGameSocket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
+                    }
                 }
             })
 
@@ -458,10 +380,8 @@ class InGameRoom extends Component{
     }
 
     componentDidUpdate(prevProps, prevState){
-        if(this.state.roundEnds !== prevState.roundEnds){
-        }
-
-        if(this.state.isDead !== prevState.isDead){
+        if(this.state.startNewRound && this.state.startNewRound !== prevState.startNewRound && this.state.finishedRenderUI && this.state.finishedRenderUI !== prevState.finishedRenderUI){
+            
         }
     }
 
@@ -577,7 +497,7 @@ class InGameRoom extends Component{
                                 :
     
                                 <div className="in-game-role-tab-main">
-                                    <RoundEnd roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} startTime = {new Date().getTime()}/>
+                                    <RoundEnd roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} startTime = {new Date().getTime()} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
                                 </div>
                             }
                             </>

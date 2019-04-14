@@ -55,6 +55,8 @@ class TheSavior extends Component{
         this._isMounted = true
 
         if(this._isMounted){
+            this.props.UpdateFinishedRenderUI(true)
+
             saviorSocket = socketIOClient(serverUrl + 'savior')
             getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 

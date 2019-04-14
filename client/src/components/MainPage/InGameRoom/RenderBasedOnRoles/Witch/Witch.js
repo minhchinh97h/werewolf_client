@@ -92,6 +92,8 @@ class Witch extends Component{
         this._isMounted = true
         
         if(this._isMounted){
+            this.props.UpdateFinishedRenderUI(true)
+
             protectId_buttons.length = 0
             killId_buttons.length = 0
             

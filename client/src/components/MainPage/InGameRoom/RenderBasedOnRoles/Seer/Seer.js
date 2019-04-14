@@ -56,6 +56,8 @@ class Seer extends Component{
         
 
         if(this._isMounted){
+            this.props.UpdateFinishedRenderUI(true)
+            
             seer_target_bttn_ids.length = 0
 
             getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
