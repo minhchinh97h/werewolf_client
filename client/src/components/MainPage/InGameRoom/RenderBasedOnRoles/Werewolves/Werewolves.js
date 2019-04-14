@@ -314,11 +314,14 @@ class Werewolves extends Component{
                     })
                 })
 
+                
+
                 //others choices
                 otherSocket.on('OtherChoices', (data) => {
                     //to advoid duplication
                     let isContainWolfName = false
-
+                    otherWolves.length = 0
+                    
                     otherWolves.forEach((wolf, index) => {
                         if(wolf.wolfName === data.wolfName){
                             wolf.choseTarget = data.choseTarget
@@ -348,6 +351,36 @@ class Werewolves extends Component{
                         renderFinalTarget: <p>Killed: <strong>{data}</strong></p>
                     })
                 })
+            })
+        }
+
+
+        if(this.state.renderPlayers !== null && this.state.renderPlayers !== prevState.renderPlayers){
+            //Request to get other werewolves choices when the player arrives later
+            otherSocket.emit('RequestToGetOtherChoices', this.props.roomid)
+
+            otherSocket.on('GetOtherChoices', data => {
+                for(var key in data){
+                    if(data.hasOwnProperty(key)){
+                        if(document.getElementById("werewolves_icon_" + key)){
+                            document.getElementById("werewolves_icon_"+ choice.wolfName).innerText = choice.choseTarget
+                        }
+                    }
+                }
+            })
+
+            //Request to get other werewolves kill decisions when the player arrives later
+            otherSocket.emit('RequestToGetOtherKillDecisions', this.props.roomid)
+
+            otherSocket.on('OtherKillDecisions', data => {
+                for(var key in data){
+                    if(data.hasOwnProperty(key)){
+                        if(document.getElementById("player_holder_" + key)){
+                            document.getElementById("player_holder_" + key).classList.remove("player-holder-grayer-background")
+                            document.getElementById("player_holder_" + key).classList.add("player-holder-grayer-background")
+                        }
+                    }
+                }
             })
         }
     }
