@@ -56,7 +56,6 @@ class Seer extends Component{
         
 
         if(this._isMounted){
-            this.props.UpdateFinishedRenderUI(true)
             
             seer_target_bttn_ids.length = 0
 
@@ -73,6 +72,7 @@ class Seer extends Component{
 
             //Retrieve the 1st turn, if the player is the first to be called, then render its ui 
             firstRoundSocket.on('Retrieve1stTurn', data => {
+                console.log(data)
                 if(data === this.props.username){
                     //render UI
                     this.setState({

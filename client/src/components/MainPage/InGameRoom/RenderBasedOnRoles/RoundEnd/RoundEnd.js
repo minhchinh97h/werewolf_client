@@ -68,7 +68,6 @@ export default class RoundEnd extends Component{
         this._isMounted = true
 
         if(this._isMounted){
-            this.props.UpdateFinishedRenderUI(false)
 
             // to display all the players that are from the room (every character must have)
             // ownChoiceHangedPlayer = socketIOClient(serverUrl + 'round-end')

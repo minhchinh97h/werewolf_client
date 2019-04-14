@@ -91,7 +91,6 @@ class ThePiedPiper extends Component{
         this._isMounted = true
 
         if(this._isMounted){
-            this.props.UpdateFinishedRenderUI(true)
 
             playersToCharm.length = 0
             piper_target_bttn_ids.length = 0

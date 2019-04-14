@@ -66,7 +66,6 @@ class TheFox extends Component{
         this._isMounted = true
 
         if(this._isMounted){
-            this.props.UpdateFinishedRenderUI(true)
 
             the_fox_target_bttn_ids.length = 0
             playersToReveal_arr.length = 0

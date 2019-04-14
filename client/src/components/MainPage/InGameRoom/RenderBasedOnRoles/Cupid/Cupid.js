@@ -62,7 +62,6 @@ class Cupid extends Component{
         this._isMounted = true
 
         if(this._isMounted) {
-            this.props.UpdateFinishedRenderUI(true)
             
             //need to set up the socket first, because the when making direct socket to server, server will only response to the received socket
             //meaning socket in an onclick function will get response it that scope, the response will not be received in the socket in componentDidMount

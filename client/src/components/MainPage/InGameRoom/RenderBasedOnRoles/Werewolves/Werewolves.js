@@ -110,7 +110,6 @@ class Werewolves extends Component{
         this._isMounted = true
 
         if(this._isMounted){
-            this.props.UpdateFinishedRenderUI(true)
 
             getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
 

@@ -67,7 +67,6 @@ class BearLeader extends Component{
         this._isMounted = true
 
         if(this._isMounted){
-            this.props.UpdateFinishedRenderUI(true)
             
             bear_target_bttn_ids.length = 0
 

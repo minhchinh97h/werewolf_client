@@ -41,13 +41,8 @@ class InGameRoom extends Component{
         roundEnds: false,
         gameEnds: false,
         sideWon: null,
-        startNewRound: false,
-        finishedRenderUI: false
     }
 
-    UpdateFinishedRenderUI = (finishedRenderUI) => {
-        this.setState({finishedRenderUI : finishedRenderUI})
-    }
 
     startBttn = () => {
 
@@ -127,49 +122,49 @@ class InGameRoom extends Component{
 
                                 if(row.name === "Werewolves"){
                                     this.setState({
-                                        renderRoleUI: <Werewolves roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
+                                        renderRoleUI: <Werewolves roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
                                     })
                                 }
 
                                 else if(row.name === "Seer/ Fortune Teller"){
                                     this.setState({
-                                        renderRoleUI: <Seer roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
+                                        renderRoleUI: <Seer roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
                                     })
                                 }
 
                                 else if(row.name === "Cupid"){
                                     this.setState({
-                                        renderRoleUI: <Cupid roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
+                                        renderRoleUI: <Cupid roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
                                     })
                                 }
 
                                 else if(row.name === "Witch"){
                                     this.setState({
-                                        renderRoleUI: <Witch roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
+                                        renderRoleUI: <Witch roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
                                     })
                                 }
 
                                 else if(row.name === "The savior"){
                                     this.setState({
-                                        renderRoleUI: <TheSavior roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
+                                        renderRoleUI: <TheSavior roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
                                     })
                                 }
 
                                 else if(row.name === "The pied piper"){
                                     this.setState({
-                                        renderRoleUI: <ThePiedPiper roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
+                                        renderRoleUI: <ThePiedPiper roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
                                     })
                                 }
 
                                 else if(row.name === "The fox"){
                                     this.setState({
-                                        renderRoleUI: <TheFox roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
+                                        renderRoleUI: <TheFox roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
                                     })
                                 }
 
                                 else if(row.name === "The bear leader"){
                                     this.setState({
-                                        renderRoleUI: <BearLeader roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
+                                        renderRoleUI: <BearLeader roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
                                     })
                                 }
 
@@ -303,7 +298,6 @@ class InGameRoom extends Component{
                 if(data === "Start new round"){
                     this.setState({
                         roundEnds: false,
-                        startNewRound: true
                     })
 
                     if(this.state.isAdmin){
@@ -363,9 +357,6 @@ class InGameRoom extends Component{
     }
 
     componentDidUpdate(prevProps, prevState){
-        if(this.state.startNewRound && this.state.startNewRound !== prevState.startNewRound && this.state.finishedRenderUI && this.state.finishedRenderUI !== prevState.finishedRenderUI){
-            
-        }
     }
 
     ChooseLeftTab = (e) => {
