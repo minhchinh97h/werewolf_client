@@ -4,21 +4,11 @@ import socketIOClient from 'socket.io-client'
 
 import BearLeader from './RenderBasedOnRoles/BearLeader/BearLeader'
 import Cupid from './RenderBasedOnRoles/Cupid/Cupid'
-import DevotedServant from './RenderBasedOnRoles/DevotedServant/DevotedServant'
-import DogWolf from './RenderBasedOnRoles/DogWolf/DogWolf'
-import Hunter from './RenderBasedOnRoles/Hunter/Hunter'
-import LittleGirl from './RenderBasedOnRoles/LittleGirl/LittleGirl'
-import NoAbilityFolk from './RenderBasedOnRoles/NoAbilityFolk/NoAbilityFolk'
 import Seer from './RenderBasedOnRoles/Seer/Seer'
 import TheFox from './RenderBasedOnRoles/TheFox/TheFox'
-import TheKnight from './RenderBasedOnRoles/TheKnight/TheKnight'
 import ThePiedPiper from './RenderBasedOnRoles/ThePiedPiper/ThePiedPiper'
 import TheSavior from './RenderBasedOnRoles/TheSavior/TheSavior'
-import TheScapegoat from './RenderBasedOnRoles/TheScapegoat/TheScapegoat'
-import TheSibblings from './RenderBasedOnRoles/TheSibblings/TheSibblings'
-import Thief from './RenderBasedOnRoles/Thief/Thief'
 import Werewolves from './RenderBasedOnRoles/Werewolves/Werewolves'
-import WildChild from './RenderBasedOnRoles/WildChild/WildChild'
 import Witch from './RenderBasedOnRoles/Witch/Witch'
 import RoundEnd from './RenderBasedOnRoles/RoundEnd/RoundEnd'
 
@@ -212,26 +202,19 @@ class InGameRoom extends Component{
             //Handle the first round
             firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
-            firstRoundSocket.on('connect', () => {
-                firstRoundSocket.emit('JoinRoom', this.props.match.params.roomid)
-            })
+            // firstRoundSocket.on('connect', () => {
+            //     firstRoundSocket.emit('JoinRoom', this.props.match.params.roomid)
+            // })
 
             //after the timer counts to 0, have to inform players that Round 1 will start soon
 
             // let currentSecond = 10
 
-            firstRoundSocket.on('RetrieveGameStart1stRound', data => {
-                if(data === 'ok'){
-                //     let timer = setInterval(() => {
-                //         currentSecond--
-
-                //         if(currentSecond < 0){
-                firstRoundSocket.emit('RequestToGet1stTurn', this.props.match.params.roomid)
-                //             clearInterval(timer)
-                //         }
-                //     }, 1000)
-                }
-            })
+            // firstRoundSocket.on('RetrieveGameStart1stRound', data => {
+            //     if(data === 'ok'){
+            //     firstRoundSocket.emit('RequestToGet1stTurn', this.props.match.params.roomid)
+            //     }
+            // })
 
             /* <-----------------------------------------------> */
 
