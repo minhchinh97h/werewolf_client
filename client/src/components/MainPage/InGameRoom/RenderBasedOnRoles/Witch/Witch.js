@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import socketIOClient from 'socket.io-client'
 
 import "./Witch.css"
-const serverUrl = 'http://localhost:3001/'
+import serverUrl from '../../../../../serverUrl'
 
 let target = '',
     protectId_buttons = [],
@@ -75,7 +75,7 @@ class Witch extends Component{
             roomid: this.props.roomid,
             role: 'Witch'
         }
-        
+
         getNextTurnSocket.emit('RequestToGetNextTurn', sendingData)
 
         this.setState({renderWitchAction: <p>You chose to end turn.</p>})
