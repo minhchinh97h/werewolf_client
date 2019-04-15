@@ -197,20 +197,6 @@ class InGameRoom extends Component{
             //Handle the first round
             firstRoundSocket = socketIOClient(serverUrl + 'in-game')
 
-            // firstRoundSocket.on('connect', () => {
-            //     firstRoundSocket.emit('JoinRoom', this.props.match.params.roomid)
-            // })
-
-            //after the timer counts to 0, have to inform players that Round 1 will start soon
-
-            // let currentSecond = 10
-
-            // firstRoundSocket.on('RetrieveGameStart1stRound', data => {
-            //     if(data === 'ok'){
-            //     firstRoundSocket.emit('RequestToGet1stTurn', this.props.match.params.roomid)
-            //     }
-            // })
-
             /* <-----------------------------------------------> */
 
             //Handle lover (every character must have)

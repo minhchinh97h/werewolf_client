@@ -128,7 +128,7 @@ export default class RoundEnd extends Component{
                 }
             }, 1000)
 
-            //For players who arrive later, they will catch up with current voting
+            // For players who arrive later, they will catch up with current voting
             roundEndSocket.emit('RequestToGetOtherChoices', this.props.roomid)
 
             roundEndSocket.on('OtherKillDecisions', data => {
