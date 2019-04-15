@@ -122,49 +122,49 @@ class InGameRoom extends Component{
 
                                 if(row.name === "Werewolves"){
                                     this.setState({
-                                        renderRoleUI: <Werewolves roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                                        renderRoleUI: <Werewolves roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                                     })
                                 }
 
                                 else if(row.name === "Seer/ Fortune Teller"){
                                     this.setState({
-                                        renderRoleUI: <Seer roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                                        renderRoleUI: <Seer roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                                     })
                                 }
 
                                 else if(row.name === "Cupid"){
                                     this.setState({
-                                        renderRoleUI: <Cupid roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                                        renderRoleUI: <Cupid roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                                     })
                                 }
 
                                 else if(row.name === "Witch"){
                                     this.setState({
-                                        renderRoleUI: <Witch roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                                        renderRoleUI: <Witch roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                                     })
                                 }
 
                                 else if(row.name === "The savior"){
                                     this.setState({
-                                        renderRoleUI: <TheSavior roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                                        renderRoleUI: <TheSavior roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                                     })
                                 }
 
                                 else if(row.name === "The pied piper"){
                                     this.setState({
-                                        renderRoleUI: <ThePiedPiper roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                                        renderRoleUI: <ThePiedPiper roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                                     })
                                 }
 
                                 else if(row.name === "The fox"){
                                     this.setState({
-                                        renderRoleUI: <TheFox roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                                        renderRoleUI: <TheFox roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                                     })
                                 }
 
                                 else if(row.name === "The bear leader"){
                                     this.setState({
-                                        renderRoleUI: <BearLeader roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} />
+                                        renderRoleUI: <BearLeader roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                                     })
                                 }
 
@@ -267,7 +267,7 @@ class InGameRoom extends Component{
                     })
                 
                 this.setState({
-                    roundEnds: true,
+                    roundEnds: true
                 })
             })
 
@@ -283,11 +283,13 @@ class InGameRoom extends Component{
             votingRoundSocket.on('StartNewRound', data => {
                 if(data === "Start new round"){
                     this.setState({
-                        roundEnds: false,
+                        roundEnds: false
                     })
 
                     if(this.state.isAdmin){
-                        InGameSocket.emit('RequestToStartTheGame1stRound', this.props.match.params.roomid)
+                        this.setState({
+                            renderStartBttn: <button type="button" onClick={this.startBttn}>Start the game</button>
+                        })
                     }
                 }
             })
@@ -465,6 +467,7 @@ class InGameRoom extends Component{
                         </>
                     }
                     
+                    {this.state.renderStartBttn}
                     
                 </div>
 
@@ -482,7 +485,6 @@ class InGameRoom extends Component{
                     </div>
 
                     <div className="in-game-role-tab-start-end-button-container">
-                        {this.state.renderStartBttn}
                     </div>
                 </div>
 

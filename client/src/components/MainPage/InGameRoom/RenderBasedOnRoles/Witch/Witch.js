@@ -218,13 +218,10 @@ class Witch extends Component{
             })
 
             getPlayerSocket.on('GetPlayers', data => {
-                const retrieveLeftAbilitiesSocket = socketIOClient(serverUrl + 'witch')
 
-                retrieveLeftAbilitiesSocket.on('connect', () => {
-                    retrieveLeftAbilitiesSocket.emit('RequestToRetrieveLeftAbilities', this.props.roomid)
-                })
+                witchSocket.emit('RequestToRetrieveLeftAbilities', this.props.roomid)
 
-                retrieveLeftAbilitiesSocket.on('LeftAbilities', leftAbilities => {
+                witchSocket.on('LeftAbilities', leftAbilities => {
                     this.setState({
                         renderPlayers: data.map((player, index) => {
                             let id = "witch_target_bttn_" + index,

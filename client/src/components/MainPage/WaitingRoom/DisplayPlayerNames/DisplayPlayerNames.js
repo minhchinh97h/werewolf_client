@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import socketIOClient from 'socket.io-client'
-import serverUrl from '../../../../serverUrl'
 
 import "./DisplayPlayerNames.css"
+
+import serverUrl from '../../../../serverUrl'
 
 let DisplayPlayerNamesSocket
 

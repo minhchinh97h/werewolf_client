@@ -19,7 +19,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "proxy": "https://werewolves-of-millers-hollow.herokuapp.com/",
+  "proxy": "http://10.0.0.6:3001/",
   "eslintConfig": {
     "extends": "react-app"
   },

@@ -70,8 +70,6 @@ export default class RoundEnd extends Component{
         if(this._isMounted){
 
             // to display all the players that are from the room (every character must have)
-            // ownChoiceHangedPlayer = socketIOClient(serverUrl + 'round-end')
-            // endRoundSocket = socketIOClient(serverUrl + 'round-end')
             roundEndSocket = socketIOClient(serverUrl + 'round-end')
 
             getPlayerSocket = socketIOClient(serverUrl + 'main-page')
@@ -192,9 +190,7 @@ export default class RoundEnd extends Component{
     componentWillUnmount(){
         this._isMounted = false
         
-        // ownChoiceHangedPlayer.disconnect()
         roundEndSocket.disconnect()
-        // endRoundSocket.disconnect()
         getPlayerSocket.disconnect()
 
         clearInterval(timer)

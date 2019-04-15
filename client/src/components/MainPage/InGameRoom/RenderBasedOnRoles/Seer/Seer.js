@@ -56,7 +56,7 @@ class Seer extends Component{
         
 
         if(this._isMounted){
-
+            
             seer_target_bttn_ids.length = 0
 
             getNextTurnSocket = socketIOClient(serverUrl + 'retrieve-next-turn')
@@ -82,7 +82,7 @@ class Seer extends Component{
                     })
                 }
             })
-
+            
 
             /* <-----------------------------------------------> */
 

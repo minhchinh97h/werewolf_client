@@ -10,7 +10,6 @@ import serverUrl from '../../../serverUrl'
 import "./WaitingRoom.css"
 
 
-
 let GetAdminSocket,
     StartGameSocket
 
@@ -42,7 +41,7 @@ class WaitingRoom extends Component{
             document.getElementById("header").classList.remove("hide-header")
 
             //Socket to get admin of the room
-            GetAdminSocket = socketIOClient(serverUrl + 'get-admin', {
+            GetAdminSocket = socketIOClient(serverUrl +'get-admin', {
                 query: {
                     roomid: this.props.match.params.roomid
                 }
