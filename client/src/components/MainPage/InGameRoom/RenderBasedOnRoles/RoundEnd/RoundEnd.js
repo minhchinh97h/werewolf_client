@@ -7,7 +7,8 @@ import "./RoundEnd.css"
 let setUpTime = 600, //10mins,
     chosenPlayer = "",
     timer,
-    round_end_target_bttn_id_arr = []
+    round_end_target_bttn_id_arr = [],
+    minute, second
 
 let roundEndSocket, //round-end namespace
     getPlayerSocket 
@@ -122,6 +123,7 @@ export default class RoundEnd extends Component{
                 roundEndSocket.emit('JoinRoom', this.props.roomid)
             })
 
+            
             timer = setInterval(() => {
                 if(setUpTime < 1){
                     this.setState({timerEnds: true})
@@ -129,9 +131,17 @@ export default class RoundEnd extends Component{
                 }
                 else{
                     setUpTime -= 1
+                    minute = Math.floor(setUpTime/60)
+                    second = Math.floor(setUpTime % 60)
+
+                    if(second < 10)
+                        second = "0" + second
+                    else
+                        second = second
+
                     this.setState({renderUI: 
                         <>
-                        <h3>Morning: {Math.floor(setUpTime/60) +  ":" + Math.floor(setUpTime % 60) }</h3>
+                        <h3>Morning: {minute +  ":" + second}</h3>
                         {this.state.renderVotePlayerButton}
                         </>
                     })
