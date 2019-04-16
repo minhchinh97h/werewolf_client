@@ -20,7 +20,8 @@ class Welcome extends Component{
             <div className="Welcome-page-cover">
                 <div className="Welcome-page-title">
                     <h2>The Werewolves of Millers Hollow</h2>
-                    <p className="small-title-description">ver. 1.0.0</p>
+                    <p className="small-title-description">DMC's ver. 1.0.0</p>
+                    <b className="small-title-description">Source Code: </b>  <a target="_blank" className="small-title-description" href="https://github.com/minhchinh97h/werewolf_client">Client</a>  <a target="_blank" className="small-title-description" href="https://github.com/minhchinh97h/werewolf_server">Server</a>
                 </div>
 
                 <div className="Welcome-page-button">
