@@ -131,7 +131,7 @@ export default class RoundEnd extends Component{
                     setUpTime -= 1
                     this.setState({renderUI: 
                         <>
-                        <h3>{Math.floor(setUpTime/60) +  ":" + Math.floor(setUpTime % 60) }</h3>
+                        <h3>Morning: {Math.floor(setUpTime/60) +  ":" + Math.floor(setUpTime % 60) }</h3>
                         {this.state.renderVotePlayerButton}
                         </>
                     })
