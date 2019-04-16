@@ -184,7 +184,7 @@ export default class RoundEnd extends Component{
 
                     this.setState({
                         renderFinalExecutedPlayer: <div><p>Final Executed: <strong>{playersGetHang}</strong></p></div>,
-                        endRoundConfirm: <button className="end-round-confirm-button" onClick={this.EndRound}>End Round</button>
+                        endRoundConfirm: <button className="end-round-confirm-button" onClick={this.EndRound}>End Morning</button>
                     })
                 }
             })
