@@ -126,7 +126,7 @@ class WaitingRoom extends Component{
                     <div className = "room-information-container" id="room-information-container">
                         <div className= "room-id-and-number-of-players-container">
                             <p>Room ID: {this.props.match.params.roomid} </p>
-                            <p>No. of Players: {this.state.numberOfPlayers} </p>
+                            {/* <p>No. of Players: {this.state.numberOfPlayers} </p> */}
                             <p>Admin: {this.state.admin}</p>
                             <p>Name: {this.props.match.params.username}</p>
                         </div>
