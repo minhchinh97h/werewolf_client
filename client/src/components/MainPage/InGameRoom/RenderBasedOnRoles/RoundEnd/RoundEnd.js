@@ -126,7 +126,7 @@ export default class RoundEnd extends Component{
                     setUpTime -= 1
                     this.setState({renderUI: 
                         <>
-                        <p>Timer: {Math.floor(setUpTime/1000)}</p>
+                        <p>Timer: {Math.floor(setUpTime/60) +  ":" + Math.floor(setUpTime % 60) }</p>
                         <button id="vote-hanged-button" className="vote-hanged-button" onClick={this.VotePlayer}>Vote</button>
                         </>
                     })
