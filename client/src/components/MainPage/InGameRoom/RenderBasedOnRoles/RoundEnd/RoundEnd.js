@@ -21,7 +21,8 @@ export default class RoundEnd extends Component{
         renderChosenExecutedPlayer: null,
         renderFinalExecutedPlayer: null,
         endRoundConfirm: null,
-        timerEnds: false
+        timerEnds: false,
+        renderVotePlayerButton: null
     }
 
     VotePlayer = () => {
@@ -56,6 +57,10 @@ export default class RoundEnd extends Component{
         }
 
         roundEndSocket.emit("BroadCastMyChoice", sendingData)
+
+        this.setState({
+            renderVotePlayerButton: <button id="vote-hanged-button" className="vote-hanged-button" onClick={this.VotePlayer}>Vote</button>
+        })
     }
 
     EndRound = () => {
@@ -126,8 +131,8 @@ export default class RoundEnd extends Component{
                     setUpTime -= 1
                     this.setState({renderUI: 
                         <>
-                        <p>Timer: {Math.floor(setUpTime/60) +  ":" + Math.floor(setUpTime % 60) }</p>
-                        <button id="vote-hanged-button" className="vote-hanged-button" onClick={this.VotePlayer}>Vote</button>
+                        <h3>{Math.floor(setUpTime/60) +  ":" + Math.floor(setUpTime % 60) }</h3>
+                        {this.state.renderVotePlayerButton}
                         </>
                     })
                 }
