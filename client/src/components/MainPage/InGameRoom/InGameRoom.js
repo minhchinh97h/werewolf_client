@@ -101,7 +101,7 @@ class InGameRoom extends Component{
                 this.setState({admin: data.admin})
                 if(this.props.match.params.username === data.admin){
                     this.setState({
-                        renderStartBttn: <button type="button" onClick={this.startBttn}>Start the game</button>,
+                        renderStartBttn: <button className= "in-game-start-night-button" type="button" onClick={this.startBttn}>Start the night</button>,
                         isAdmin: true
                     })
                 }
@@ -288,7 +288,7 @@ class InGameRoom extends Component{
 
                     if(this.state.isAdmin){
                         this.setState({
-                            renderStartBttn: <button type="button" onClick={this.startBttn}>Start the game</button>
+                            renderStartBttn: <button className= "in-game-start-night-button" type="button" onClick={this.startBttn}>Start the night</button>
                         })
                     }
                 }
@@ -459,7 +459,7 @@ class InGameRoom extends Component{
                                 :
     
                                 <div className="in-game-role-tab-main">
-                                    <RoundEnd roomid = {this.props.match.params.roomid} username = {this.props.match.params.username} startTime = {new Date().getTime()} UpdateFinishedRenderUI = {this.UpdateFinishedRenderUI}/>
+                                    <RoundEnd roomid = {this.props.match.params.roomid} username = {this.props.match.params.username}/>
                                 </div>
                             }
                             </>

@@ -459,3 +459,20 @@
     opacity: 0;
     transform: all 1s ease
 }
+
+.in-game-start-night-button{
+    margin: 10px;
+    border-radius: 10px;
+    padding: 10px;
+    height: 50px;
+    width: 200px;
+    -webkit-appearance: none;
+    font-size: 20px;
+    color: #0084ff;
+    border-color: #bf00ff;
+    background-color:white;
+    font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

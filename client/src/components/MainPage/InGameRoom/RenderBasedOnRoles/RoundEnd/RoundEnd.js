@@ -4,9 +4,10 @@ import socketIOClient from 'socket.io-client'
 import serverUrl from '../../../../../serverUrl'
 import "./RoundEnd.css"
 
-let setUpTime = 120000, //120s,
+let setUpTime = 600, //10mins,
     chosenPlayer = "",
-    timer
+    timer,
+    round_end_target_bttn_id_arr = []
 
 let roundEndSocket, //round-end namespace
     getPlayerSocket 
@@ -36,6 +37,12 @@ export default class RoundEnd extends Component{
             this.setState({renderChosenExecutedPlayer: <p>Your Choice: <b>{chosenPlayer}</b></p>})
 
             document.getElementById("vote-hanged-button").style.display = "none"
+
+            round_end_target_bttn_id_arr.forEach(id => {
+                document.getElementById(id).disabled = true
+                document.getElementById(id).classList.remove('grayder-background')
+                document.getElementById(id).classList.add('grayder-background')
+            })
         }
     }
 
@@ -68,6 +75,7 @@ export default class RoundEnd extends Component{
         this._isMounted = true
 
         if(this._isMounted){
+            round_end_target_bttn_id_arr.length = 0
 
             // to display all the players that are from the room (every character must have)
             roundEndSocket = socketIOClient(serverUrl + 'round-end')
@@ -80,12 +88,16 @@ export default class RoundEnd extends Component{
             })
 
             getPlayerSocket.on('GetPlayers', data => {
+                round_end_target_bttn_id_arr.length = 0
+
                 this.setState({
                     renderPlayers: data.map((player, index) => {
                         
                         let id = "round_end_target_bttn_" + player,
                         roundEndPlayerId = "round_end_" + player
                         
+                        round_end_target_bttn_id_arr.push(id)
+
                         return(
                             <div key = {player} className="in-game-render-players-container-werewolve">
                                 {player === this.props.username ?
@@ -100,26 +112,21 @@ export default class RoundEnd extends Component{
                 })
             })
             
-            
-
-            let passedTime = new Date().getTime() - this.props.startTime
-            let actualTime = setUpTime - passedTime
-
 
             roundEndSocket.on('connect', () => {
                 roundEndSocket.emit('JoinRoom', this.props.roomid)
             })
 
             timer = setInterval(() => {
-                if(actualTime < 1){
+                if(setUpTime < 1){
                     this.setState({timerEnds: true})
                     clearInterval(timer)
                 }
                 else{
-                    actualTime -= 1000
+                    setUpTime -= 1
                     this.setState({renderUI: 
                         <>
-                        <p>Timer: {Math.floor(actualTime/1000)}</p>
+                        <p>Timer: {Math.floor(setUpTime/1000)}</p>
                         <button id="vote-hanged-button" className="vote-hanged-button" onClick={this.VotePlayer}>Vote</button>
                         </>
                     })
@@ -190,6 +197,8 @@ export default class RoundEnd extends Component{
     componentWillUnmount(){
         this._isMounted = false
         
+        round_end_target_bttn_id_arr.length = 0
+
         roundEndSocket.disconnect()
         getPlayerSocket.disconnect()
 
